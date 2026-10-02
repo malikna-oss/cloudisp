@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudISP - ISP Portal (Supabase Live)</title>
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+body{background:#0b0f19;color:#fff;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:250px;background:#0b0f19;border-right:1px solid #1f2937;display:flex;flex-direction:column;padding:20px 14px;justify-content:space-between;flex-shrink:0}
+.nav{list-style:none;display:flex;flex-direction:column;gap:6px}
+.nav li a{display:flex;gap:10px;padding:11px 12px;color:#9ca3af;text-decoration:none;border-radius:10px;font-size:14px;font-weight:500;border:1px solid transparent;cursor:pointer}
+.nav li.active a{background:#111827;color:#fff;border-color:#374151}
+.nav li a:hover{color:#fff;background:rgba(17,24,39,.5)}
+.main{flex:1;padding:24px;overflow-y:auto}
+.banner{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.stat{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:18px;cursor:pointer}
+.stat:hover{border-color:#2563eb}
+.stat .t{font-size:11px;color:#9ca3af;text-transform:uppercase;margin-bottom:8px}
+.stat .v{font-size:26px;font-weight:700}
+.card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px 8px;text-align:left;border-bottom:1px solid #1f2937;font-size:13px}
+th{color:#9ca3af}
+.btn{background:#2563eb;color:#fff;border:none;padding:9px 15px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-green{background:#059669}.btn-red{background:#dc2626}.btn-gray{background:#4b5563}.btn-sm{padding:6px 10px;font-size:11px;border-radius:7px}
+input,select,textarea{width:100%;padding:10px 12px;background:#0b0f19;border:1px solid #374151;border-radius:8px;color:#fff;font-size:13px}
+input:focus,select:focus{outline:none;border-color:#2563eb}
+label{font-size:12px;color:#9ca3af}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;padding:12px}
+.modal.active{display:flex}
+.box{background:#111827;border:1px solid #374151;border-radius:14px;padding:24px;width:600px;max-width:100%;max-height:92vh;overflow:auto}
+.page{display:none}.page.active{display:block}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input{flex:2;min-width:160px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+<div style="background:#2563eb;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px">☁️</div>
+<div><div style="font-weight:800" id="brand">CloudISP</div><div style="font-size:11px;color:#9ca3af">Supabase Live</div></div>
+</div>
+<ul class="nav" id="nav">
+<li class="active"><a onclick="go('dashboard',this)">📊 Dashboard</a></li>
+<li><a onclick="go('subs',this)">👥 ISPs List</a></li>
+</ul>
+</div>
+<button class="btn btn-red" style="width:100%" onclick="location.reload()">🔄 Refresh Data</button>
+</div>
+
+<div class="main">
+<!-- Dashboard Page -->
+<div class="page active" id="p-dashboard">
+<div class="banner">
+<div><h2>Live Dashboard</h2><p style="color:#9ca3af;font-size:12px">Connected to Supabase Database</p></div>
+<button class="btn btn-green" onclick="openM('addModal')">+ Add ISP</button>
+</div>
+<div class="grid">
+<div class="stat"><div class="t">Total Registered ISPs</div><div class="v" id="cTotal" style="color:#60a5fa">0</div></div>
+</div>
+<div class="card">
+<h3 style="color:#fbbf24;margin-bottom:10px">🏢 Quick ISPs View</h3>
+<table>
+<thead><tr><th>ID</th><th>Company Name</th><th>Owner Name</th><th>Mobile</th><th>City</th></tr></thead>
+<tbody id="dashBody"><tr><td colspan="5" style="text-align:center;color:#9ca3af">Loading from Supabase...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<!-- Subscribers / ISPs Page -->
+<div class="page" id="p-subs">
+<div class="banner">
+<div><h2>ISPs Management</h2><p style="color:#9ca3af;font-size:12px">Directly fetching and saving from Supabase database</p></div>
+<button class="btn btn-green" onclick="openM('addModal')">+ Add ISP</button>
+</div>
+<div class="card">
+<table>
+<thead><tr><th>ID</th><th>Company Name</th><th>Owner Name</th><th>Mobile</th><th>City</th><th>Address</th></tr></thead>
+<tbody id="subsBody"><tr><td colspan="6" style="text-align:center;color:#9ca3af">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Add ISP Modal -->
+<div id="addModal" class="modal">
+<div class="box" style="width:500px">
+<h3>➕ Add New ISP</h3><br>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><label>Company Name *</label><input id="nCompany"></div>
+<div><label>Owner Name *</label><input id="nOwner"></div>
+<div><label>Mobile Number *</label><input id="nMobile"></div>
+<div><label>City</label><input id="nCity"></div>
+<div><label>Address</label><input id="nAddress"></div>
+</div><br>
+<div style="display:flex;gap:8px">
+<button class="btn btn-gray" style="flex:1" onclick="closeM('addModal')">Cancel</button>
+<button class="btn btn-green" style="flex:2" onclick="saveISP()">Save to Supabase</button>
+</div>
+</div>
+</div>
+
+<script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://iiuzjtphgeqeimotwlrn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpdXpqdHBoZ2VxZWltb3R3bHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MzUwNDksImV4cCI6MjEwNjUxMTA0OX0.bEpyrRoJNOX_aP4iP-PERXG2MdvH5us542TAGve4Eec';
+
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let ispsData = [];
+
+function openM(id){ document.getElementById(id).classList.add('active'); }
+function closeM(id){ document.getElementById(id).classList.remove('active'); }
+
+function go(id, el){
+ document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+ document.getElementById('p-' + id).classList.add('active');
+ if(el){
+  document.querySelectorAll('#nav li').forEach(li => li.classList.remove('active'));
+  el.parentElement.classList.add('active');
+ }
+}
+
+// Fetch data from Supabase 'isps' table
+async function fetchISPs() {
+ try {
+  const { data, error } = await _supabase.from('isps').select('*').order('id', { ascending: true });
+  if(error) throw error;
+  
+  ispsData = data || [];
+  document.getElementById('cTotal').innerText = ispsData.length;
+  
+  let rows = '';
+  let dashRows = '';
+
+  if(ispsData.length === 0) {
+   rows = '<tr><td colspan="6" style="text-align:center;color:#9ca3af">No data found in Supabase</td></tr>';
+   dashRows = '<tr><td colspan="5" style="text-align:center;color:#9ca3af">No data found</td></tr>';
+  } else {
+   ispsData.forEach(isp => {
+    rows += `<tr style="border-bottom:1px solid #1f2937">
+     <td style="padding:10px">${isp.id}</td>
+     <td style="padding:10px;font-weight:600;color:#60a5fa">${isp.company}</td>
+     <td style="padding:10px">${isp.owner_name}</td>
+     <td style="padding:10px">${isp.mobile}</td>
+     <td style="padding:10px">${isp.city || '-'}</td>
+     <td style="padding:10px">${isp.address || '-'}</td>
+    </tr>`;
+
+    dashRows += `<tr style="border-bottom:1px solid #1f2937">
+     <td style="padding:10px">${isp.id}</td>
+     <td style="padding:10px;font-weight:600;color:#60a5fa">${isp.company}</td>
+     <td style="padding:10px">${isp.owner_name}</td>
+     <td style="padding:10px">${isp.mobile}</td>
+     <td style="padding:10px">${isp.city || '-'}</td>
+    </tr>`;
+   });
+  }
+
+  document.getElementById('subsBody').innerHTML = rows;
+  document.getElementById('dashBody').innerHTML = dashRows;
+
+ } catch(err) {
+  console.error('Error fetching data:', err.message);
+  alert('Supabase se data load karne mein masla aaya: ' + err.message);
+ }
+}
+
+// Save new ISP to Supabase database
+async function saveISP() {
+ const company = document.getElementById('nCompany').value.trim();
+ const owner_name = document.getElementById('nOwner').value.trim();
+ const mobile = document.getElementById('nMobile').value.tab ? '' : document.getElementById('nMobile').value.trim();
+ const city = document.getElementById('nCity').value.trim();
+ const address = document.getElementById('nAddress').value.trim();
+
+ if(!company || !owner_name || !mobile) {
+  alert('Company Name, Owner Name, aur Mobile number lazmi hain!');
+  return;
+ }
+
+try {
+  const { error } = await _supabase.from('isps').insert([{ company, owner_name, mobile, city, address }]);
+  if(error) throw error;
+
+  alert('ISP successfully Supabase mein save ho gaya! ✅');
+  closeM('addModal');
+  
+  // Clear form inputs
+  document.getElementById('nCompany').value = '';
+  document.getElementById('nOwner').value = '';
+  document.getElementById('nMobile').value = '';
+  document.getElementById('nCity').value = '';
+  document.getElementById('nAddress').value = '';
+
+  // Refresh data list
+  fetchISPs();
+
+ } catch(err) {
+  console.error('Error saving:', err.message);
+  alert('Save karne mein error aaya: ' + err.message);
+ }
+}
+
+// Load data on startup
+fetchISPs();
+</script>
+</body>
+</html>
