@@ -1,216 +1,1849 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CloudISP - ISP Portal (Supabase Live)</title>
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
-body{background:#0b0f19;color:#fff;display:flex;height:100vh;overflow:hidden}
-.sidebar{width:250px;background:#0b0f19;border-right:1px solid #1f2937;display:flex;flex-direction:column;padding:20px 14px;justify-content:space-between;flex-shrink:0}
-.nav{list-style:none;display:flex;flex-direction:column;gap:6px}
-.nav li a{display:flex;gap:10px;padding:11px 12px;color:#9ca3af;text-decoration:none;border-radius:10px;font-size:14px;font-weight:500;border:1px solid transparent;cursor:pointer}
-.nav li.active a{background:#111827;color:#fff;border-color:#374151}
-.nav li a:hover{color:#fff;background:rgba(17,24,39,.5)}
-.main{flex:1;padding:24px;overflow-y:auto}
-.banner{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-.stat{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:18px;cursor:pointer}
-.stat:hover{border-color:#2563eb}
-.stat .t{font-size:11px;color:#9ca3af;text-transform:uppercase;margin-bottom:8px}
-.stat .v{font-size:26px;font-weight:700}
-.card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px;margin-bottom:18px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px 8px;text-align:left;border-bottom:1px solid #1f2937;font-size:13px}
-th{color:#9ca3af}
-.btn{background:#2563eb;color:#fff;border:none;padding:9px 15px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600}
-.btn-green{background:#059669}.btn-red{background:#dc2626}.btn-gray{background:#4b5563}.btn-sm{padding:6px 10px;font-size:11px;border-radius:7px}
-input,select,textarea{width:100%;padding:10px 12px;background:#0b0f19;border:1px solid #374151;border-radius:8px;color:#fff;font-size:13px}
-input:focus,select:focus{outline:none;border-color:#2563eb}
-label{font-size:12px;color:#9ca3af}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;padding:12px}
-.modal.active{display:flex}
-.box{background:#111827;border:1px solid #374151;border-radius:14px;padding:24px;width:600px;max-width:100%;max-height:92vh;overflow:auto}
-.page{display:none}.page.active{display:block}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.toolbar input{flex:2;min-width:160px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>CloudISP - Pro Billing & Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 270px;
+            background-color: #0b0f19;
+            border-right: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 18px;
+            justify-content: space-between;
+        }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 35px;
+            padding-left: 6px;
+        }
+
+        .logo-icon {
+            background: #2563eb;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 20px;
+        }
+
+        .logo-text h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-links li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #9ca3af;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-links li.active a {
+            background-color: #111827;
+            color: #ffffff;
+            border: 1px solid #374151;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-links li a:hover:not(.active) {
+            color: #ffffff;
+            background-color: rgba(17, 24, 39, 0.4);
+        }
+
+        .sign-out-btn {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            text-decoration: none;
+            justify-content: center;
+        }
+
+        .sign-out-btn:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Top Header Navigation bar for Global Actions */
+        .top-global-header {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 270px;
+            height: 65px;
+            background-color: #0b0f19;
+            border-bottom: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 30px;
+            z-index: 10;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 95px 30px 30px 30px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .header-banner {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-banner h1 {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .header-banner p {
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { background-color: #1d4ed8; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+
+        .btn-success { background-color: #059669; }
+        .btn-success:hover { background-color: #047857; }
+
+        .btn-warning { background-color: #d97706; }
+        .btn-warning:hover { background-color: #b45309; }
+
+        /* Stat Cards Grid */
+        .grid-6 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stat-box:hover {
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .stat-box .stat-title {
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .stat-box .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid #1f2937;
+            font-size: 13px;
+        }
+
+        th {
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        /* Popup Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 30px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: #fbbf24;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover { color: white; }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background-color: #0b0f19;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-modal-list {
+            list-style: none;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .search-modal-item {
+            background: #0b0f19;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-modal-item:hover {
+            border-color: #2563eb;
+        }
+
+        .user-profile-view {
+            background-color: #f4f6f9;
+            color: #333333;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .invoice-view {
+            background: #ffffff;
+            color: #333333;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        /* Offline + Mobile responsive */
+        #offlineBar.show { display:block !important; }
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width:100%; flex-direction:row; align-items:center; padding:10px; border-right:none; border-bottom:1px solid #1f2937; }
+            .sidebar-top { flex-direction:row; align-items:center; width:100%; }
+            .logo-container { margin-bottom:0; }
+            .nav-links { flex-direction:row; overflow-x:auto; gap:6px; margin-left:10px; }
+            .nav-links li a { white-space:nowrap; padding:8px 10px; font-size:12px; }
+            .top-global-header { left:0; top:auto; position:relative; justify-content:space-between; padding:10px 15px; }
+            .main-content { padding:15px; }
+            .grid-6 { grid-template-columns:1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
+    <div id="offlineBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d97706;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;">⚠️ Offline Mode — Fees & Bill phone me save honge, net aate hi sync ho jayenge</div>
 
-<div class="sidebar">
-<div>
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-<div style="background:#2563eb;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px">☁️</div>
-<div><div style="font-weight:800" id="brand">CloudISP</div><div style="font-size:11px;color:#9ca3af">Supabase Live</div></div>
-</div>
-<ul class="nav" id="nav">
-<li class="active"><a onclick="go('dashboard',this)">📊 Dashboard</a></li>
-<li><a onclick="go('subs',this)">👥 ISPs List</a></li>
-</ul>
-</div>
-<button class="btn btn-red" style="width:100%" onclick="location.reload()">🔄 Refresh Data</button>
-</div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-top">
+            <div class="logo-container">
+                <div class="logo-icon">☁</div>
+                <div class="logo-text">
+                    <h2>CloudISP</h2>
+                    <p>Pro Billing System</p>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li class="active" onclick="switchTab('dashboard', this)">
+                    <a href="#">📊 Dashboard</a>
+                </li>
+                <li onclick="switchTab('subscribers', this)">
+                    <a href="#">👥 Subscribers</a>
+                </li>
+                <li onclick="switchTab('packages', this)">
+                    <a href="#">📦 Packages</a>
+                </li>
+                <li onclick="switchTab('payments', this)">
+                    <a href="#">💰 Payments</a>
+                </li>
+                <li onclick="switchTab('complaints', this)">
+                    <a href="#">🛠️ Complaints</a>
+                </li>
+                <li onclick="switchTab('areas', this)">
+                    <a href="#">📍 Areas</a>
+                </li>
+                <li onclick="switchTab('staff-ledger', this)">
+                    <a href="#">👤 Staff Ledger</a>
+                </li>
+                <li onclick="switchTab('whatsapp-billing', this)">
+                    <a href="#">💬 WhatsApp Billing</a>
+                </li>
+                <li onclick="switchTab('settings', this)">
+                    <a href="#">⚙️ Settings</a>
+                </li>
+                <li onclick="switchTab('superadmin', this)">
+                    <a href="#">👑 Super Admin</a>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <button class="sign-out-btn" onclick="alert('Signed out successfully!')">
+                🚪 Sign out
+            </button>
+        </div>
+    </div>
 
-<div class="main">
-<!-- Dashboard Page -->
-<div class="page active" id="p-dashboard">
-<div class="banner">
-<div><h2>Live Dashboard</h2><p style="color:#9ca3af;font-size:12px">Connected to Supabase Database</p></div>
-<button class="btn btn-green" onclick="openM('addModal')">+ Add ISP</button>
-</div>
-<div class="grid">
-<div class="stat"><div class="t">Total Registered ISPs</div><div class="v" id="cTotal" style="color:#60a5fa">0</div></div>
-</div>
-<div class="card">
-<h3 style="color:#fbbf24;margin-bottom:10px">🏢 Quick ISPs View</h3>
-<table>
-<thead><tr><th>ID</th><th>Company Name</th><th>Owner Name</th><th>Mobile</th><th>City</th></tr></thead>
-<tbody id="dashBody"><tr><td colspan="5" style="text-align:center;color:#9ca3af">Loading from Supabase...</td></tr></tbody>
-</table>
-</div>
-</div>
+    <!-- Top Global Header Bar with Add Subscriber Button on Top -->
+    <div class="top-global-header">
+        <button class="btn-primary btn-success" onclick="openAddSubscriberModal()">+ Add Subscriber</button>
+    </div>
 
-<!-- Subscribers / ISPs Page -->
-<div class="page" id="p-subs">
-<div class="banner">
-<div><h2>ISPs Management</h2><p style="color:#9ca3af;font-size:12px">Directly fetching and saving from Supabase database</p></div>
-<button class="btn btn-green" onclick="openM('addModal')">+ Add ISP</button>
-</div>
-<div class="card">
-<table>
-<thead><tr><th>ID</th><th>Company Name</th><th>Owner Name</th><th>Mobile</th><th>City</th><th>Address</th></tr></thead>
-<tbody id="subsBody"><tr><td colspan="6" style="text-align:center;color:#9ca3af">Loading...</td></tr></tbody>
-</table>
-</div>
-</div>
-</div>
+    <!-- 1. Dashboard Section -->
+    <div id="dashboard" class="main-content active">
+        <div class="header-banner">
+            <div>
+                <h1>Advanced Subscriber Management</h1>
+                <p>Complete client details, GPS mapping & WhatsApp billing overview</p>
+            </div>
+        </div>
+        
+        <div class="grid-6">
+            <div class="stat-box" onclick="openCardModal('total')">
+                <div class="stat-title">Total Subscribers <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #ffffff;" id="countTotal">2</div>
+            </div>
+            <div class="stat-box" onclick="openCardModal('active')">
+                <div class="stat-title">Active Connections <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #34d399;" id="countActive">1</div>
+            </div>
+            <div class="stat-box" onclick="openCardModal('revenue')">
+                <div class="stat-title">Monthly Revenue <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #60a5fa;" id="valRevenue">Rs 1,500</div>
+            </div>
+            <div class="stat-box" onclick="openCardModal('paid')">
+                <div class="stat-title">Paid Users <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #34d399;" id="countPaid">1</div>
+            </div>
+            <div class="stat-box" onclick="openCardModal('unpaid')">
+                <div class="stat-title">Unpaid / Expired <span style="font-size:9px; color:#f87171; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #f87171;" id="countUnpaid">1</div>
+            </div>
+            <div class="stat-box" onclick="openDashboardStaffHistory()">
+                <div class="stat-title">Staff Members <span style="font-size:9px; color:#fbbf24; float:right;">(Click 📜)</span></div>
+                <div class="stat-value" style="color: #fbbf24;" id="totalStaffCount">1</div>
+            </div>
+        </div>
+    </div>
 
-<!-- Add ISP Modal -->
-<div id="addModal" class="modal">
-<div class="box" style="width:500px">
-<h3>➕ Add New ISP</h3><br>
-<div style="display:flex;flex-direction:column;gap:10px">
-<div><label>Company Name *</label><input id="nCompany"></div>
-<div><label>Owner Name *</label><input id="nOwner"></div>
-<div><label>Mobile Number *</label><input id="nMobile"></div>
-<div><label>City</label><input id="nCity"></div>
-<div><label>Address</label><input id="nAddress"></div>
-</div><br>
-<div style="display:flex;gap:8px">
-<button class="btn btn-gray" style="flex:1" onclick="closeM('addModal')">Cancel</button>
-<button class="btn btn-green" style="flex:2" onclick="saveISP()">Save to Supabase</button>
-</div>
-</div>
-</div>
+    <!-- 2. Subscribers Section -->
+    <div id="subscribers" class="main-content">
+        <div class="header-banner">
+            <div>
+                <h1>Subscribers Management</h1>
+                <p>Manage all internet connections and package renewals</p>
+            </div>
+        </div>
 
-<script>
-// Supabase Configuration
-const SUPABASE_URL = 'https://iiuzjtphgeqeimotwlrn.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpdXpqdHBoZ2VxZWltb3R3bHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MzUwNDksImV4cCI6MjEwNjUxMTA0OX0.bEpyrRoJNOX_aP4iP-PERXG2MdvH5us542TAGve4Eec';
+        <div class="card">
+            <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
+                <input type="text" id="subSearch" placeholder="🔍 Search name / mobile / package..." onkeyup="renderSubscribersTable()" style="flex:2;min-width:200px;">
+                <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select>
+                <select id="subFilterArea" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Areas</option></select>
+            </div>
+            <h3 style="margin-bottom: 15px; color: #fbbf24;">📋 Subscribers Directory</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name & Username</th>
+                        <th>Package & Fee</th>
+                        <th>Mobile</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subscribersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-const { createClient } = supabase;
-const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- 3. Dedicated Staff Ledger Section -->
+    <div id="staff-ledger" class="main-content">
+        <div class="header-banner">
+            <div>
+                <h1>Staff Ledger & Salary Management</h1>
+                <p>Track employee advances, date-wise leave deductions, and WhatsApp salary notifications</p>
+            </div>
+            <button class="btn-primary" onclick="openStaffModal()">+ Add Staff</button>
+        </div>
 
-let ispsData = [];
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #fbbf24;">📋 Current Month Salary Ledger</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name & Role</th>
+                        <th>Base Salary</th>
+                        <th>Total Advance</th>
+                        <th>Leaves</th>
+                        <th>Remaining Salary</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-function openM(id){ document.getElementById(id).classList.add('active'); }
-function closeM(id){ document.getElementById(id).classList.remove('active'); }
 
-function go(id, el){
- document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
- document.getElementById('p-' + id).classList.add('active');
- if(el){
-  document.querySelectorAll('#nav li').forEach(li => li.classList.remove('active'));
-  el.parentElement.classList.add('active');
- }
-}
+    <!-- Packages Section -->
+    <div id="packages" class="main-content">
+        <div class="header-banner"><div><h1>📦 Packages Management</h1><p>Create packages, set monthly rates</p></div><button class="btn-primary" onclick="openPackageModal()">+ Add Package</button></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">📦 All Packages</h3><table><thead><tr><th>Package Name</th><th>Speed</th><th>Monthly Fee</th><th>Actions</th></tr></thead><tbody id="packagesTableBody"></tbody></table></div>
+    </div>
 
-// Fetch data from Supabase 'isps' table
-async function fetchISPs() {
- try {
-  const { data, error } = await _supabase.from('isps').select('*').order('id', { ascending: true });
-  if(error) throw error;
-  
-  ispsData = data || [];
-  document.getElementById('cTotal').innerText = ispsData.length;
-  
-  let rows = '';
-  let dashRows = '';
+    <!-- Payments Section -->
+    <div id="payments" class="main-content">
+        <div class="header-banner"><div><h1>💰 Payments & Recovery</h1><p>Who paid, when, how much — full history</p></div></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">💰 Payment History</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Package</th><th>Amount</th><th>Via</th></tr></thead><tbody id="paymentsTableBody"></tbody></table></div>
+    </div>
 
-  if(ispsData.length === 0) {
-   rows = '<tr><td colspan="6" style="text-align:center;color:#9ca3af">No data found in Supabase</td></tr>';
-   dashRows = '<tr><td colspan="5" style="text-align:center;color:#9ca3af">No data found</td></tr>';
-  } else {
-   ispsData.forEach(isp => {
-    rows += `<tr style="border-bottom:1px solid #1f2937">
-     <td style="padding:10px">${isp.id}</td>
-     <td style="padding:10px;font-weight:600;color:#60a5fa">${isp.company}</td>
-     <td style="padding:10px">${isp.owner_name}</td>
-     <td style="padding:10px">${isp.mobile}</td>
-     <td style="padding:10px">${isp.city || '-'}</td>
-     <td style="padding:10px">${isp.address || '-'}</td>
-    </tr>`;
+    <!-- Complaints Section -->
+    <div id="complaints" class="main-content">
+        <div class="header-banner"><div><h1>🛠️ Complaints Management</h1><p>Customer complaints — pending / resolved</p></div><button class="btn-primary" onclick="openComplaintModal()">+ New Complaint</button></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">🛠️ All Complaints</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Issue</th><th>Status</th><th>Actions</th></tr></thead><tbody id="complaintsTableBody"></tbody></table></div>
+    </div>
 
-    dashRows += `<tr style="border-bottom:1px solid #1f2937">
-     <td style="padding:10px">${isp.id}</td>
-     <td style="padding:10px;font-weight:600;color:#60a5fa">${isp.company}</td>
-     <td style="padding:10px">${isp.owner_name}</td>
-     <td style="padding:10px">${isp.mobile}</td>
-     <td style="padding:10px">${isp.city || '-'}</td>
-    </tr>`;
-   });
-  }
+    <!-- Areas Section -->
+    <div id="areas" class="main-content">
+        <div class="header-banner"><div><h1>📍 Areas / Zones</h1><p>Manage coverage areas</p></div><button class="btn-primary" onclick="addArea()">+ Add Area</button></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">📍 Coverage Areas</h3><table><thead><tr><th>Area Name</th><th>Total Users</th><th>Actions</th></tr></thead><tbody id="areasTableBody"></tbody></table></div>
+    </div>
 
-  document.getElementById('subsBody').innerHTML = rows;
-  document.getElementById('dashBody').innerHTML = dashRows;
+    <!-- Settings Section -->
+    <div id="settings" class="main-content">
+        <div class="header-banner"><div><h1>⚙️ Company Settings</h1><p>Your ISP name, phone, logo — invoice par yehi aayega</p></div></div>
+        <div class="card" style="max-width:600px;">
+            <div class="form-group"><label>Company Name</label><input type="text" id="setCompany" value="DEMO ISP"></div>
+            <div class="form-group"><label>Support Number</label><input type="text" id="setPhone" value="0300-8816822"></div>
+            <div class="form-group"><label>Collected By Name</label><input type="text" id="setCollector" value="ADMIN DEMO"></div>
+            <button class="btn-primary btn-success" onclick="saveSettings()">💾 Save Settings</button>
+        </div>
+    </div>
 
- } catch(err) {
-  console.error('Error fetching data:', err.message);
-  alert('Supabase se data load karne mein masla aaya: ' + err.message);
- }
-}
+    <!-- Super Admin Section -->
+    <div id="superadmin" class="main-content">
+        <div class="header-banner"><div><h1>👑 Super Admin — Rent Panel (Demo)</h1><p>Multiple ISPs — add, block, rent status</p></div><button class="btn-primary" onclick="addISP()">+ Add ISP</button></div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
+                <h3 style="color:#fbbf24;">👑 All ISP Clients — Sirf Count (Detail Hidden)</h3>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <select id="excelIspSelect" style="min-width:150px;"></select>
+                    <button class="btn-primary btn-sm" onclick="downloadTemplate()">📥 Template</button>
+                    <label class="btn-primary btn-sm btn-success" style="cursor:pointer;">📤 Excel/CSV Import<input type="file" id="excelFile" accept=".csv,.xlsx,.xls" style="display:none;" onchange="importExcel(event)"></label>
+                </div>
+            </div><table><thead><tr><th>ISP / Owner + Number</th><th>Address/City</th><th>Password</th><th>Rent Status</th><th>Actions</th></tr></thead><tbody id="ispsTableBody"></tbody></table></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><h3 style="color:#fbbf24;">👷 Staff (Super Admin adds in ISP Panel)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Staff</button></div><table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="allStaffTableBody"></tbody></table></div>
+    </div>
 
-// Save new ISP to Supabase database
-async function saveISP() {
- const company = document.getElementById('nCompany').value.trim();
- const owner_name = document.getElementById('nOwner').value.trim();
- const mobile = document.getElementById('nMobile').value.tab ? '' : document.getElementById('nMobile').value.trim();
- const city = document.getElementById('nCity').value.trim();
- const address = document.getElementById('nAddress').value.trim();
+    <!-- 4. WhatsApp Billing Section -->
+    <div id="whatsapp-billing" class="main-content">
+        <div class="header-banner">
+            <div>
+                <h1>WhatsApp & SMS Billing Gateway</h1>
+                <p>Automated payment reminders and salary slip dispatches</p>
+            </div>
+        </div>
+    </div>
 
- if(!company || !owner_name || !mobile) {
-  alert('Company Name, Owner Name, aur Mobile number lazmi hain!');
-  return;
- }
+    <!-- Interactive Card Detail & Search Modal -->
+    <div id="cardModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="cardModalTitle">📋 List Details</h3>
+                <button class="close-btn" onclick="closeCardModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <input type="text" id="modalSearchInput" placeholder="🔍 Search by name..." onkeyup="filterCardList()">
+            </div>
+            <ul id="cardModalList" class="search-modal-list">
+                <!-- Dynamic List items -->
+            </ul>
+        </div>
+    </div>
 
-try {
-  const { error } = await _supabase.from('isps').insert([{ company, owner_name, mobile, city, address }]);
-  if(error) throw error;
+    <!-- User Detail Profile Modal with Location Button -->
+    <div id="userProfileModal" class="modal-overlay">
+        <div class="modal-box" style="width: 480px; padding: 15px;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+                <button class="close-btn" onclick="closeUserProfileModal()">&times;</button>
+            </div>
+            <div id="userProfileContent"></div>
+        </div>
+    </div>
 
-  alert('ISP successfully Supabase mein save ho gaya! ✅');
-  closeM('addModal');
-  
-  // Clear form inputs
-  document.getElementById('nCompany').value = '';
-  document.getElementById('nOwner').value = '';
-  document.getElementById('nMobile').value = '';
-  document.getElementById('nCity').value = '';
-  document.getElementById('nAddress').value = '';
+    <!-- Invoice / Bill View Modal -->
+    <div id="invoiceModal" class="modal-overlay">
+        <div class="modal-box" style="width: 480px; padding: 15px;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+                <button class="close-btn" onclick="closeInvoiceModal()">&times;</button>
+            </div>
+            <div id="invoiceContent"></div>
+        </div>
+    </div>
 
-  // Refresh data list
-  fetchISPs();
+    <!-- Add Subscriber Modal (Updated with 2-Column layout and all requested fields) -->
+    <div id="addSubscriberModal" class="modal-overlay">
+        <div class="modal-box" style="width: 750px; max-width: 95%;">
+            <div class="modal-header">
+                <h3>➕ Add New Subscriber</h3>
+                <button class="close-btn" onclick="closeAddSubscriberModal()">&times;</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="subName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="subUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Package Name *</label>
+                    <input type="text" id="subPackage" placeholder="e.g. 15 Mbps">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Fee (Rs) *</label>
+                    <input type="number" id="subFee" placeholder="e.g. 2000">
+                </div>
+                <div class="form-group">
+                    <label>Installation Charges (Rs)</label>
+                    <input type="number" id="subInstallCharges" placeholder="e.g. 1000">
+                </div>
+                <div class="form-group">
+                    <label>Previous Balance (Rs)</label>
+                    <input type="number" id="subPrevBalance" placeholder="e.g. 0">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number *</label>
+                    <input type="text" id="subPhone" placeholder="e.g. 923001234567">
+                </div>
+                <div class="form-group">
+                    <label>CNIC Number</label>
+                    <input type="text" id="subCnic" placeholder="35202-1234567-1">
+                </div>
+                <div class="form-group">
+                    <label>Connection Type</label>
+                    <select id="subConnectionType">
+                        <option value="Fiber Internet" style="background:#1f2937;">Fiber Internet</option>
+                        <option value="Wireless" style="background:#1f2937;">Wireless</option>
+                        <option value="DSL" style="background:#1f2937;">DSL</option>
+                        <option value="PPPoE" style="background:#1f2937;">PPPoE</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="subDueDate">
+                </div>
+                <div class="form-group">
+                    <label>Area</label>
+                    <input type="text" id="subArea" placeholder="e.g. Gulberg">
+                </div>
+                <div class="form-group">
+                    <label>Address / GPS Link</label>
+                    <input type="text" id="subGps" placeholder="https://maps.google.com/?q=...">
+                </div>
+            </div>
 
- } catch(err) {
-  console.error('Error saving:', err.message);
-  alert('Save karne mein error aaya: ' + err.message);
- }
-}
+            <div class="form-group" style="margin-top: 5px;">
+                <label>Customer Complete Address</label>
+                <input type="text" id="subFullAddress" placeholder="House #, Street #, Landmark">
+            </div>
 
-// Load data on startup
-fetchISPs();
-</script>
-</body>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Remarks (if any)</label>
+                <textarea id="subRemarks" placeholder="Any special note about client..." style="height: 60px; resize: none;"></textarea>
+            </div>
+
+            <button class="btn-primary btn-success" style="width: 100%; justify-content: center;" onclick="saveNewSubscriber()">Save Subscriber Profile</button>
+        </div>
+    </div>
+
+
+    <!-- Edit Subscriber Modal (View & Edit Profile) -->
+    <div id="editSubscriberModal" class="modal-overlay">
+        <div class="modal-box" style="width: 750px; max-width: 95%;">
+            <div class="modal-header">
+                <h3>✏️ Edit Subscriber Profile</h3>
+                <button class="close-btn" onclick="closeEditSubscriberModal()">&times;</button>
+            </div>
+            <input type="hidden" id="editSubId">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="editSubName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="editSubUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Package Name *</label>
+                    <input type="text" id="editSubPackage" placeholder="e.g. 15 Mbps">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Fee (Rs) *</label>
+                    <input type="number" id="editSubFee" placeholder="e.g. 2000">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editSubStatus">
+                        <option value="Paid" style="background:#1f2937;">Paid / Active</option>
+                        <option value="Unpaid" style="background:#1f2937;">Unpaid / Expired</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Balance (Rs)</label>
+                    <input type="number" id="editSubBalance" placeholder="e.g. 0">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number *</label>
+                    <input type="text" id="editSubPhone" placeholder="e.g. 923001234567">
+                </div>
+                <div class="form-group">
+                    <label>CNIC Number</label>
+                    <input type="text" id="editSubCnic" placeholder="35202-1234567-1">
+                </div>
+                <div class="form-group">
+                    <label>Connection Type</label>
+                    <select id="editSubConnectionType">
+                        <option value="Fiber Internet" style="background:#1f2937;">Fiber Internet</option>
+                        <option value="Wireless" style="background:#1f2937;">Wireless</option>
+                        <option value="DSL" style="background:#1f2937;">DSL</option>
+                        <option value="PPPoE" style="background:#1f2937;">PPPoE</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="text" id="editSubDueDate" placeholder="e.g. 30 ya 2026-10-15">
+                </div>
+                <div class="form-group">
+                    <label>Area</label>
+                    <input type="text" id="editSubArea" placeholder="e.g. Gulberg">
+                </div>
+                <div class="form-group">
+                    <label>Sub-Area</label>
+                    <input type="text" id="editSubSubArea" placeholder="e.g. Block A">
+                </div>
+                <div class="form-group">
+                    <label>Address / GPS Link</label>
+                    <input type="text" id="editSubGps" placeholder="https://maps.google.com/?q=...">
+                </div>
+                <div class="form-group">
+                    <label>Connection Date</label>
+                    <input type="text" id="editSubConnectionDate" placeholder="e.g. 18/02/2026">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 5px;">
+                <label>Customer Complete Address</label>
+                <input type="text" id="editSubFullAddress" placeholder="House #, Street #, Landmark">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Remarks</label>
+                <textarea id="editSubRemarks" placeholder="Any special note..." style="height: 60px; resize: none;"></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" style="flex:1; justify-content:center; background:#4b5563;" onclick="closeEditSubscriberModal()">Cancel</button>
+                <button class="btn-primary btn-success" style="flex:2; justify-content: center;" onclick="saveEditedSubscriber()">💾 Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SuperAdmin: Add ISP Modal (Name+Number+Address+Password) -->
+    <div id="ispCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👑 Add ISP (Owner Panel)</h3><button class="close-btn" onclick="document.getElementById('ispCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="newIspCompany" placeholder="e.g. Ali Net"></div><div class="form-group"><label>Owner Name *</label><input id="newIspOwner" placeholder="e.g. Ali Ahmed"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newIspMobile" placeholder="e.g. 03001112222"></div><div class="form-group"><label>Password Bana Kar Den *</label><input id="newIspPass" placeholder="e.g. isp123"></div><div class="form-group"><label>City</label><input id="newIspCity" placeholder="Lahore"></div><div class="form-group"><label>Address</label><input id="newIspAddr" placeholder="Shop #, Road"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveNewISP()">Save ISP</button></div></div>
+
+    <!-- SuperAdmin/ISP: Add Staff Modal with Permissions -->
+    <div id="staffCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👷 Add Staff + Permissions</h3><button class="close-btn" onclick="document.getElementById('staffCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff Name *</label><input id="newStaffName" placeholder="Staff name"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newStaffMobile" placeholder="e.g. 03003334444"></div><div class="form-group"><label>Password *</label><input id="newStaffPass" placeholder="e.g. staff123"></div><div class="form-group"><label>ISP Select Karen</label><select id="newStaffIsp"></select></div></div><div class="form-group"><label>Permissions (ISP staff ko kya de sakta hai):</label><div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;background:#0b0f19;padding:10px;border-radius:8px;"><label><input type="checkbox" id="permAdd" checked style="width:auto;"> ➕ Add User</label><label><input type="checkbox" id="permEdit" checked style="width:auto;"> ✏️ Edit User</label><label><input type="checkbox" id="permCollect" checked style="width:auto;"> 💰 Collect Fee</label><label><input type="checkbox" id="permDelete" style="width:auto;"> 🗑️ Delete</label></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveNewStaff()">Save Staff</button></div></div>
+
+    <!-- Package Modal -->
+    <div id="packageModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>📦 Add Package</h3><button class="close-btn" onclick="document.getElementById('packageModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Package Name</label><input id="pkgName" placeholder="e.g. 15 Mbps Fiber"></div><div class="form-group"><label>Speed</label><input id="pkgSpeed" placeholder="e.g. 15 Mbps"></div><div class="form-group"><label>Monthly Fee (Rs)</label><input type="number" id="pkgFee" placeholder="e.g. 2000"></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="savePackage()">Save Package</button></div></div>
+
+    <!-- Complaint Modal -->
+    <div id="complaintModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🛠️ New Complaint</h3><button class="close-btn" onclick="document.getElementById('complaintModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Customer</label><select id="compCustomer"></select></div><div class="form-group"><label>Issue</label><textarea id="compIssue" placeholder="e.g. Internet not working..."></textarea></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveComplaint()">Save Complaint</button></div></div>
+
+    <!-- Login Screen - Number se login -->
+    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><h2 style="margin-bottom:5px;">☁️ CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login</p><p style="color:#60a5fa;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">Demo:<br>Owner: 03000000000 / owner123<br>ISP: 03001112222 / isp123<br>Staff: 03003334444 / staff123</p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
+
+    <!-- Add Staff Modal -->
+    <div id="staffModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>➕ Add New Staff Member</h3>
+                <button class="close-btn" onclick="closeStaffModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="staffName" placeholder="Enter full name">
+            </div>
+            <div class="form-group">
+                <label>Role / Designation</label>
+                <input type="text" id="staffRole" placeholder="e.g. Technician">
+            </div>
+            <div class="form-group">
+                <label>Monthly Base Salary (Rs)</label>
+                <input type="number" id="staffSalary" placeholder="e.g. 30000">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp Number</label>
+                <input type="text" id="staffPhone" placeholder="e.g. 923001234567">
+            </div>
+            <button class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="addStaff()">Save Staff Profile</button>
+        </div>
+    </div>
+
+    <!-- Add Advance Modal -->
+    <div id="advanceModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>💵 Record Advance / Cash</h3>
+                <button class="close-btn" onclick="closeAdvanceModal()">&times;</button>
+            </div>
+            <input type="hidden" id="advanceStaffIndex">
+            <div class="form-group">
+                <label>Amount (Rs)</label>
+                <input type="number" id="advAmount" placeholder="e.g. 3000">
+            </div>
+            <div class="form-group">
+                <label>Remarks / Reason</label>
+                <input type="text" id="advReason" placeholder="e.g. Emergency cash">
+            </div>
+            <button class="btn-primary btn-success" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveAdvance()">Save & Send WhatsApp Alert</button>
+        </div>
+    </div>
+
+    <!-- Leave Modal -->
+    <div id="leaveModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>📅 Add Leave Record</h3>
+                <button class="close-btn" onclick="closeLeaveModal()">&times;</button>
+            </div>
+            <input type="hidden" id="leaveStaffIndex">
+            <div class="form-group">
+                <label>Leave Date</label>
+                <input type="date" id="leaveDate">
+            </div>
+            <div class="form-group">
+                <label>Reason / Remarks</label>
+                <input type="text" id="leaveReason" placeholder="e.g. Personal work">
+            </div>
+            <button class="btn-primary btn-warning" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveLeave()">Save & Send WhatsApp Alert</button>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-box" style="width: 650px;">
+            <div class="modal-header">
+                <h3 id="historyTitle">📜 Complete History Details</h3>
+                <button class="close-btn" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div id="historyContent" style="max-height: 400px; overflow-y: auto;">
+                <!-- Dynamic History List -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.main-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-links li').forEach(li => {
+                li.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            element.parentElement.classList.add('active');
+            
+            if(tabId === 'subscribers') {
+                renderSubscribersTable();
+            }
+            if(tabId === 'packages') { renderPackages(); }
+            if(tabId === 'payments') { renderPayments(); }
+            if(tabId === 'complaints') { renderComplaints(); }
+            if(tabId === 'areas') { renderAreas(); }
+            if(tabId === 'superadmin') { renderISPs(); }
+        }
+
+        let subscribersList = [
+            { 
+                id: 1, 
+                name: "Ali Ahmed", 
+                isp: "Ali Net",
+                username: "aliahmed",
+                package: "10 Mbps", 
+                fee: 1500,
+                installCharges: 0,
+                balance: 0,
+                phone: "923001112233", 
+                status: "Paid", 
+                type: "active",
+                address: "House #12, Street 3, Main Market Lahore",
+                area: "Gulberg",
+                subArea: "Block A",
+                cnic: "35202-1234567-1",
+                dueDate: "30",
+                connectionDate: "18/02/2026",
+                connectionType: "Fiber Internet",
+                gpsLocation: "https://maps.google.com/?q=31.5204,74.3587",
+                remarks: "Verified connection"
+            },
+            { 
+                id: 2, 
+                name: "Usman Khan", 
+                isp: "Ali Net",
+                username: "usmankhan",
+                package: "20 Mbps", 
+                fee: 2500,
+                installCharges: 0,
+                balance: 500,
+                phone: "923004445566", 
+                status: "Unpaid", 
+                type: "unpaid",
+                address: "Office #4, Plaza Liberty Chowk Lahore",
+                area: "Liberty",
+                subArea: "Commercial",
+                cnic: "35201-9876543-2",
+                dueDate: "15",
+                connectionDate: "10/06/2025",
+                connectionType: "Fiber Internet",
+                gpsLocation: "https://maps.google.com/?q=31.5100,74.3400",
+                remarks: "Commercial client"
+            }
+        ];
+
+        let staffList = [
+            { 
+                name: "Naeem", 
+                role: "Technician", 
+                salary: 30000, 
+                phone: "923001234567",
+                leaves: [{ date: "2026-10-01", reason: "Emergency work" }], 
+                advances: [{ amount: 5000, reason: "Emergency cash", date: "2026-10-01" }] 
+            }
+        ];
+
+        function calculateLedger() {
+            const now = new Date();
+            const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            
+            const tbody = document.getElementById('staffTableBody');
+            tbody.innerHTML = '';
+
+            document.getElementById('totalStaffCount').innerText = staffList.length;
+
+            staffList.forEach((staff, index) => {
+                const perDaySalary = staff.salary / totalDaysInMonth;
+                const totalLeaveDays = staff.leaves.length;
+                const leaveDeduction = perDaySalary * totalLeaveDays;
+                
+                let totalAdvance = staff.advances.reduce((sum, item) => sum + item.amount, 0);
+                const remainingSalary = staff.salary - totalAdvance - leaveDeduction;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${staff.name}</strong><br><span style="color:#9ca3af; font-size:11px;">${staff.role}</span></td>
+                    <td>Rs ${staff.salary.toLocaleString()}</td>
+                    <td><span style="color:#f87171;">Rs ${totalAdvance.toLocaleString()}</span></td>
+                    <td>${totalLeaveDays} Days</td>
+                    <td style="font-weight: bold; color: #34d399;">Rs ${Math.round(remainingSalary).toLocaleString()}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-primary btn-sm btn-success" onclick="openAdvanceModal(${index})">+ Adv</button>
+                            <button class="btn-primary btn-sm btn-warning" onclick="openLeaveModal(${index})">Leave</button>
+                            <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="viewHistory(${index})">History</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('countTotal').innerText = subscribersList.length;
+            const activeCount = subscribersList.filter(s => s.status === 'Paid').length;
+            document.getElementById('countActive').innerText = activeCount;
+            document.getElementById('countPaid').innerText = activeCount;
+            const unpaidCount = subscribersList.filter(s => s.status === 'Unpaid').length;
+            document.getElementById('countUnpaid').innerText = unpaidCount;
+            
+            let totalRev = subscribersList.filter(s => s.status === 'Paid').reduce((acc, curr) => acc + curr.fee, 0);
+            document.getElementById('valRevenue').innerText = 'Rs ' + totalRev.toLocaleString();
+        }
+
+        function renderSubscribersTable() {
+            const tbody = document.getElementById('subscribersTableBody');
+            tbody.innerHTML = '';
+            const q = (document.getElementById('subSearch') ? document.getElementById('subSearch').value.toLowerCase() : '');
+            const fs = document.getElementById('subFilterStatus') ? document.getElementById('subFilterStatus').value : '';
+            const fa = document.getElementById('subFilterArea') ? document.getElementById('subFilterArea').value : '';
+            // fill area filter once
+            const areaSel = document.getElementById('subFilterArea');
+            if(areaSel && areaSel.options.length <= 1) {
+                const areas = [...new Set(subscribersList.map(s=>s.area))];
+                areas.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; areaSel.appendChild(o); });
+            }
+            let list = subscribersList.filter(s => {
+                const matchQ = !q || (s.name.toLowerCase().includes(q) || s.phone.includes(q) || s.package.toLowerCase().includes(q));
+                const matchS = !fs || s.status===fs;
+                const matchA = !fa || s.area===fa;
+                return matchQ && matchS && matchA;
+            });
+            if(list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#9ca3af;">No subscribers found.</td></tr>`;
+                return;
+            }
+            list.forEach(sub => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${sub.name}</strong><br><span style="color:#9ca3af; font-size:11px;">@${sub.username}</span></td>
+                    <td>${sub.package}<br><span style="color:#60a5fa; font-size:11px;">Rs ${sub.fee}</span></td>
+                    <td>${sub.phone}</td>
+                    <td><span style="color:${sub.status === 'Paid' ? '#34d399' : '#f87171'}; font-weight:bold;">${sub.status}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-primary btn-sm" onclick="openUserProfileModal(${sub.id})">View Profile</button>
+                            <button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal(${sub.id})">✏️ Edit</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        let currentCardType = '';
+
+        function openCardModal(type) {
+            currentCardType = type;
+            const titleMap = {
+                'total': '📋 Total Subscribers List',
+                'active': '🟢 Active Connections List',
+                'revenue': '💰 Monthly Revenue Transactions',
+                'paid': '✅ Paid Users List',
+                'unpaid': '❌ Unpaid / Expired Users List'
+            };
+            document.getElementById('cardModalTitle').innerText = titleMap[type] || 'List Details';
+            document.getElementById('modalSearchInput').value = '';
+            renderCardList(subscribersList);
+            document.getElementById('cardModal').classList.add('active');
+        }
+
+        function closeCardModal() {
+            document.getElementById('cardModal').classList.remove('active');
+        }
+
+        function renderCardList(data) {
+            const listEl = document.getElementById('cardModalList');
+            listEl.innerHTML = '';
+
+            let filtered = data;
+            if (currentCardType === 'active') {
+                filtered = data.filter(s => s.status === 'Paid');
+            } else if (currentCardType === 'paid') {
+                filtered = data.filter(s => s.status === 'Paid');
+            } else if (currentCardType === 'unpaid') {
+                filtered = data.filter(s => s.status === 'Unpaid');
+            } else if (currentCardType === 'revenue') {
+                filtered = data.filter(s => s.status === 'Paid');
+            }
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<li style="text-align:center; color:#9ca3af; padding:15px;">No records found.</li>`;
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = 'search-modal-item';
+                
+                li.innerHTML = `
+                    <div style="font-weight:bold; font-size:14px; color:#ffffff; display:flex; justify-content:space-between; align-items:center;">
+                        <span>👤 ${item.name} (${item.package})</span>
+                        <span style="font-size:11px; color:#60a5fa;">View Profile ➔</span>
+                    </div>
+                    <div style="font-size:12px; color:#9ca3af; margin-top:4px;">
+                        Phone: ${item.phone} | Status: <span style="color:${item.status === 'Paid' ? '#34d399' : '#f87171'}">${item.status}</span>
+                    </div>
+                `;
+
+                li.onclick = function() {
+                    openUserProfileModal(item.id);
+                };
+
+                listEl.appendChild(li);
+            });
+        }
+
+        function filterCardList() {
+            const query = document.getElementById('modalSearchInput').value.toLowerCase();
+            const filtered = subscribersList.filter(s => s.name.toLowerCase().includes(query));
+            renderCardList(filtered);
+        }
+
+        // --- USER DETAIL PROFILE MODAL WITH LOCATION BUTTON ---
+        function openUserProfileModal(id) {
+            const sub = subscribersList.find(s => s.id === id);
+            if(!sub) return;
+
+            closeCardModal();
+
+            const container = document.getElementById('userProfileContent');
+            container.innerHTML = `
+                <div class="user-profile-view">
+                    <!-- Top Avatar & Refresh Header -->
+                    <div style="background: linear-gradient(135deg, #2193b0, #6dd5ed); padding: 20px; border-radius: 10px; text-align: center; position: relative; color: white;">
+                        <button onclick="alert('Screen Refreshed!')" style="position: absolute; top: 10px; right: 10px; background: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer;">
+                            🔄 Refresh
+                        </button>
+                        <div style="width: 70px; height: 70px; background: #e0e0e0; border-radius: 50%; margin: 5px auto; display: flex; align-items: center; justify-content: center; border: 3px solid white;">
+                            <svg style="width: 50px; height: 50px; color: #555;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- Action Icons Bar with Location Button added -->
+                    <div style="display: flex; justify-content: space-around; background: white; padding: 8px 2px; margin-top: 8px; border-radius: 6px; text-align: center; font-size: 10px;">
+                        <div>💳<br><b>Payment</b></div>
+                        <div>📋<br><b>Complaint</b></div>
+                        <div>📁<br><b>Log Hist</b></div>
+                        <div onclick="window.open('${sub.gpsLocation}', '_blank')" style="cursor: pointer; color: #d9534f;">📍<br><b>Location</b></div>
+                        <div>⚠️<br><b>New Comp</b></div>
+                        <div>👤<br><b>Pic</b></div>
+                    </div>
+
+                    <!-- Total Payable -->
+                    <div style="background: white; padding: 10px 12px; margin-top: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 13px; font-weight: bold;">Total Payable :</span> 
+                            <span style="font-size: 15px; font-weight: bold; color: #d9534f;">${sub.fee}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px; font-size: 9px;">
+                            <span style="background: #fdf0f0; color: #d9534f; padding: 3px 6px; border-radius: 3px; border: 1px solid #f5c6cb;">Suspend SMS</span>
+                            <span style="background: #eef8ff; color: #0275d8; padding: 3px 6px; border-radius: 3px; border: 1px solid #bce8f1; cursor: pointer;" onclick="openInvoiceModal(${sub.id})">Invoice</span>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div style="background: white; padding: 8px 12px; margin-top: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                        <span style="font-weight: bold;">Status</span>
+                        <span style="background: #5cb85c; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">✔ User is Active</span>
+                    </div>
+
+                    <!-- Details Table -->
+                    <div style="background: white; margin-top: 8px; border-radius: 6px; overflow: hidden; font-size: 12px;">
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Name</span> <span>${sub.name}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Username</span> <span>${sub.username}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Package</span> <span>${sub.package}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Fee</span> <span>${sub.fee}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; border-bottom: 1px solid #eee;">
+                            <span style="font-weight: bold;">Balance</span> 
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="background: #f1f1f1; padding: 2px 8px; border-radius: 3px;">${sub.balance}</span>
+                                <button style="background: #d9534f; color: white; border: none; padding: 2px 6px; border-radius: 3px; font-size: 10px; cursor: pointer;">- Minus</button>
+                                <button style="background: #28a745; color: white; border: none; padding: 2px 6px; border-radius: 3px; font-size: 10px; cursor: pointer;">+ Add</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold; color: #d9534f;">DUE DATE</span> <span>${sub.dueDate}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Mobile</span> <span>${sub.phone}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">CNIC</span> <span>${sub.cnic}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Area</span> <span>${sub.area}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Sub-Area</span> <span>${sub.subArea}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee; align-items: center;">
+                            <span style="font-weight: bold;">Address</span> 
+                            <span style="display:flex; align-items:center; gap:5px;">
+                                ${sub.address} 
+                                <button onclick="window.open('${sub.gpsLocation}', '_blank')" style="background:#0275d8; color:white; border:none; padding:2px 6px; border-radius:3px; font-size:10px; cursor:pointer;">🗺️ Map</button>
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Connection Date</span> <span>${sub.connectionDate}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eee;"><span style="font-weight: bold;">Connection Type</span> <span>${sub.connectionType}</span></div>
+                        <div style="display: flex; justify-content: space-between; padding: 7px 10px;"><span style="font-weight: bold;">Remarks</span> <span>${sub.remarks || 'None'}</span></div>
+                    </div>
+
+                    <!-- Bottom Buttons -->
+                    <div style="display: flex; gap: 6px; margin-top: 12px;">
+                        <button onclick="openEditSubscriberModal(${sub.id})" style="flex: 1; background: #2563eb; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px;">✏️ Edit</button>
+                        <button onclick="deleteSubscriber(${sub.id})" style="flex: 1; background: #d9534f; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px;">Delete</button>
+                        <button onclick="collectFee(${sub.id})" style="flex: 2; background: #009688; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px;">Collect Fee</button>
+                        <a href="tel:${sub.phone}" style="background: #0275d8; color: white; border: none; padding: 8px 10px; border-radius: 4px; text-decoration: none;">📞</a>
+                        <a href="https://wa.me/${sub.phone}" target="_blank" style="background: #25D366; color: white; border: none; padding: 8px 10px; border-radius: 4px; text-decoration: none;">💬</a>
+                    </div>
+                </div>
+            `;
+            document.getElementById('userProfileModal').classList.add('active');
+        }
+
+        function closeUserProfileModal() {
+            document.getElementById('userProfileModal').classList.remove('active');
+        }
+
+        function deleteSubscriber(id) {
+            if(confirm('Are you sure you want to delete this subscriber?')) {
+                subscribersList = subscribersList.filter(s => s.id !== id);
+                calculateLedger();
+                renderSubscribersTable();
+                closeUserProfileModal();
+                alert('Subscriber deleted successfully!');
+            }
+        }
+
+        // --- EDIT SUBSCRIBER PROFILE (View & Edit) ---
+        function openEditSubscriberModal(id) {
+            const sub = subscribersList.find(s => s.id === id);
+            if(!sub) return;
+            closeUserProfileModal();
+            closeCardModal();
+            document.getElementById('editSubId').value = sub.id;
+            document.getElementById('editSubName').value = sub.name || '';
+            document.getElementById('editSubUsername').value = sub.username || '';
+            document.getElementById('editSubPackage').value = sub.package || '';
+            document.getElementById('editSubFee').value = sub.fee || 0;
+            document.getElementById('editSubStatus').value = sub.status || 'Unpaid';
+            document.getElementById('editSubBalance').value = sub.balance || 0;
+            document.getElementById('editSubPhone').value = sub.phone || '';
+            document.getElementById('editSubCnic').value = sub.cnic || '';
+            document.getElementById('editSubConnectionType').value = sub.connectionType || 'Fiber Internet';
+            document.getElementById('editSubDueDate').value = sub.dueDate || '';
+            document.getElementById('editSubArea').value = sub.area || '';
+            document.getElementById('editSubSubArea').value = sub.subArea || '';
+            document.getElementById('editSubGps').value = sub.gpsLocation || '';
+            document.getElementById('editSubConnectionDate').value = sub.connectionDate || '';
+            document.getElementById('editSubFullAddress').value = sub.address || '';
+            document.getElementById('editSubRemarks').value = sub.remarks || '';
+            document.getElementById('editSubscriberModal').classList.add('active');
+        }
+        function closeEditSubscriberModal() {
+            document.getElementById('editSubscriberModal').classList.remove('active');
+        }
+        function saveEditedSubscriber() {
+            const id = parseInt(document.getElementById('editSubId').value);
+            const sub = subscribersList.find(s => s.id === id);
+            if(!sub) return;
+            const name = document.getElementById('editSubName').value.trim();
+            const username = document.getElementById('editSubUsername').value.trim();
+            const pkg = document.getElementById('editSubPackage').value.trim();
+            const fee = parseFloat(document.getElementById('editSubFee').value) || 0;
+            const phone = document.getElementById('editSubPhone').value.trim();
+            if(!name || !username || !pkg || !fee || !phone) {
+                alert('Please fill out all required fields (*)!');
+                return;
+            }
+            sub.name = name;
+            sub.username = username;
+            sub.package = pkg;
+            sub.fee = fee;
+            sub.status = document.getElementById('editSubStatus').value;
+            sub.type = (sub.status === 'Paid') ? 'active' : 'unpaid';
+            sub.balance = parseFloat(document.getElementById('editSubBalance').value) || 0;
+            sub.phone = phone;
+            sub.cnic = document.getElementById('editSubCnic').value || 'N/A';
+            sub.connectionType = document.getElementById('editSubConnectionType').value;
+            sub.dueDate = document.getElementById('editSubDueDate').value || sub.dueDate;
+            sub.area = document.getElementById('editSubArea').value || 'Main';
+            sub.subArea = document.getElementById('editSubSubArea').value || 'Main';
+            sub.gpsLocation = document.getElementById('editSubGps').value || sub.gpsLocation;
+            sub.connectionDate = document.getElementById('editSubConnectionDate').value || sub.connectionDate;
+            sub.address = document.getElementById('editSubFullAddress').value || 'Not specified';
+            sub.remarks = document.getElementById('editSubRemarks').value || '';
+            calculateLedger();
+            renderSubscribersTable();
+            closeEditSubscriberModal();
+            openUserProfileModal(sub.id);
+            alert('Subscriber profile updated successfully!');
+        }
+
+        // --- ADD SUBSCRIBER MODAL ---
+        function openAddSubscriberModal() {
+            document.getElementById('subName').value = '';
+            document.getElementById('subUsername').value = '';
+            document.getElementById('subPackage').value = '';
+            document.getElementById('subFee').value = '';
+            document.getElementById('subInstallCharges').value = '';
+            document.getElementById('subPrevBalance').value = '';
+            document.getElementById('subPhone').value = '';
+            document.getElementById('subCnic').value = '';
+            document.getElementById('subConnectionType').value = 'Fiber Internet';
+            document.getElementById('subDueDate').value = '';
+            document.getElementById('subArea').value = '';
+            document.getElementById('subFullAddress').value = '';
+            document.getElementById('subGps').value = '';
+            document.getElementById('subRemarks').value = '';
+            document.getElementById('addSubscriberModal').classList.add('active');
+        }
+        function closeAddSubscriberModal() {
+            document.getElementById('addSubscriberModal').classList.remove('active');
+        }
+
+        function saveNewSubscriber() {
+            const name = document.getElementById('subName').value;
+            const username = document.getElementById('subUsername').value;
+            const pkg = document.getElementById('subPackage').value;
+            const fee = parseFloat(document.getElementById('subFee').value) || 0;
+            const installCharges = parseFloat(document.getElementById('subInstallCharges').value) || 0;
+            const prevBalance = parseFloat(document.getElementById('subPrevBalance').value) || 0;
+            const phone = document.getElementById('subPhone').value;
+            const cnic = document.getElementById('subCnic').value || 'N/A';
+            const connectionType = document.getElementById('subConnectionType').value;
+            const dueDate = document.getElementById('subDueDate').value || new Date().toISOString().split('T')[0];
+            const area = document.getElementById('subArea').value || 'Main';
+            const fullAddress = document.getElementById('subFullAddress').value || 'Not specified';
+            const gps = document.getElementById('subGps').value || 'https://maps.google.com/?q=31.5204,74.3587';
+            const remarks = document.getElementById('subRemarks').value || '';
+
+            if(!name || !username || !pkg || !fee || !phone) {
+                alert('Please fill out all required fields (*)!');
+                return;
+            }
+
+            const newId = subscribersList.length > 0 ? Math.max(...subscribersList.map(s => s.id)) + 1 : 1;
+            
+            subscribersList.push({
+                id: newId,
+                isp: (currentUser && currentUser.isp && currentUser.isp!=='ALL') ? currentUser.isp : 'Ali Net',
+                name: name,
+                username: username,
+                package: pkg,
+                fee: fee + installCharges + prevBalance,
+                installCharges: installCharges,
+                balance: prevBalance,
+                phone: phone,
+                status: "Unpaid",
+                type: "unpaid",
+                address: fullAddress,
+                area: area,
+                subArea: "Main",
+                cnic: cnic,
+                dueDate: dueDate,
+                connectionDate: new Date().toLocaleDateString(),
+                connectionType: connectionType,
+                gpsLocation: gps,
+                remarks: remarks
+            });
+
+            calculateLedger();
+            renderSubscribersTable();
+            closeAddSubscriberModal();
+            alert('New Subscriber added successfully!');
+        }
+
+        // --- INVOICE MODAL FUNCTIONS ---
+        function openInvoiceModal(id) {
+            const sub = subscribersList.find(s => s.id === id);
+            if(!sub) return;
+
+            closeUserProfileModal();
+
+            const container = document.getElementById('invoiceContent');
+            container.innerHTML = `
+                <div class="invoice-view">
+                    <div style="text-align: center; border-bottom: 2px solid #ff7a00; padding-bottom: 8px; margin-bottom: 12px;">
+                        <h2 style="margin: 0; font-size: 18px;">DEMO ISP</h2>
+                        <p style="margin: 2px 0 0; font-size: 12px; color: #333;">0300-8816822</p>
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6;">
+                        <div><b>Bill No :</b> 0210202601</div>
+                        <div><b>Name :</b> ${sub.name}</div>
+                        <div><b>User ID :</b> ${sub.username}</div>
+                        <div><b>Mobile Number :</b> ${sub.phone}</div>
+                        <div><b>Due Date :</b> ${sub.dueDate}</div>
+                        <div><b>Connection Type :</b> ${sub.connectionType}</div>
+                        <div><b>Package :</b> ${sub.package}</div>
+                        <div><b>Fee :</b> ${sub.fee}</div>
+                        <div><b>Previous Balance :</b> ${sub.balance}</div>
+                    </div>
+
+                    <div style="margin: 12px 0; font-size: 14px; font-weight: bold; color: #0275d8;">
+                        Total Bill Payable : ${sub.fee}
+                    </div>
+
+                    <div style="text-align: center; margin: 15px 0;">
+                        <div style="display: inline-block; border: 2px solid #5cb85c; color: #5cb85c; padding: 6px 20px; font-size: 16px; font-weight: bold; border-radius: 5px;">
+                            ${sub.status === 'Paid' ? 'PAID : ' + sub.fee : 'UNPAID'}
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; line-height: 1.6; border-top: 1px dashed #ccc; padding-top: 8px;">
+                        <div><b>Remaining Balance :</b> ${sub.balance}</div>
+                        <div><b>Paid Via :</b> Cash</div>
+                        <div><b>Collected By :</b> <span style="color: purple;">ADMIN DEMO</span></div>
+                        <div><b>Date :</b> 2-October-2026</div>
+                        <div><b style="color: #009688;">Comments :</b> <span style="color: #009688;">${sub.remarks || 'Thank You For Payment'}</span></div>
+                    </div>
+
+                    <p style="text-align: center; font-size: 9px; color: #777; margin-top: 10px;">
+                        This is a computer generated invoice and needs no signature
+                    </p>
+
+                    <div style="display: flex; gap: 4px; margin-top: 12px;">
+                        <button onclick="closeInvoiceModal()" style="flex: 1; background: #607d8b; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">Close</button>
+                        <button onclick="alert('Downloading invoice...')" style="flex: 1; background: #3f51b5; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">Download</button>
+                        <button onclick="alert('Share link generated!')" style="flex: 1; background: #00bcd4; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">Share</button>
+                        <button onclick="window.open('https://wa.me/${sub.phone}?text=Your%20Bill%20Invoice%20is%20Paid')" style="flex: 1.2; background: #8bc34a; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">WhatsApp</button>
+                        <button onclick="window.print()" style="flex: 1; background: #e91e63; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">Print</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('invoiceModal').classList.add('active');
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').classList.remove('active');
+        }
+
+        function collectFee(id) {
+            const sub = subscribersList.find(s => s.id === id);
+            if(sub) {
+                sub.status = 'Paid';
+                alert(`Fee collected successfully for ${sub.name}! Status updated to Paid.`);
+                calculateLedger();
+                renderSubscribersTable();
+                closeUserProfileModal();
+                openInvoiceModal(sub.id);
+            }
+        }
+
+        function openStaffModal() { document.getElementById('staffModal').classList.add('active'); }
+        function closeStaffModal() { document.getElementById('staffModal').classList.remove('active'); }
+
+        function openAdvanceModal(index) {
+            document.getElementById('advanceStaffIndex').value = index;
+            document.getElementById('advAmount').value = '';
+            document.getElementById('advReason').value = '';
+            document.getElementById('advanceModal').classList.add('active');
+        }
+        function closeAdvanceModal() { document.getElementById('advanceModal').classList.remove('active'); }
+
+        function openLeaveModal(index) {
+            document.getElementById('leaveStaffIndex').value = index;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('leaveDate').value = today;
+            document.getElementById('leaveReason').value = '';
+            document.getElementById('leaveModal').classList.add('active');
+        }
+        function closeLeaveModal() { document.getElementById('leaveModal').classList.remove('active'); }
+
+        function closeHistoryModal() { document.getElementById('historyModal').classList.remove('active'); }
+
+        function addStaff() {
+            const name = document.getElementById('staffName').value;
+            const role = document.getElementById('staffRole').value;
+            const salary = parseFloat(document.getElementById('staffSalary').value);
+            const phone = document.getElementById('staffPhone').value || '';
+
+            if(!name || !role || !salary) {
+                alert('Please fill in Name, Role, and Salary!');
+                return;
+            }
+
+            staffList.push({ name, role, salary, phone, leaves: [], advances: [] });
+            calculateLedger();
+            closeStaffModal();
+
+            document.getElementById('staffName').value = '';
+            document.getElementById('staffRole').value = '';
+            document.getElementById('staffSalary').value = '';
+            document.getElementById('staffPhone').value = '';
+        }
+
+        function saveAdvance() {
+            const index = document.getElementById('advanceStaffIndex').value;
+            const amount = parseFloat(document.getElementById('advAmount').value);
+            const reason = document.getElementById('advReason').value || 'Advance taken';
+
+            if(!amount) {
+                alert('Please enter valid amount!');
+                return;
+            }
+
+            const currentDate = new Date().toISOString().split('T')[0];
+            staffList[index].advances.push({ amount, reason, date: currentDate });
+            
+            calculateLedger();
+            closeAdvanceModal();
+
+            const now = new Date();
+            const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const staff = staffList[index];
+            const perDaySalary = staff.salary / totalDaysInMonth;
+            const leaveDeduction = perDaySalary * staff.leaves.length;
+            let totalAdvance = staff.advances.reduce((sum, item) => sum + item.amount, 0);
+            const remainingSalary = Math.round(staff.salary - totalAdvance - leaveDeduction);
+
+            const msg = `Dear ${staff.name}, your Advance has been recorded.\%0A- Amount: Rs${amount.toLocaleString()}%0A- Remarks: ${reason}\%0A- Date:${currentDate}%0A--------------------------%0ATotal Advance: Rs ${totalAdvance.toLocaleString()}\%0AFinal Payable: Rs${remainingSalary.toLocaleString()}`;
+            
+            window.open(`https://wa.me/${staff.phone}?text=${msg}`, '_blank');
+        }
+
+        function saveLeave() {
+            const index = document.getElementById('leaveStaffIndex').value;
+            const date = document.getElementById('leaveDate').value;
+            const reason = document.getElementById('leaveReason').value || 'Leave';
+
+            if(!date) {
+                alert('Please select leave date!');
+                return;
+            }
+
+            staffList[index].leaves.push({ date, reason });
+            calculateLedger();
+            closeLeaveModal();
+
+            const now = new Date();
+            const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const staff = staffList[index];
+            const perDaySalary = staff.salary / totalDaysInMonth;
+            const leaveDeduction = perDaySalary * staff.leaves.length;
+            let totalAdvance = staff.advances.reduce((sum, item) => sum + item.amount, 0);
+            const remainingSalary = Math.round(staff.salary - totalAdvance - leaveDeduction);
+
+            const msg = `Dear ${staff.name}, your Leave has been recorded.%0A- Date: ${date}\%0A- Reason:${reason}%0A--------------------------%0ATotal Leaves: ${staff.leaves.length} Days\%0AFinal Payable: Rs${remainingSalary.toLocaleString()}`;
+            
+            window.open(`https://wa.me/${staff.phone}?text=${msg}`, '_blank');
+        }
+
+        function viewHistory(index) {
+            const staff = staffList[index];
+            document.getElementById('historyTitle').innerText = `📜 History: ${staff.name} (${staff.role})`;
+            
+            let html = ``;
+            html += `<h4 style="color:#fbbf24; margin-bottom:8px; font-size:14px;">💵 Cash / Advance History</h4>`;
+            html += `<table style="width:100%; margin-bottom:20px;"><thead><tr><th>Date</th><th>Remarks</th><th>Amount</th></tr></thead><tbody>`;
+
+            if(staff.advances.length === 0) {
+                html += `<tr><td colspan="3" style="text-align:center; color:#9ca3af;">No advance history found.</td></tr>`;
+            } else {
+                staff.advances.forEach(adv => {
+                    html += `<tr><td>${adv.date}</td><td>${adv.reason}</td><td style="color:#f87171;">Rs ${adv.amount.toLocaleString()}</td></tr>`;
+                });
+            }
+            html += `</tbody></table>`;
+
+            html += `<h4 style="color:#fbbf24; margin-bottom:8px; font-size:14px;">📅 Leave History</h4>`;
+            html += `<table style="width:100%;"><thead><tr><th>Date</th><th>Reason / Remarks</th></tr></thead><tbody>`;
+
+            if(staff.leaves.length === 0) {
+                html += `<tr><td colspan="2" style="text-align:center; color:#9ca3af;">No leave history found.</td></tr>`;
+            } else {
+                staff.leaves.forEach(leave => {
+                    html += `<tr><td>${leave.date}</td><td style="color:#fbbf24;">${leave.reason}</td></tr>`;
+                });
+            }
+            html += `</tbody></table>`;
+
+            document.getElementById('historyContent').innerHTML = html;
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        function openDashboardStaffHistory() {
+            document.getElementById('historyTitle').innerText = `📜 All Staff Members History`;
+            let html = ``;
+            staffList.forEach((staff) => {
+                html += `<div style="background:#0b0f19; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #374151;">`;
+                html += `<h4 style="color:#34d399; margin-bottom:10px;">👤 ${staff.name} (${staff.role}) - Base Salary: Rs ${staff.salary.toLocaleString()}</h4>`;
+                
+                html += `<p style="color:#fbbf24; font-size:12px; font-weight:bold; margin-bottom:5px;">💵 Advances:</p>`;
+                if(staff.advances.length === 0) {
+                    html += `<p style="font-size:12px; color:#9ca3af; margin-bottom:8px;">No advances recorded.</p>`;
+                } else {
+                    html += `<ul style="font-size:12px; margin-left:20px; margin-bottom:8px; color:#f87171;">`;
+                    staff.advances.forEach(adv => {
+                        html += `<li>${adv.date} - ${adv.reason}: <strong>Rs ${adv.amount.toLocaleString()}</strong></li>`;
+                    });
+                    html += `</ul>`;
+                }
+
+                html += `<p style="color:#fbbf24; font-size:12px; font-weight:bold; margin-bottom:5px;">📅 Leaves:</p>`;
+                if(staff.leaves.length === 0) {
+                    html += `<p style="font-size:12px; color:#9ca3af;">No leaves recorded.</p>`;
+                } else {
+                    html += `<ul style="font-size:12px; margin-left:20px; color:#9ca3af;">`;
+                    staff.leaves.forEach(leave => {
+                        html += `<li>${leave.date} - <span style="color:#fbbf24;">${leave.reason}</span></li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+            });
+
+            document.getElementById('historyContent').innerHTML = html;
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        // ===== FULL APP DATA =====
+        let packagesList = [{name:'10 Mbps',speed:'10 Mbps',fee:1500},{name:'20 Mbps',speed:'20 Mbps',fee:2500}];
+        let paymentsList = [{date:'2026-10-01',customer:'Ali Ahmed',pkg:'10 Mbps',amount:1500,via:'Cash'}];
+        let complaintsList = [];
+        let areasList = ['Gulberg','Liberty'];
+        let ispsList = [{name:'Ali Net',city:'Lahore',users:120,status:'Paid'},{name:'Fast Net',city:'Karachi',users:80,status:'Unpaid'}];
+        let appSettings = {company:'DEMO ISP',phone:'0300-8816822',collector:'ADMIN DEMO'};
+
+        // ===== ROLE SYSTEM: Number login + SuperAdmin>ISP>Staff =====
+        let systemUsers = [
+            {role:'owner', name:'Owner', mobile:'03000000000', pass:'owner123', isp:'ALL'},
+            {role:'isp', name:'Ali Net Owner', company:'Ali Net', mobile:'03001112222', pass:'isp123', isp:'Ali Net', address:'Main Road Lahore'},
+            {role:'staff', name:'Field Boy', mobile:'03003334444', pass:'staff123', isp:'Ali Net', perms:{add:true,edit:true,collect:true,del:false}}
+        ];
+        let currentUser = null;
+        try{ const su=localStorage.getItem('cloudisp_users'); if(su) systemUsers=JSON.parse(su); }catch(e){}
+        function saveUsers(){ try{localStorage.setItem('cloudisp_users',JSON.stringify(systemUsers));}catch(e){} }
+        function doLogin(){
+            const u=(document.getElementById('loginUser').value||'').trim();
+            const p=(document.getElementById('loginPass').value||'').trim();
+            const found=systemUsers.find(x=>x.mobile===u && x.pass===p);
+            if(!found){ alert('Number ya password galat hai!'); return; }
+            currentUser=found;
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('loginWho').innerText='';
+            applyRole();
+            alert('Welcome '+found.name+' ('+found.role+')!');
+        }
+        function applyRole(){
+            if(!currentUser) return;
+            // superadmin tab sirf owner ko
+            const items=document.querySelectorAll('.nav-links li');
+            items.forEach(li=>{ const t=li.innerText; if(t.includes('Super Admin')){ li.style.display = (currentUser.role==='owner')?'':'none'; } });
+            // staff permissions: buttons hide
+            renderSubscribersTable();
+        }
+        function canDo(what){
+            if(!currentUser) return true;
+            if(currentUser.role==='owner'||currentUser.role==='isp') return true;
+            if(currentUser.role==='staff'){ const pr=currentUser.perms||{}; if(what==='add') return !!pr.add; if(what==='edit') return !!pr.edit; if(what==='collect') return !!pr.collect; if(what==='del') return !!pr.del; }
+            return true;
+        }
+        function openStaffCreateModal(){ const sel=document.getElementById('newStaffIsp'); sel.innerHTML=''; ispsList.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name;sel.appendChild(o);}); document.getElementById('staffCreateModal').classList.add('active'); }
+        function saveNewStaff(){
+            const n=document.getElementById('newStaffName').value.trim();
+            const m=document.getElementById('newStaffMobile').value.trim();
+            const ps=document.getElementById('newStaffPass').value.trim();
+            const isp=document.getElementById('newStaffIsp').value;
+            if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
+            if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
+            const perms={add:document.getElementById('permAdd').checked,edit:document.getElementById('permEdit').checked,collect:document.getElementById('permCollect').checked,del:document.getElementById('permDelete').checked};
+            systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+            saveUsers(); renderAllStaff(); document.getElementById('staffCreateModal').classList.remove('active'); alert('Staff ban gaya! Login: '+m+' / '+ps);
+        }
+        function saveNewISP(){
+            const comp=document.getElementById('newIspCompany').value.trim();
+            const owner=document.getElementById('newIspOwner').value.trim();
+            const mob=document.getElementById('newIspMobile').value.trim();
+            const ps=document.getElementById('newIspPass').value.trim();
+            const city=document.getElementById('newIspCity').value||'Lahore';
+            const addr=document.getElementById('newIspAddr').value||'';
+            if(!comp||!owner||!mob||!ps){alert('Company + Owner + Number + Password zaroori');return;}
+            if(systemUsers.find(x=>x.mobile===mob)){alert('Ye number pehle se hai!');return;}
+            ispsList.push({name:comp,city:city,users:0,status:'Paid',owner:owner,mobile:mob,pass:ps,address:addr});
+            systemUsers.push({role:'isp',name:owner,company:comp,mobile:mob,pass:ps,isp:comp,address:addr});
+            saveUsers(); renderISPs(); renderAllStaff(); document.getElementById('ispCreateModal').classList.remove('active'); alert('ISP ban gaya! Login: '+mob+' / '+ps);
+        }
+        function renderAllStaff(){
+            const tb=document.getElementById('allStaffTableBody'); if(!tb) return; tb.innerHTML='';
+            systemUsers.filter(u=>u.role==='staff').forEach((s)=>{
+                const p=s.perms||{}; const permsTxt=[p.add?'➕Add':'',p.edit?'✏️Edit':'',p.collect?'💰Collect':'',p.del?'🗑️Del':''].filter(Boolean).join(' ');
+                const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${s.name}</strong><br><span style="color:#9ca3af;font-size:11px;">${s.mobile}</span></td><td>${s.isp}</td><td>${s.pass}</td><td style="font-size:11px;">${permsTxt||'No access'}</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteStaff('${s.mobile}')">Delete</button></td>`; tb.appendChild(tr);
+            });
+        }
+        function deleteStaff(mob){ if(!confirm('Staff delete karen?'))return; systemUsers=systemUsers.filter(u=>u.mobile!==mob); saveUsers(); renderAllStaff(); }
+        function addISP(){ document.getElementById('ispCreateModal').classList.add('active'); }
+        function openPackageModal(){ document.getElementById('packageModal').classList.add('active'); }
+        function savePackage(){ const n=document.getElementById('pkgName').value; const s=document.getElementById('pkgSpeed').value||n; const f=parseFloat(document.getElementById('pkgFee').value)||0; if(!n||!f){alert('Name + Fee zaroori hai');return;} packagesList.push({name:n,speed:s,fee:f}); document.getElementById('packageModal').classList.remove('active'); renderPackages(); alert('Package added!'); }
+        function renderPackages(){ const tb=document.getElementById('packagesTableBody'); if(!tb) return; tb.innerHTML=''; packagesList.forEach((p,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${p.name}</strong></td><td>${p.speed}</td><td>Rs ${p.fee}</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="packagesList.splice(${i},1);renderPackages();">Delete</button></td>`; tb.appendChild(tr); }); }
+        function renderPayments(){ const tb=document.getElementById('paymentsTableBody'); if(!tb) return; tb.innerHTML=''; if(paymentsList.length===0){tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">No payments yet.</td></tr>';return;} paymentsList.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${p.date}</td><td>${p.customer}</td><td>${p.pkg}</td><td style="color:#34d399;font-weight:bold;">Rs ${p.amount}</td><td>${p.via}</td>`; tb.appendChild(tr); }); }
+        function openComplaintModal(){ const sel=document.getElementById('compCustomer'); sel.innerHTML=''; subscribersList.forEach(s=>{ const o=document.createElement('option'); o.value=s.name; o.textContent=s.name; sel.appendChild(o); }); document.getElementById('complaintModal').classList.add('active'); }
+        function saveComplaint(){ const c=document.getElementById('compCustomer').value; const iss=document.getElementById('compIssue').value; if(!iss){alert('Issue likhen');return;} complaintsList.push({date:new Date().toISOString().split('T')[0],customer:c,issue:iss,status:'Pending'}); document.getElementById('complaintModal').classList.remove('active'); renderComplaints(); }
+        function renderComplaints(){ const tb=document.getElementById('complaintsTableBody'); if(!tb) return; tb.innerHTML=''; if(complaintsList.length===0){tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">No complaints. Zabardast!</td></tr>';return;} complaintsList.forEach((c,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${c.date}</td><td>${c.customer}</td><td>${c.issue}</td><td style="color:${c.status==='Pending'?'#fbbf24':'#34d399'};font-weight:bold;">${c.status}</td><td><button class="btn-primary btn-sm btn-success" onclick="complaintsList[${i}].status='Resolved';renderComplaints();">Resolve</button></td>`; tb.appendChild(tr); }); }
+        function renderAreas(){ const tb=document.getElementById('areasTableBody'); if(!tb) return; tb.innerHTML=''; areasList.forEach((a,i)=>{ const cnt=subscribersList.filter(s=>s.area===a).length; const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${a}</strong></td><td>${cnt} users</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="areasList.splice(${i},1);renderAreas();">Delete</button></td>`; tb.appendChild(tr); }); }
+        function addArea(){ const n=prompt('Naye area ka naam likhen:'); if(n){ areasList.push(n); renderAreas(); } }
+        function saveSettings(){ appSettings.company=document.getElementById('setCompany').value; appSettings.phone=document.getElementById('setPhone').value; appSettings.collector=document.getElementById('setCollector').value; alert('Settings saved! Ab invoice par '+appSettings.company+' aayega.'); }
+        function renderISPs(){ const tb=document.getElementById('ispsTableBody'); if(!tb) return; tb.innerHTML=''; ispsList.forEach((isp,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${isp.name||''}</strong><br><span style="color:#9ca3af;font-size:11px;">${isp.owner||''} • ${isp.mobile||''}</span></td><td>${isp.city||''}<br><span style="color:#9ca3af;font-size:11px;">${isp.address||''}</span></td><td style="font-size:12px;">${isp.pass||'-'}</td><td style="color:${isp.status==='Paid'?'#34d399':'#f87171'};font-weight:bold;">${isp.status}</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="ispsList[${i}].status='Paid';renderISPs();">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="ispsList[${i}].status='Unpaid';renderISPs();">Block</button></div></td>`; tb.appendChild(tr); }); try{renderAllStaff();}catch(e){} }
+        function addISP(){ const n=prompt('ISP ka naam:'); if(!n) return; const c=prompt('City:')||'Lahore'; ispsList.push({name:n,city:c,users:0,status:'Paid'}); renderISPs(); }
+
+        // hook collectFee to payments (offline-ready)
+        const _oldCollect = collectFee;
+        collectFee = function(id){ const sub=subscribersList.find(s=>s.id===id); if(sub){ const isOff=!navigator.onLine; paymentsList.unshift({date:new Date().toISOString().split('T')[0],customer:sub.name,pkg:sub.package,amount:sub.fee,via:isOff?'Cash (Offline)':'Cash',sync:isOff?'pending':'synced'}); saveOffline(); } _oldCollect(id); saveOffline(); };
+
+        // ===== SUPERADMIN PRIVACY + EXCEL IMPORT =====
+        function refreshExcelIspSelect(){
+            const sel=document.getElementById('excelIspSelect'); if(!sel) return; sel.innerHTML='';
+            ispsList.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name;sel.appendChild(o);});
+        }
+        function downloadTemplate(){
+            const csv='name,username,package,fee,phone,area,address\nAhmed Raza,ahmedr,15 Mbps,2000,923001234567,Gulberg,House 12 Lahore\nBilal Khan,bilalk,10 Mbps,1500,923009876543,Liberty,Shop 4 Plaza';
+            const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='isp_users_template.csv'; a.click();
+        }
+        function importExcel(ev){
+            const file=ev.target.files[0]; if(!file) return;
+            const ispSel=document.getElementById('excelIspSelect'); const targetIsp=ispSel?ispSel.value:'Ali Net';
+            const reader=new FileReader();
+            reader.onload=function(e){
+                try{
+                    const text=e.target.result;
+                    // simple CSV parse (name,username,package,fee,phone,area,address)
+                    const lines=text.split(/\r?\n/).filter(l=>l.trim()!=='');
+                    if(lines.length<2){alert('File khali hai');return;}
+                    const header=lines[0].toLowerCase();
+                    let count=0;
+                    for(let k=1;k<lines.length;k++){
+                        const cols=lines[k].split(',').map(c=>c.trim());
+                        if(cols.length<2) continue;
+                        const newId=subscribersList.length>0?Math.max(...subscribersList.map(s=>s.id))+1:1;
+                        subscribersList.push({id:newId,isp:targetIsp,name:cols[0]||'No Name',username:cols[1]||('user'+newId),package:cols[2]||'10 Mbps',fee:parseFloat(cols[3])||1500,phone:cols[4]||'',area:cols[5]||'Main',subArea:'Main',address:cols[6]||'Not specified',balance:0,status:'Unpaid',type:'unpaid',cnic:'N/A',dueDate:'30',connectionDate:new Date().toLocaleDateString(),connectionType:'Fiber Internet',gpsLocation:'',remarks:'Excel import'});
+                        count++;
+                    }
+                    saveOffline(); calculateLedger(); renderSubscribersTable(); renderISPs(); refreshExcelIspSelect();
+                    alert(count+' users '+targetIsp+' me add ho gaye! (Excel)');
+                }catch(err){ alert('Excel parhne me masla: '+err.message+' — CSV Template download karke waisa file banayen'); }
+            };
+            reader.readAsText(file);
+            ev.target.value='';
+        }
+        // privacy: owner ko sirf count
+        const _oldRenderISPs2 = renderISPs;
+        renderISPs = function(){ _oldRenderISPs2(); refreshExcelIspSelect(); const tb=document.getElementById('ispsTableBody'); if(!tb) return; /* counts update */ ispsList.forEach((isp,i)=>{ isp.users = subscribersList.filter(s=>(s.isp||'Ali Net')===isp.name).length; }); _oldRenderISPs2(); };
+        const _oldRenderSubs = renderSubscribersTable;
+        renderSubscribersTable = function(){
+            if(currentUser && currentUser.role==='owner'){
+                const tb=document.getElementById('subscribersTableBody'); if(tb){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#fbbf24;padding:20px;">🔒 Owner ke liye users ki detail hidden hai.<br><span style="color:#9ca3af;font-size:12px;">Sirf Super Admin me har ISP ke saamne COUNT nazar aayegi (kitne users hain). Detail sirf us ISP ko nazar aayegi.</span></td></tr>'; }
+                return;
+            }
+            // ISP ko sirf apne users
+            if(currentUser && (currentUser.role==='isp'||currentUser.role==='staff')){
+                const myIsp=currentUser.isp;
+                const tbody=document.getElementById('subscribersTableBody'); if(!tbody) return;
+                // temporarily filter by wrapping? call original then filter rows
+                _oldRenderSubs();
+                // remove rows not mine: re-filter
+                const q=(document.getElementById('subSearch')?document.getElementById('subSearch').value.toLowerCase():'');
+                let mine=subscribersList.filter(s=>(s.isp||'Ali Net')===myIsp);
+                if(q){ mine=mine.filter(s=>s.name.toLowerCase().includes(q)||s.phone.includes(q)); }
+                tbody.innerHTML='';
+                if(mine.length===0){ tbody.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Is ISP me koi user nahi. Excel se import karen.</td></tr>'; return; }
+                mine.forEach(sub=>{
+                    const row=document.createElement('tr');
+                    const canE = (typeof canDo!=='undefined') ? canDo('edit') : true;
+                    row.innerHTML=`<td><strong>${sub.name}</strong><br><span style="color:#9ca3af; font-size:11px;">@${sub.username} • ${sub.isp||''}</span></td><td>${sub.package}<br><span style="color:#60a5fa; font-size:11px;">Rs ${sub.fee}</span></td><td>${sub.phone}</td><td><span style="color:${sub.status==='Paid'?'#34d399':'#f87171'}; font-weight:bold;">${sub.status}</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal(${sub.id})">View Profile</button>${canE?`<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal(${sub.id})">✏️ Edit</button>`:''}</div></td>`;
+                    tbody.appendChild(row);
+                });
+                return;
+            }
+            _oldRenderSubs();
+        };
+
+        // ===== OFFLINE (Android) SYSTEM =====
+        function saveOffline(){
+            try{
+                localStorage.setItem('cloudisp_subs', JSON.stringify(subscribersList));
+                localStorage.setItem('cloudisp_payments', JSON.stringify(paymentsList));
+                localStorage.setItem('cloudisp_complaints', JSON.stringify(complaintsList));
+                localStorage.setItem('cloudisp_packages', JSON.stringify(packagesList));
+                localStorage.setItem('cloudisp_areas', JSON.stringify(areasList));
+            }catch(e){}
+        }
+        function loadOffline(){
+            try{
+                const s=localStorage.getItem('cloudisp_subs'); if(s) subscribersList=JSON.parse(s);
+                const p=localStorage.getItem('cloudisp_payments'); if(p) paymentsList=JSON.parse(p);
+                const c=localStorage.getItem('cloudisp_complaints'); if(c) complaintsList=JSON.parse(c);
+                const pk=localStorage.getItem('cloudisp_packages'); if(pk) packagesList=JSON.parse(pk);
+                const ar=localStorage.getItem('cloudisp_areas'); if(ar) areasList=JSON.parse(ar);
+            }catch(e){}
+        }
+        function updateOfflineBar(){
+            const bar=document.getElementById('offlineBar');
+            if(!navigator.onLine){ bar.classList.add('show'); }
+            else{ bar.classList.remove('show'); const pend=paymentsList.filter(x=>x.sync==='pending').length; if(pend>0){ paymentsList.forEach(x=>x.sync='synced'); saveOffline(); renderPayments(); alert(pend+' offline fees sync ho gayi!'); } }
+        }
+        window.addEventListener('online', updateOfflineBar);
+        window.addEventListener('offline', updateOfflineBar);
+        // wrap save points
+        const _saveNewSub = saveNewSubscriber;
+        saveNewSubscriber = function(){ _saveNewSub(); saveOffline(); };
+        const _saveEditSub = saveEditedSubscriber;
+        saveEditedSubscriber = function(){ _saveEditSub(); saveOffline(); };
+
+        window.onload = function() {
+            loadOffline();
+            calculateLedger();
+            renderSubscribersTable();
+            renderPackages(); renderPayments(); renderComplaints(); renderAreas(); renderISPs(); renderAllStaff();
+            updateOfflineBar();
+            // Android: home screen install hint
+            if(/Android/i.test(navigator.userAgent)){ console.log('Android detected - Add to Home Screen se app ban jayegi'); }
+        };
+    </script>
+<script>window.__CF$cv$params={r:'a43e14de0e6c773a',t:'MTc5MDg4NTExOQ==',u:'01a0f9124c5872fbabf3844a43a98a2f',ut:'1N28_37htHu_Pxc9iS1ER8SMfbiz9ilwOclpSrLmesM-1790885121-1.2.1.1-8wld1h8xoKoAkPFvQbDA78Kf32iZRiAw6gPZ2_J5ns18jXiS3BbDEZyTHujEUOZof3CEQcWuy1fWuW1ZZy4lH2tOmyTEXrb8DrYUn2uF5z8',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
