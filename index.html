@@ -403,7 +403,16 @@
             .main-content { padding:15px; }
             .grid-6 { grid-template-columns:1fr 1fr; }
         }
+        /* ---- New: WhatsApp + Excel + Role badges ---- */
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+    .badge-owner{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3);}
+    .badge-isp{background:rgba(37,99,235,.15);color:#60a5fa;border:1px solid rgba(37,99,235,.3);}
+    .badge-staff{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);}
+    .wa-box{background:#0b0f19;border:1px solid #374151;border-radius:12px;padding:16px;}
+    .qr-box{background:#fff;border-radius:12px;padding:12px;display:inline-block;}
+    .hidden-pass{letter-spacing:3px;}
     </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div id="offlineBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d97706;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;">⚠️ Offline Mode — Fees & Bill phone me save honge, net aate hi sync ho jayenge</div>
@@ -510,6 +519,12 @@
         </div>
 
         <div class="card">
+            <div id="ispExcelBar" style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;align-items:center;background:#0b0f19;border:1px solid #374151;border-radius:10px;padding:10px;">
+                <strong style="font-size:12px;color:#fbbf24;">📤 Bulk Import (Excel/CSV) — isi ISP me add hoga:</strong>
+                <button class="btn-primary btn-sm" onclick="downloadTemplate()">📥 Template</button>
+                <label class="btn-primary btn-sm btn-success" style="cursor:pointer;">📤 Excel/CSV Choose<input type="file" id="excelFileISP" accept=".csv,.xlsx,.xls" style="display:none;" onchange="importExcelISP(event)"></label>
+                <span style="font-size:11px;color:#9ca3af;">Format: name,username,package,fee,phone,area,address</span>
+            </div>
             <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
                 <input type="text" id="subSearch" placeholder="🔍 Search name / mobile / package..." onkeyup="renderSubscribersTable()" style="flex:2;min-width:200px;">
                 <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select>
@@ -610,13 +625,44 @@
         <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><h3 style="color:#fbbf24;">👷 Staff (Super Admin adds in ISP Panel)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Staff</button></div><table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="allStaffTableBody"></tbody></table></div>
     </div>
 
-    <!-- 4. WhatsApp Billing Section -->
+    <!-- 4. WhatsApp Billing Section : Link + Scan for ISP -->
     <div id="whatsapp-billing" class="main-content">
         <div class="header-banner">
             <div>
-                <h1>WhatsApp & SMS Billing Gateway</h1>
-                <p>Automated payment reminders and salary slip dispatches</p>
+                <h1>💬 WhatsApp Billing — Link + Scan</h1>
+                <p>ISP apna WhatsApp link karein, QR scan karein, bill bhejein</p>
             </div>
+            <span id="waStatusBadge" class="badge badge-isp">Not Connected</span>
+        </div>
+        <div class="grid-6" style="grid-template-columns:1fr 1fr;">
+            <div class="card wa-box">
+                <h3 style="color:#25D366;margin-bottom:10px;">🔗 WhatsApp Link Setup</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Apna WhatsApp number likhen (92 se shuru). Yehi number bill / reminder bhejne ke liye use hoga.</p>
+                <div class="form-group"><label>ISP WhatsApp Number *</label><input id="waNumber" placeholder="e.g. 923001112233"></div>
+                <div class="form-group"><label>Default Bill Message</label><textarea id="waDefaultMsg" style="height:70px;">Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}</textarea></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-primary btn-success btn-sm" onclick="saveWhatsAppLink()">💾 Save & Generate Link</button>
+                    <button class="btn-primary btn-sm" onclick="copyWhatsAppLink()">📋 Copy Link</button>
+                    <a id="waOpenLink" href="#" target="_blank" class="btn-primary btn-sm" style="background:#25D366;text-decoration:none;">↗ Open WhatsApp</a>
+                </div>
+                <p style="font-size:12px;color:#9ca3af;margin-top:10px;">Link: <span id="waLinkText" style="color:#60a5fa;word-break:break-all;">—</span></p>
+            </div>
+            <div class="card wa-box" style="text-align:center;">
+                <h3 style="color:#fbbf24;margin-bottom:10px;">📷 Scan QR — Connect WhatsApp</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Neeche QR ko mobile WhatsApp &gt; Linked Devices &gt; Link a Device se scan karein (demo connect).</p>
+                <div class="qr-box"><img id="waQR" src="" alt="QR" style="width:200px;height:200px;display:none;"><div id="waQRPh" style="color:#333;font-size:12px;padding:60px 20px;">Number save karein<br>QR ban jayega</div></div>
+                <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+                    <button class="btn-primary btn-sm btn-success" onclick="markWaConnected()">✅ Scan Ho Gaya — Connected</button>
+                    <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="markWaDisconnected()">❌ Disconnect</button>
+                    <button class="btn-primary btn-sm" onclick="sendWaTest()">💬 Test Bill Bhejein</button>
+                </div>
+                <p style="font-size:11px;color:#9ca3af;margin-top:8px;">Status browser me save rehta hai (har ISP ka alag).</p>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="color:#fbbf24;margin-bottom:10px;">📋 Customers ko WhatsApp Bill</h3>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Neeche apne ISP ke customers hain — ek click par bill bhejein.</p>
+            <table><thead><tr><th>Customer</th><th>Package / Fee</th><th>Mobile</th><th>WhatsApp Bill</th></tr></thead><tbody id="waTableBody"></tbody></table>
         </div>
     </div>
 
@@ -838,7 +884,7 @@
     <div id="complaintModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🛠️ New Complaint</h3><button class="close-btn" onclick="document.getElementById('complaintModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Customer</label><select id="compCustomer"></select></div><div class="form-group"><label>Issue</label><textarea id="compIssue" placeholder="e.g. Internet not working..."></textarea></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveComplaint()">Save Complaint</button></div></div>
 
     <!-- Login Screen - Number se login -->
-    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><h2 style="margin-bottom:5px;">☁️ CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login</p><p style="color:#60a5fa;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">Demo:<br>Owner: 03000000000 / owner123<br>ISP: 03001112222 / isp123<br>Staff: 03003334444 / staff123</p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
+    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><h2 style="margin-bottom:5px;">☁️ CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login</p><p style="color:#60a5fa;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">Demo:<br>ISP: 03001112222 / isp123<br>Staff: 03003334444 / staff123<br><span style="color:#9ca3af;font-size:10px;">Superadmin login hidden hai — sirf owner ke paas hai</span></p><p id="loginRoleBadge" style="font-size:11px;margin-bottom:10px;"></p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
 
     <!-- Add Staff Modal -->
     <div id="staffModal" class="modal-overlay">
@@ -1653,7 +1699,7 @@
 
         // ===== ROLE SYSTEM: Number login + SuperAdmin>ISP>Staff =====
         let systemUsers = [
-            {role:'owner', name:'Owner', mobile:'03000000000', pass:'owner123', isp:'ALL'},
+            {role:'owner', name:'Super Admin', mobile:'03008845608', pass:'8845', isp:'ALL'},
             {role:'isp', name:'Ali Net Owner', company:'Ali Net', mobile:'03001112222', pass:'isp123', isp:'Ali Net', address:'Main Road Lahore'},
             {role:'staff', name:'Field Boy', mobile:'03003334444', pass:'staff123', isp:'Ali Net', perms:{add:true,edit:true,collect:true,del:false}}
         ];
@@ -1736,114 +1782,495 @@
         const _oldCollect = collectFee;
         collectFee = function(id){ const sub=subscribersList.find(s=>s.id===id); if(sub){ const isOff=!navigator.onLine; paymentsList.unshift({date:new Date().toISOString().split('T')[0],customer:sub.name,pkg:sub.package,amount:sub.fee,via:isOff?'Cash (Offline)':'Cash',sync:isOff?'pending':'synced'}); saveOffline(); } _oldCollect(id); saveOffline(); };
 
-        // ===== SUPERADMIN PRIVACY + EXCEL IMPORT =====
-        function refreshExcelIspSelect(){
-            const sel=document.getElementById('excelIspSelect'); if(!sel) return; sel.innerHTML='';
-            ispsList.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name;sel.appendChild(o);});
-        }
-        function downloadTemplate(){
-            const csv='name,username,package,fee,phone,area,address\nAhmed Raza,ahmedr,15 Mbps,2000,923001234567,Gulberg,House 12 Lahore\nBilal Khan,bilalk,10 Mbps,1500,923009876543,Liberty,Shop 4 Plaza';
-            const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='isp_users_template.csv'; a.click();
-        }
-        function importExcel(ev){
-            const file=ev.target.files[0]; if(!file) return;
-            const ispSel=document.getElementById('excelIspSelect'); const targetIsp=ispSel?ispSel.value:'Ali Net';
-            const reader=new FileReader();
-            reader.onload=function(e){
-                try{
-                    const text=e.target.result;
-                    // simple CSV parse (name,username,package,fee,phone,area,address)
-                    const lines=text.split(/\r?\n/).filter(l=>l.trim()!=='');
-                    if(lines.length<2){alert('File khali hai');return;}
-                    const header=lines[0].toLowerCase();
-                    let count=0;
-                    for(let k=1;k<lines.length;k++){
-                        const cols=lines[k].split(',').map(c=>c.trim());
-                        if(cols.length<2) continue;
-                        const newId=subscribersList.length>0?Math.max(...subscribersList.map(s=>s.id))+1:1;
-                        subscribersList.push({id:newId,isp:targetIsp,name:cols[0]||'No Name',username:cols[1]||('user'+newId),package:cols[2]||'10 Mbps',fee:parseFloat(cols[3])||1500,phone:cols[4]||'',area:cols[5]||'Main',subArea:'Main',address:cols[6]||'Not specified',balance:0,status:'Unpaid',type:'unpaid',cnic:'N/A',dueDate:'30',connectionDate:new Date().toLocaleDateString(),connectionType:'Fiber Internet',gpsLocation:'',remarks:'Excel import'});
-                        count++;
-                    }
-                    saveOffline(); calculateLedger(); renderSubscribersTable(); renderISPs(); refreshExcelIspSelect();
-                    alert(count+' users '+targetIsp+' me add ho gaye! (Excel)');
-                }catch(err){ alert('Excel parhne me masla: '+err.message+' — CSV Template download karke waisa file banayen'); }
-            };
-            reader.readAsText(file);
-            ev.target.value='';
-        }
-        // privacy: owner ko sirf count
-        const _oldRenderISPs2 = renderISPs;
-        renderISPs = function(){ _oldRenderISPs2(); refreshExcelIspSelect(); const tb=document.getElementById('ispsTableBody'); if(!tb) return; /* counts update */ ispsList.forEach((isp,i)=>{ isp.users = subscribersList.filter(s=>(s.isp||'Ali Net')===isp.name).length; }); _oldRenderISPs2(); };
-        const _oldRenderSubs = renderSubscribersTable;
-        renderSubscribersTable = function(){
-            if(currentUser && currentUser.role==='owner'){
-                const tb=document.getElementById('subscribersTableBody'); if(tb){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#fbbf24;padding:20px;">🔒 Owner ke liye users ki detail hidden hai.<br><span style="color:#9ca3af;font-size:12px;">Sirf Super Admin me har ISP ke saamne COUNT nazar aayegi (kitne users hain). Detail sirf us ISP ko nazar aayegi.</span></td></tr>'; }
-                return;
-            }
-            // ISP ko sirf apne users
-            if(currentUser && (currentUser.role==='isp'||currentUser.role==='staff')){
-                const myIsp=currentUser.isp;
-                const tbody=document.getElementById('subscribersTableBody'); if(!tbody) return;
-                // temporarily filter by wrapping? call original then filter rows
-                _oldRenderSubs();
-                // remove rows not mine: re-filter
-                const q=(document.getElementById('subSearch')?document.getElementById('subSearch').value.toLowerCase():'');
-                let mine=subscribersList.filter(s=>(s.isp||'Ali Net')===myIsp);
-                if(q){ mine=mine.filter(s=>s.name.toLowerCase().includes(q)||s.phone.includes(q)); }
-                tbody.innerHTML='';
-                if(mine.length===0){ tbody.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Is ISP me koi user nahi. Excel se import karen.</td></tr>'; return; }
-                mine.forEach(sub=>{
-                    const row=document.createElement('tr');
-                    const canE = (typeof canDo!=='undefined') ? canDo('edit') : true;
-                    row.innerHTML=`<td><strong>${sub.name}</strong><br><span style="color:#9ca3af; font-size:11px;">@${sub.username} • ${sub.isp||''}</span></td><td>${sub.package}<br><span style="color:#60a5fa; font-size:11px;">Rs ${sub.fee}</span></td><td>${sub.phone}</td><td><span style="color:${sub.status==='Paid'?'#34d399':'#f87171'}; font-weight:bold;">${sub.status}</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal(${sub.id})">View Profile</button>${canE?`<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal(${sub.id})">✏️ Edit</button>`:''}</div></td>`;
-                    tbody.appendChild(row);
-                });
-                return;
-            }
-            _oldRenderSubs();
-        };
+                // ===== UPDATED SYSTEM: Secure Role Flow + Hidden Superadmin + Excel XLSX + WhatsApp Link/Scan =====
+        // Superadmin credentials — panel par kahin show NAHI hote, sirf login ke liye
+        const SUPERADMIN_MOBILE = '03008845608';
+        const SUPERADMIN_PASS = '8845';
 
-        // ===== OFFLINE (Android) SYSTEM =====
+        // Migrate systemUsers: ensure hidden superadmin exists, remove leaked owner demo
+        (function ensureSuperadmin(){
+            try{
+                if(!Array.isArray(systemUsers)) systemUsers = [];
+                // remove old leaked owner if present
+                systemUsers = systemUsers.filter(u => !(u.mobile==='03000000000'));
+                if(!systemUsers.find(x=>x.mobile===SUPERADMIN_MOBILE)){
+                    systemUsers.unshift({role:'owner', name:'Super Admin', mobile:SUPERADMIN_MOBILE, pass:SUPERADMIN_PASS, isp:'ALL'});
+                } else {
+                    // enforce correct pass/role silently
+                    const s = systemUsers.find(x=>x.mobile===SUPERADMIN_MOBILE);
+                    s.role='owner'; s.pass=SUPERADMIN_PASS; s.name='Super Admin'; s.isp='ALL';
+                }
+                // ensure demo ISP + staff exist
+                if(!systemUsers.find(x=>x.mobile==='03001112222')){
+                    systemUsers.push({role:'isp', name:'Ali Net Owner', company:'Ali Net', mobile:'03001112222', pass:'isp123', isp:'Ali Net', address:'Main Road Lahore'});
+                }
+                if(!systemUsers.find(x=>x.mobile==='03003334444')){
+                    systemUsers.push({role:'staff', name:'Field Boy', mobile:'03003334444', pass:'staff123', isp:'Ali Net', perms:{add:true,edit:true,collect:true,del:false}});
+                }
+                // ensure ispsList entries have login fields
+                ispsList.forEach(isp=>{
+                    const u = systemUsers.find(x=>x.role==='isp' && (x.isp===isp.name || x.company===isp.name));
+                    if(u){ isp.owner = isp.owner || u.name; isp.mobile = isp.mobile || u.mobile; isp.pass = isp.pass || u.pass; isp.address = isp.address || u.address || ''; }
+                    else { isp.owner = isp.owner || '-'; isp.mobile = isp.mobile || '-'; isp.pass = isp.pass || '-'; }
+                });
+                saveUsers();
+            }catch(e){}
+        })();
+
+        // ---- Offline persistence ----
         function saveOffline(){
             try{
                 localStorage.setItem('cloudisp_subs', JSON.stringify(subscribersList));
                 localStorage.setItem('cloudisp_payments', JSON.stringify(paymentsList));
-                localStorage.setItem('cloudisp_complaints', JSON.stringify(complaintsList));
-                localStorage.setItem('cloudisp_packages', JSON.stringify(packagesList));
+                localStorage.setItem('cloudisp_isps', JSON.stringify(ispsList));
+                localStorage.setItem('cloudisp_pkgs', JSON.stringify(packagesList));
                 localStorage.setItem('cloudisp_areas', JSON.stringify(areasList));
+                localStorage.setItem('cloudisp_complaints', JSON.stringify(complaintsList));
             }catch(e){}
         }
         function loadOffline(){
             try{
                 const s=localStorage.getItem('cloudisp_subs'); if(s) subscribersList=JSON.parse(s);
                 const p=localStorage.getItem('cloudisp_payments'); if(p) paymentsList=JSON.parse(p);
-                const c=localStorage.getItem('cloudisp_complaints'); if(c) complaintsList=JSON.parse(c);
-                const pk=localStorage.getItem('cloudisp_packages'); if(pk) packagesList=JSON.parse(pk);
+                const ii=localStorage.getItem('cloudisp_isps'); if(ii) ispsList=JSON.parse(ii);
+                const pk=localStorage.getItem('cloudisp_pkgs'); if(pk) packagesList=JSON.parse(pk);
                 const ar=localStorage.getItem('cloudisp_areas'); if(ar) areasList=JSON.parse(ar);
+                const co=localStorage.getItem('cloudisp_complaints'); if(co) complaintsList=JSON.parse(co);
             }catch(e){}
         }
-        function updateOfflineBar(){
-            const bar=document.getElementById('offlineBar');
-            if(!navigator.onLine){ bar.classList.add('show'); }
-            else{ bar.classList.remove('show'); const pend=paymentsList.filter(x=>x.sync==='pending').length; if(pend>0){ paymentsList.forEach(x=>x.sync='synced'); saveOffline(); renderPayments(); alert(pend+' offline fees sync ho gayi!'); } }
-        }
-        window.addEventListener('online', updateOfflineBar);
-        window.addEventListener('offline', updateOfflineBar);
-        // wrap save points
-        const _saveNewSub = saveNewSubscriber;
-        saveNewSubscriber = function(){ _saveNewSub(); saveOffline(); };
-        const _saveEditSub = saveEditedSubscriber;
-        saveEditedSubscriber = function(){ _saveEditSub(); saveOffline(); };
 
-        window.onload = function() {
-            loadOffline();
+        // ---- Role helpers ----
+        function myISP(){ return (currentUser && currentUser.isp && currentUser.isp!=='ALL') ? currentUser.isp : null; }
+        function isOwner(){ return currentUser && currentUser.role==='owner'; }
+        function isISP(){ return currentUser && currentUser.role==='isp'; }
+        function isStaff(){ return currentUser && currentUser.role==='staff'; }
+
+        function canDo(what){
+            if(!currentUser) return true;
+            if(currentUser.role==='owner'||currentUser.role==='isp') return true;
+            if(currentUser.role==='staff'){ const pr=currentUser.perms||{}; if(what==='add') return !!pr.add; if(what==='edit') return !!pr.edit; if(what==='collect') return !!pr.collect; if(what==='del') return !!pr.del; }
+            return true;
+        }
+
+        // Login (superadmin hidden — demo me show nahi hota)
+        doLogin = function(){
+            const u=(document.getElementById('loginUser').value||'').trim();
+            const p=(document.getElementById('loginPass').value||'').trim();
+            const found=systemUsers.find(x=>x.mobile===u && x.pass===p);
+            if(!found){ alert('Number ya password galat hai!'); return; }
+            currentUser=found;
+            document.getElementById('loginScreen').classList.remove('active');
+            applyRole();
+            const roleTxt = found.role==='owner' ? 'Super Admin' : found.role.toUpperCase();
+            alert('Welcome '+found.name+' ('+roleTxt+')!');
+        };
+
+        function signOut(){
+            currentUser=null;
+            document.getElementById('loginUser').value='';
+            document.getElementById('loginPass').value='';
+            document.getElementById('loginScreen').classList.add('active');
+        }
+
+        function applyRole(){
+            if(!currentUser) return;
+            const items=document.querySelectorAll('.nav-links li');
+            items.forEach(li=>{
+                const t=li.innerText;
+                if(t.includes('Super Admin')){ li.style.display = isOwner()?'':'none'; }
+                else if(t.includes('Staff Ledger')){ li.style.display = isOwner()?'':(isStaff()?'none':''); }
+                else { li.style.display = ''; }
+                // staff with no permissions still sees tabs but buttons locked
+            });
+            // Top Add button: staff ke liye permission check
+            const topBtn = document.querySelector('.top-global-header .btn-primary');
+            if(topBtn){ topBtn.style.display = (!canDo('add') && isStaff()) ? 'none' : ''; }
+            // ISP Excel bar: owner ke liye hide (owner Superadmin se karega), ISP/staff-add walon ke liye show
+            const ispBar = document.getElementById('ispExcelBar');
+            if(ispBar){ ispBar.style.display = isOwner() ? 'none' : ''; }
+            // badge
+            const badge = document.getElementById('loginRoleBadge');
+            // go to correct dashboard
+            if(isOwner()){
+                switchTabForce('superadmin');
+            } else {
+                switchTabForce('dashboard');
+            }
             calculateLedger();
             renderSubscribersTable();
-            renderPackages(); renderPayments(); renderComplaints(); renderAreas(); renderISPs(); renderAllStaff();
-            updateOfflineBar();
-            // Android: home screen install hint
-            if(/Android/i.test(navigator.userAgent)){ console.log('Android detected - Add to Home Screen se app ban jayegi'); }
+            renderISPs();
+            renderAllStaff();
+            renderWaTable();
+            loadWhatsAppLink();
+        }
+
+        function switchTabForce(tabId){
+            document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(li=>li.classList.remove('active'));
+            const el=document.getElementById(tabId);
+            if(el) el.classList.add('active');
+            document.querySelectorAll('.nav-links li').forEach(li=>{
+                if(li.getAttribute('onclick') && li.getAttribute('onclick').includes("'"+tabId+"'")) li.classList.add('active');
+            });
+            if(tabId==='subscribers') renderSubscribersTable();
+            if(tabId==='packages') renderPackages();
+            if(tabId==='payments') renderPayments();
+            if(tabId==='complaints') renderComplaints();
+            if(tabId==='areas') renderAreas();
+            if(tabId==='superadmin') renderISPs();
+            if(tabId==='whatsapp-billing'){ loadWhatsAppLink(); renderWaTable(); }
+            if(tabId==='staff-ledger') calculateLedger();
+        }
+
+        // Dashboard counts: ISP ko sirf apna, Owner ko sab + Superadmin me count
+        calculateLedger = function(){
+            let subs = subscribersList;
+            if(isISP()||isStaff()){ const m=myISP(); subs = subscribersList.filter(s=>(s.isp||'Ali Net')===m); }
+            if(isOwner()){ subs = []; } // owner ke liye subscriber detail hidden — counts Superadmin me
+            const baseList = (isOwner()) ? subscribersList : subs;
+            // dashboard boxes show role-filtered (owner sees 0 + hint? show totals as counts only in superadmin)
+            const showList = (isOwner()) ? subscribersList : subs;
+            try{
+                document.getElementById('countTotal').innerText = showList.length;
+                const activeCount = showList.filter(s=>s.status==='Paid').length;
+                document.getElementById('countActive').innerText = activeCount;
+                document.getElementById('countPaid').innerText = activeCount;
+                document.getElementById('countUnpaid').innerText = showList.filter(s=>s.status==='Unpaid').length;
+                let totalRev = showList.filter(s=>s.status==='Paid').reduce((a,c)=>a+(+c.fee||0),0);
+                document.getElementById('valRevenue').innerText = 'Rs ' + totalRev.toLocaleString();
+            }catch(e){}
+            // staff ledger table (owner only)
+            try{
+                const tbody=document.getElementById('staffTableBody');
+                if(tbody){
+                    if(!isOwner()){ tbody.innerHTML='<tr><td colspan=6 style="text-align:center;color:#fbbf24;padding:16px;">🔒 Staff ledger sirf Superadmin dekh sakta hai.</td></tr>'; }
+                    else{
+                        tbody.innerHTML='';
+                        document.getElementById('totalStaffCount').innerText = staffList.length;
+                        const now=new Date(); const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+                        staffList.forEach((staff,index)=>{
+                            const perDay=staff.salary/dim; const totLeave=staff.leaves.length;
+                            const leaveDed=perDay*totLeave;
+                            let totAdv=staff.advances.reduce((s,x)=>s+x.amount,0);
+                            const rem=Math.round(staff.salary-totAdv-leaveDed);
+                            const tr=document.createElement('tr');
+                            tr.innerHTML='<td><strong>'+staff.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+staff.role+'</span></td><td>Rs '+staff.salary.toLocaleString()+'</td><td><span style="color:#f87171;">Rs '+totAdv.toLocaleString()+'</span></td><td>'+totLeave+' Days</td><td style="font-weight:bold;color:#34d399;">Rs '+rem.toLocaleString()+'</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="openAdvanceModal('+index+')">+ Adv</button><button class="btn-primary btn-sm btn-warning" onclick="openLeaveModal('+index+')">Leave</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="viewHistory('+index+')">History</button></div></td>';
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            }catch(e){}
         };
+
+        // Subscribers table: Owner=hidden, ISP/Staff=sirf apna ISP + permission buttons
+        renderSubscribersTable = function(){
+            const tbody=document.getElementById('subscribersTableBody'); if(!tbody) return;
+            tbody.innerHTML='';
+            if(isOwner()){
+                tbody.innerHTML='<tr><td colspan=5 style="text-align:center;color:#fbbf24;padding:20px;">🔒 Owner ke liye users ki detail hidden hai.<br><span style="color:#9ca3af;font-size:12px;">Super Admin me har ISP ke saamne sirf COUNT nazar aayegi. Detail sirf us ISP ko nazar aayegi.</span></td></tr>';
+                return;
+            }
+            const q=(document.getElementById('subSearch')?document.getElementById('subSearch').value.toLowerCase():'');
+            const fs=document.getElementById('subFilterStatus')?document.getElementById('subFilterStatus').value:'';
+            const fa=document.getElementById('subFilterArea')?document.getElementById('subFilterArea').value:'';
+            const areaSel=document.getElementById('subFilterArea');
+            let pool=subscribersList;
+            if(isISP()||isStaff()){ const m=myISP(); pool=subscribersList.filter(s=>(s.isp||'Ali Net')===m); }
+            if(areaSel && areaSel.options.length<=1){
+                const areas=[...new Set(pool.map(s=>s.area))];
+                areaSel.innerHTML='<option value="">All Areas</option>';
+                areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;areaSel.appendChild(o);});
+                if(fa) areaSel.value=fa;
+            }
+            let list=pool.filter(s=>{
+                const mq=!q||((s.name||'').toLowerCase().includes(q)||(s.phone||'').includes(q)||(s.package||'').toLowerCase().includes(q));
+                const ms=!fs||s.status===fs; const ma=!fa||s.area===fa; return mq&&ms&&ma;
+            });
+            if(list.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9ca3af;">No subscribers found.</td></tr>'; return; }
+            const canEdit=canDo('edit'), canDel=canDo('del');
+            list.forEach(sub=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML='<td><strong>'+sub.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">@'+sub.username+' • '+(sub.isp||'')+'</span></td><td>'+sub.package+'<br><span style="color:#60a5fa;font-size:11px;">Rs '+sub.fee+'</span></td><td>'+sub.phone+'</td><td><span style="color:'+(sub.status==='Paid'?'#34d399':'#f87171')+';font-weight:bold;">'+sub.status+'</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal('+sub.id+')">View Profile</button>'+(canEdit?'<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal('+sub.id+')">✏️ Edit</button>':'')+'</div></td>';
+                tbody.appendChild(tr);
+            });
+        };
+
+        // Guard коллект/delete/edit by permission
+        const _origOpenEdit = openEditSubscriberModal;
+        openEditSubscriberModal = function(id){ if(!canDo('edit')){ alert('Aap ko Edit ki permission nahi hai!'); return; } _origOpenEdit(id); };
+        const _origDeleteSub = deleteSubscriber;
+        deleteSubscriber = function(id){ if(!canDo('del')){ alert('Aap ko Delete ki permission nahi hai!'); return; } _origDeleteSub(id); };
+        const _origCollect = collectFee;
+        collectFee = function(id){ if(!canDo('collect')){ alert('Aap ko Fee Collect ki permission nahi hai!'); return; } _origCollect(id); };
+        const _origOpenAdd = openAddSubscriberModal;
+        openAddSubscriberModal = function(){ if(!canDo('add')){ alert('Aap ko Add User ki permission nahi hai!'); return; } _origOpenAdd(); };
+
+        // ---- ISP create: sirf Superadmin, login bana kar de ----
+        addISP = function(){ if(!isOwner()){ alert('Sirf Superadmin naya ISP add kar sakta hai!'); return; } document.getElementById('ispCreateModal').classList.add('active'); };
+        saveNewISP = function(){
+            if(!isOwner()){ alert('Sirf Superadmin ISP add kar sakta hai!'); return; }
+            const comp=document.getElementById('newIspCompany').value.trim();
+            const owner=document.getElementById('newIspOwner').value.trim();
+            const mob=document.getElementById('newIspMobile').value.trim();
+            const ps=document.getElementById('newIspPass').value.trim() || ('isp'+Math.floor(1000+Math.random()*9000));
+            const city=document.getElementById('newIspCity').value||'Lahore';
+            const addr=document.getElementById('newIspAddr').value||'';
+            if(!comp||!owner||!mob){alert('Company + Owner + Number zaroori');return;}
+            if(systemUsers.find(x=>x.mobile===mob)){alert('Ye number pehle se hai!');return;}
+            ispsList.push({name:comp,city:city,users:0,status:'Paid',owner:owner,mobile:mob,pass:ps,address:addr});
+            systemUsers.push({role:'isp',name:owner,company:comp,mobile:mob,pass:ps,isp:comp,address:addr});
+            saveUsers(); saveOffline(); renderISPs(); renderAllStaff(); refreshExcelIspSelect();
+            document.getElementById('ispCreateModal').classList.remove('active');
+            alert('ISP ban gaya!\\nLogin: '+mob+'\\nPassword: '+ps+'\\nYe login ISP ko de dein.');
+        };
+
+        // ---- Staff: Superadmin full control, ISP apne staff ko permission de sakta hai ----
+        openStaffCreateModal = function(){
+            if(isStaff()){ alert('Staff naya staff add nahi kar sakta!'); return; }
+            const sel=document.getElementById('newStaffIsp'); sel.innerHTML='';
+            let opts = ispsList;
+            if(isISP()){ opts = ispsList.filter(i=>i.name===myISP()); }
+            opts.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name;sel.appendChild(o);});
+            if(isISP() && myISP()) sel.value=myISP();
+            sel.disabled = isISP(); // ISP apna hi select karega
+            document.getElementById('staffCreateModal').classList.add('active');
+        };
+        // staff ledger wala purana Add Staff bhi sirf owner
+        openStaffModal = function(){ if(!isOwner()){ alert('Staff ledger me staff sirf Superadmin add kar sakta hai!'); return; } document.getElementById('staffModal').classList.add('active'); };
+
+        saveNewStaff = function(){
+            if(isStaff()){ alert('Permission nahi hai!'); return; }
+            const n=document.getElementById('newStaffName').value.trim();
+            const m=document.getElementById('newStaffMobile').value.trim();
+            const ps=document.getElementById('newStaffPass').value.trim();
+            let isp=document.getElementById('newStaffIsp').value;
+            if(isISP()) isp=myISP();
+            if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
+            if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
+            const perms={add:document.getElementById('permAdd').checked,edit:document.getElementById('permEdit').checked,collect:document.getElementById('permCollect').checked,del:document.getElementById('permDelete').checked};
+            systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+            saveUsers(); renderAllStaff(); document.getElementById('staffCreateModal').classList.remove('active');
+            alert('Staff ban gaya! Login: '+m+' / '+ps+' ('+isp+')');
+        };
+        renderAllStaff = function(){
+            const tb=document.getElementById('allStaffTableBody'); if(!tb) return; tb.innerHTML='';
+            let list=systemUsers.filter(u=>u.role==='staff');
+            if(isISP()) list=list.filter(s=>s.isp===myISP());
+            if(isStaff()){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">No access.</td></tr>'; return; }
+            if(list.length===0){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Koi staff nahi.</td></tr>'; return; }
+            list.forEach(s=>{
+                const p=s.perms||{}; const permsTxt=[p.add?'➕Add':'',p.edit?'✏️Edit':'',p.collect?'💰Collect':'',p.del?'🗑️Del':''].filter(Boolean).join(' ');
+                const tr=document.createElement('tr');
+                const safeM=String(s.mobile).replace(/'/g,'');
+                const safeP=String(s.pass).replace(/'/g,'');
+                tr.innerHTML='<td><strong>'+s.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+s.mobile+'</span></td><td>'+s.isp+'</td><td><span class="hidden-pass">••••••</span> <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="alert(\'Login: '+safeM+' / '+safeP+'\')">👁 Show</button></td><td style="font-size:11px;">'+(permsTxt||'No access')+'</td><td><div class="action-btns"><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editStaffPerms(\''+safeM+'\')">⚙️ Perms</button>'+(isOwner()?'<button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteStaff(\''+safeM+'\')">Delete</button>':'')+'</div></td>';
+                tb.appendChild(tr);
+            });
+        };
+        deleteStaff = function(mob){ if(!isOwner()){ alert('Sirf Superadmin staff delete kar sakta hai!'); return; } if(!confirm('Staff delete karen?'))return; systemUsers=systemUsers.filter(u=>u.mobile!==mob); saveUsers(); renderAllStaff(); };
+        editStaffPerms = function(mob){
+            if(isStaff()) return;
+            const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
+            if(isISP() && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
+            const cur=s.perms||{add:false,edit:false,collect:false,del:false};
+            const a=confirm(s.name+' — Add User permission '+(cur.add?'HATAYEN?':'DEN?')); 
+            // simple quick editor: prompt-based 4 permissions
+            const add=confirm('➕ Add User permission deni hai? (OK=Yes / Cancel=No)');
+            const edit=confirm('✏️ Edit User permission deni hai? (OK=Yes / Cancel=No)');
+            const collect=confirm('💰 Collect Fee permission deni hai? (OK=Yes / Cancel=No)');
+            const del=confirm('🗑️ Delete permission deni hai? (OK=Yes / Cancel=No)');
+            s.perms={add:add,edit:edit,collect:collect,del:del};
+            saveUsers(); renderAllStaff(); alert('Permissions update ho gayi!');
+        };
+
+        // ---- Superadmin ISP table: sirf naam/data + count, password masked + copy login ----
+        renderISPs = function(){
+            const tb=document.getElementById('ispsTableBody'); if(!tb) return; tb.innerHTML='';
+            ispsList.forEach((isp,i)=>{
+                isp.users = subscribersList.filter(s=>(s.isp||'Ali Net')===isp.name).length;
+                const tr=document.createElement('tr');
+                const safePass=String(isp.pass||'').replace(/'/g,'');
+                const nm=String(isp.name||'').replace(/'/g,'');
+                tr.innerHTML='<td><strong>'+nm+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+(isp.owner||'')+' - '+(isp.mobile||'')+'</span><br><span style="font-size:11px;color:#60a5fa;">Users: '+isp.users+'</span></td><td>'+(isp.city||'')+'<br><span style="color:#9ca3af;font-size:11px;">'+(isp.address||'')+'</span></td><td style="font-size:12px;"><span class="hidden-pass" id="ispPass'+i+'">......</span><br><button class="btn-primary btn-sm" style="background:#4b5563;margin-top:4px;" onclick="toggleIspPass('+i+',\''+safePass+'\')">Show</button> <button class="btn-primary btn-sm btn-success" onclick="copyIspLogin('+i+')">Copy Login</button></td><td>'+isp.status+'</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus('+i+',\'Paid\')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus('+i+',\'Unpaid\')">Block</button>'+(isOwner()?'<button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteISP('+i+')">Del</button>':'')+'</div></td>';
+                tb.appendChild(tr);
+            });
+            try{renderAllStaff();}catch(e){}
+            refreshExcelIspSelect();
+        };
+        setIspStatus = function(i,st){ ispsList[i].status=st; saveOffline(); renderISPs(); };
+        toggleIspPass = function(i,pass){ const el=document.getElementById('ispPass'+i); if(!el) return; const h=el.innerText.trim(); if(h==='••••••'||h==='......'){ el.innerText=pass||'-'; el.classList.remove('hidden-pass'); } else { el.innerText='••••••'; el.classList.add('hidden-pass'); } };
+        copyIspLogin = function(i){ const isp=ispsList[i]; const txt='ISP: '+isp.name+' | Login: '+isp.mobile+' | Password: '+isp.pass; try{navigator.clipboard.writeText(txt); alert('Login copy ho gaya:\\n'+txt);}catch(e){ prompt('Copy kar lein:',txt); } };
+        deleteISP = function(i){ if(!isOwner()) return; if(!confirm('ISP delete karen? Us ke users nahi delete honge.'))return; const nm=ispsList[i].name; ispsList.splice(i,1); systemUsers=systemUsers.filter(u=>!(u.role==='isp'&&u.isp===nm)); saveUsers(); saveOffline(); renderISPs(); };
+
+        // ---- Excel: Template + CSV + XLSX (SheetJS) ----
+        function refreshExcelIspSelect(){
+            const sel=document.getElementById('excelIspSelect'); if(!sel) return;
+            const cur=sel.value; sel.innerHTML='';
+            ispsList.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name+' ('+subscribersList.filter(s=>(s.isp||'Ali Net')===i.name).length+')';sel.appendChild(o);});
+            if(cur) sel.value=cur;
+        }
+        function downloadTemplate(){
+            const csv='name,username,package,fee,phone,area,address\nAhmed Raza,ahmedr,15 Mbps,2000,923001234567,Gulberg,House 12 Lahore\nBilal Khan,bilalk,10 Mbps,1500,923009876543,Liberty,Shop 4 Plaza';
+            const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='isp_users_template.csv'; a.click();
+        }
+        function parseCSV(text){
+            const lines=text.split(/\\r?\\n/).filter(l=>l.trim()!==''); if(lines.length<2) return [];
+            const rows=[];
+            for(let k=1;k<lines.length;k++){
+                // quoted comma support (simple)
+                const cols=[]; let cur=''; let q=false;
+                for(let c=0;c<lines[k].length;c++){ const ch=lines[k][c]; if(ch==='\"'){q=!q;} else if(ch===','&&!q){cols.push(cur.trim());cur='';} else cur+=ch; }
+                cols.push(cur.trim());
+                if(cols.length<2) continue;
+                rows.push({name:cols[0]||'No Name',username:cols[1]||'',package:cols[2]||'10 Mbps',fee:parseFloat(cols[3])||1500,phone:cols[4]||'',area:cols[5]||'Main',address:cols[6]||'Not specified'});
+            }
+            return rows;
+        }
+        function bulkAddUsers(rows,targetIsp){
+            let count=0;
+            rows.forEach(r=>{
+                const newId=subscribersList.length>0?Math.max(...subscribersList.map(s=>s.id))+1:1;
+                subscribersList.push({id:newId,isp:targetIsp,name:r.name||'No Name',username:r.username||('user'+newId),package:r.package||'10 Mbps',fee:r.fee||1500,phone:r.phone||'',area:r.area||'Main',subArea:'Main',address:r.address||'Not specified',balance:0,status:'Unpaid',type:'unpaid',cnic:'N/A',dueDate:'30',connectionDate:new Date().toLocaleDateString(),connectionType:'Fiber Internet',gpsLocation:'',remarks:'Excel import'});
+                count++;
+            });
+            saveOffline(); calculateLedger(); renderSubscribersTable(); renderISPs(); refreshExcelIspSelect(); renderWaTable();
+            alert(count+' users '+targetIsp+' me add ho gaye! (Excel)');
+        }
+        function importExcel(ev){
+            if(!isOwner()){ alert('Bulk import Superadmin se hota hai (ISP select karke). ISP apne panel Subscribers se karein.'); ev.target.value=''; return; }
+            const file=ev.target.files[0]; if(!file) return;
+            const ispSel=document.getElementById('excelIspSelect'); const targetIsp=ispSel?ispSel.value.split(' (')[0]:'Ali Net';
+            readExcelFile(file, rows=>bulkAddUsers(rows,targetIsp));
+            ev.target.value='';
+        }
+        function importExcelISP(ev){
+            const file=ev.target.files[0]; if(!file) return;
+            if(!canDo('add')){ alert('Add ki permission nahi hai!'); ev.target.value=''; return; }
+            const targetIsp=myISP()||'Ali Net';
+            readExcelFile(file, rows=>bulkAddUsers(rows,targetIsp));
+            ev.target.value='';
+        }
+        function readExcelFile(file,cb){
+            const isX = /\\.xlsx?$|\\.xls$/i.test(file.name);
+            if(isX && typeof XLSX!=='undefined'){
+                const rd=new FileReader();
+                rd.onload=function(e){
+                    try{
+                        const wb=XLSX.read(e.target.result,{type:'array'});
+                        const ws=wb.Sheets[wb.SheetNames[0]];
+                        const json=XLSX.utils.sheet_to_json(ws,{defval:''});
+                        const rows=json.map(o=>{
+                            const g=k=>{ const key=Object.keys(o).find(x=>x.toLowerCase()===k); return key?String(o[key]).trim():''; };
+                            return {name:g('name')||'No Name',username:g('username')||'',package:g('package')||'10 Mbps',fee:parseFloat(g('fee'))||1500,phone:g('phone')||'',area:g('area')||'Main',address:g('address')||'Not specified'};
+                        }).filter(r=>r.name&&r.name!=='No Name'||r.username||r.phone);
+                        if(rows.length===0){alert('Excel me data nahi mila. Template jaisa header rakhen: name,username,package,fee,phone,area,address');return;}
+                        cb(rows);
+                    }catch(err){ alert('Excel parhne me masla: '+err.message); }
+                };
+                rd.readAsArrayBuffer(file);
+            } else {
+                const reader=new FileReader();
+                reader.onload=function(e){
+                    try{
+                        const rows=parseCSV(e.target.result);
+                        if(rows.length===0){alert('File khali hai / format galat. Template download karein.');return;}
+                        cb(rows);
+                    }catch(err){ alert('File parhne me masla: '+err.message); }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // ---- WhatsApp Link + Scan (per ISP, localStorage) ----
+        function waKey(){ const isp=myISP()||(isOwner()?'ALL':'Ali Net'); return 'cloudisp_wa_'+isp; }
+        function saveWhatsAppLink(){
+            const num=(document.getElementById('waNumber').value||'').replace(/\\D/g,'');
+            const msg=document.getElementById('waDefaultMsg').value||'';
+            if(!num||num.length<10){ alert('Sahi WhatsApp number likhen (92 se shuru)'); return; }
+            localStorage.setItem(waKey(), JSON.stringify({number:num,msg:msg,connected: (JSON.parse(localStorage.getItem(waKey())||'{}').connected||false)}));
+            loadWhatsAppLink(); alert('WhatsApp link save ho gaya!');
+        }
+        function loadWhatsAppLink(){
+            let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){}
+            if(d.number){
+                document.getElementById('waNumber').value=d.number;
+                const link='https://wa.me/'+d.number;
+                document.getElementById('waLinkText').innerText=link;
+                document.getElementById('waOpenLink').href=link;
+                const qr=document.getElementById('waQR');
+                qr.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(link);
+                qr.style.display='block'; document.getElementById('waQRPh').style.display='none';
+            }
+            if(d.msg) document.getElementById('waDefaultMsg').value=d.msg;
+            const badge=document.getElementById('waStatusBadge');
+            if(badge){ const on=!!d.connected; badge.innerText=on?'● Connected':'○ Not Connected'; badge.className='badge '+(on?'badge-staff':'badge-isp'); }
+        }
+        function copyWhatsAppLink(){ const t=document.getElementById('waLinkText').innerText; if(!t||t==='—'){alert('Pehle number save karein');return;} try{navigator.clipboard.writeText(t); alert('Link copy ho gaya: '+t);}catch(e){prompt('Copy kar lein:',t);} }
+        function markWaConnected(){ let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){} if(!d.number){alert('Pehle number save karein');return;} d.connected=true; localStorage.setItem(waKey(),JSON.stringify(d)); loadWhatsAppLink(); alert('WhatsApp Connected! ✅ (Scan complete)'); }
+        function markWaDisconnected(){ let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){} d.connected=false; localStorage.setItem(waKey(),JSON.stringify(d)); loadWhatsAppLink(); }
+        function waBillText(sub){
+            let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){}
+            const comp=(isISP()||isStaff())?myISP():appSettings.company;
+            let t=d.msg||'Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}';
+            t=t.replace('{name}',sub.name).replace('{package}',sub.package).replace('{fee}',sub.fee).replace('{company}',comp||appSettings.company);
+            return t;
+        }
+        function sendWaBill(id){
+            const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
+            if(!sub.phone){alert('Customer ka mobile nahi hai');return;}
+            window.open('https://wa.me/'+sub.phone+'?text='+encodeURIComponent(waBillText(sub)),'_blank');
+        }
+        function sendWaTest(){
+            let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){}
+            if(!d.number){alert('Pehle apna WhatsApp number save karein');return;}
+            window.open('https://wa.me/'+d.number+'?text='+encodeURIComponent('Test: WhatsApp Billing connected ✅ — '+((myISP())||'CloudISP')),'_blank');
+        }
+        function renderWaTable(){
+            const tb=document.getElementById('waTableBody'); if(!tb) return; tb.innerHTML='';
+            let pool=subscribersList;
+            if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(s=>(s.isp||'Ali Net')===m); }
+            if(isOwner()){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#fbbf24;">Owner ke liye customer list hidden hai.</td></tr>'; return; }
+            if(pool.length===0){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#9ca3af;">Koi customer nahi.</td></tr>'; return; }
+            pool.slice(0,100).forEach(s=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML='<td><strong>'+s.name+'</strong></td><td>'+s.package+' / Rs '+s.fee+'</td><td>'+s.phone+'</td><td><button class="btn-primary btn-sm" style="background:#25D366;" onclick="sendWaBill('+s.id+')">💬 Bill Bhejein</button></td>';
+                tb.appendChild(tr);
+            });
+        }
+
+        // ---- switchTab wrapper for WA + offline bar ----
+        const _origSwitch = switchTab;
+        switchTab = function(tabId, el){
+            if(tabId==='superadmin' && !isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
+            if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+            try{
+              if(!el || !el.parentElement){
+                // fallback without crashing original parentElement logic
+                document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
+                document.querySelectorAll('.nav-links li').forEach(li=>li.classList.remove('active'));
+                const tgt=document.getElementById(tabId); if(tgt) tgt.classList.add('active');
+                document.querySelectorAll('.nav-links li').forEach(li=>{ const oc=li.getAttribute('onclick')||''; if(oc.includes("'"+tabId+"'")) li.classList.add('active'); });
+                if(tabId==='subscribers') renderSubscribersTable();
+                if(tabId==='packages') renderPackages();
+                if(tabId==='payments') renderPayments();
+                if(tabId==='complaints') renderComplaints();
+                if(tabId==='areas') renderAreas();
+                if(tabId==='superadmin') renderISPs();
+              } else { _origSwitch(tabId, el); }
+            }catch(e){ console.log(e); }
+            if(tabId==='whatsapp-billing'){ loadWhatsAppLink(); renderWaTable(); }
+        };
+
+        // ---- init ----
+        loadOffline();
+        try{
+            calculateLedger(); renderPackages(); renderPayments(); renderComplaints(); renderAreas(); renderISPs(); renderAllStaff(); refreshExcelIspSelect();
+        }catch(e){ console.log(e); }
+        window.addEventListener('online', ()=>{ document.getElementById('offlineBar').classList.remove('show'); });
+        window.addEventListener('offline', ()=>{ document.getElementById('offlineBar').classList.add('show'); });
+        if(!navigator.onLine) document.getElementById('offlineBar').classList.add('show');
+        // sign-out button ko real logout se joren
+        (function(){ const b=document.querySelector('.sign-out-btn'); if(b) b.setAttribute('onclick','signOut()'); })();
     </script>
-<script>window.__CF$cv$params={r:'a43e14de0e6c773a',t:'MTc5MDg4NTExOQ==',u:'01a0f9124c5872fbabf3844a43a98a2f',ut:'1N28_37htHu_Pxc9iS1ER8SMfbiz9ilwOclpSrLmesM-1790885121-1.2.1.1-8wld1h8xoKoAkPFvQbDA78Kf32iZRiAw6gPZ2_J5ns18jXiS3BbDEZyTHujEUOZof3CEQcWuy1fWuW1ZZy4lH2tOmyTEXrb8DrYUn2uF5z8',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+<script>window.__CF$cv$params={r:'a44b09a41a6c52a1',t:'MTc5MTAyMDk3NA==',u:'01a1012b478670c8a76113014094dce8',ut:'evcYP0eCgKzE_YoOmM8MUOA1sXR94.BlPIK5CVSvlg4-1791020976-1.2.1.1-dnfjgLiTDLlIcXZEog5fy2BniSGF6WmaVZMwPORRHQKON25QZW67sui8G0gu4lSvowVY8laXIGhnRG3Lsv6q_3TrtQRNN4rJmA_kfaiylAM',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
