@@ -421,7 +421,7 @@
     <div class="sidebar">
         <div class="sidebar-top">
             <div class="logo-container">
-                <div class="logo-icon">☁</div>
+                <div class="logo-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 4px 14px rgba(37,99,235,.45);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div>
                 <div class="logo-text">
                     <h2>CloudISP</h2>
                     <p>Pro Billing System</p>
@@ -553,7 +553,7 @@
                 <h1>Staff Ledger & Salary Management</h1>
                 <p>Track employee advances, date-wise leave deductions, and WhatsApp salary notifications</p>
             </div>
-            <button class="btn-primary" onclick="openStaffModal()">+ Add Staff</button>
+            <button id="staffLedgerAddBtn" class="btn-primary" onclick="openStaffModal()">+ Add Staff</button>
         </div>
 
         <div class="card">
@@ -599,20 +599,29 @@
         <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">📍 Coverage Areas</h3><table><thead><tr><th>Area Name</th><th>Total Users</th><th>Actions</th></tr></thead><tbody id="areasTableBody"></tbody></table></div>
     </div>
 
-    <!-- Settings Section -->
+    <!-- Settings Section : Superadmin basic + ISP company -->
     <div id="settings" class="main-content">
-        <div class="header-banner"><div><h1>⚙️ Company Settings</h1><p>Your ISP name, phone, logo — invoice par yehi aayega</p></div></div>
-        <div class="card" style="max-width:600px;">
-            <div class="form-group"><label>Company Name</label><input type="text" id="setCompany" value="DEMO ISP"></div>
-            <div class="form-group"><label>Support Number</label><input type="text" id="setPhone" value="0300-8816822"></div>
-            <div class="form-group"><label>Collected By Name</label><input type="text" id="setCollector" value="ADMIN DEMO"></div>
+        <div class="header-banner"><div><h1>⚙️ Company Settings</h1><p>Superadmin basic + ISP company — invoice par yehi aayega</p></div></div>
+        <div class="card" style="max-width:600px;" id="setOwnerBox">
+            <h3 style="color:#fbbf24;margin-bottom:12px;">👑 Superadmin — Basic Settings</h3>
+            <div class="form-group"><label>Cloud Company Name</label><input type="text" id="setCompany" value="CloudISP"></div>
+            <div class="form-group"><label>Support Number</label><input type="text" id="setPhone" value="03008845608"></div>
+            <div class="form-group"><label>Default Monthly Rent per ISP (Rs)</label><input type="number" id="setRent" value="5000"></div>
+            <div class="form-group"><label>Collected By (Default)</label><input type="text" id="setCollector" value="ADMIN"></div>
             <button class="btn-primary btn-success" onclick="saveSettings()">💾 Save Settings</button>
+        </div>
+        <div class="card" style="max-width:600px;" id="setIspBox">
+            <h3 style="color:#60a5fa;margin-bottom:12px;">📡 My ISP — Company Settings</h3>
+            <div class="form-group"><label>My Company Name</label><input type="text" id="setIspCompany" value="My ISP"></div>
+            <div class="form-group"><label>My Support Number</label><input type="text" id="setIspPhone" value="03001112222"></div>
+            <div class="form-group"><label>Collected By Name</label><input type="text" id="setIspCollector" value="ADMIN"></div>
+            <button class="btn-primary btn-success" onclick="saveIspSettings()">💾 Save My Settings</button>
         </div>
     </div>
 
     <!-- Super Admin Section -->
     <div id="superadmin" class="main-content">
-        <div class="header-banner"><div><h1>👑 Super Admin — Rent Panel (Demo)</h1><p>Multiple ISPs — add, block, rent status</p></div><button class="btn-primary" onclick="addISP()">+ Add ISP</button></div>
+        <div class="header-banner"><div><h1>👑 Super Admin — Rent Panel</h1><p>Multiple ISPs — add, block, rent status</p></div><button class="btn-primary" onclick="addISP()">+ Add ISP</button></div>
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                 <h3 style="color:#fbbf24;">👑 All ISP Clients — Sirf Count (Detail Hidden)</h3>
@@ -884,7 +893,7 @@
     <div id="complaintModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🛠️ New Complaint</h3><button class="close-btn" onclick="document.getElementById('complaintModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Customer</label><select id="compCustomer"></select></div><div class="form-group"><label>Issue</label><textarea id="compIssue" placeholder="e.g. Internet not working..."></textarea></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveComplaint()">Save Complaint</button></div></div>
 
     <!-- Login Screen - Number se login -->
-    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><h2 style="margin-bottom:5px;">☁️ CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login</p><p style="color:#60a5fa;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">Demo:<br>ISP: 03001112222 / isp123<br>Staff: 03003334444 / staff123<br><span style="color:#9ca3af;font-size:10px;">Superadmin login hidden hai — sirf owner ke paas hai</span></p><p id="loginRoleBadge" style="font-size:11px;margin-bottom:10px;"></p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
+    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><div style="width:56px;height:56px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,.45);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div><h2 style="margin-bottom:5px;">Welcome to the CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login — login Superadmin se lein</p><p style="color:#9ca3af;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">🔒 Demo login off hai<br><span style="color:#60a5fa;">Apna Number + Password likhen</span></p><p id="loginRoleBadge" style="font-size:11px;margin-bottom:10px;"></p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
 
     <!-- Add Staff Modal -->
     <div id="staffModal" class="modal-overlay">
@@ -1456,7 +1465,7 @@
             container.innerHTML = `
                 <div class="invoice-view">
                     <div style="text-align: center; border-bottom: 2px solid #ff7a00; padding-bottom: 8px; margin-bottom: 12px;">
-                        <h2 style="margin: 0; font-size: 18px;">DEMO ISP</h2>
+                        <h2 style="margin: 0; font-size: 18px;">CloudISP</h2>
                         <p style="margin: 2px 0 0; font-size: 12px; color: #333;">0300-8816822</p>
                     </div>
 
@@ -2272,5 +2281,222 @@
         // sign-out button ko real logout se joren
         (function(){ const b=document.querySelector('.sign-out-btn'); if(b) b.setAttribute('onclick','signOut()'); })();
     </script>
-<script>window.__CF$cv$params={r:'a44b09a41a6c52a1',t:'MTc5MTAyMDk3NA==',u:'01a1012b478670c8a76113014094dce8',ut:'evcYP0eCgKzE_YoOmM8MUOA1sXR94.BlPIK5CVSvlg4-1791020976-1.2.1.1-dnfjgLiTDLlIcXZEog5fy2BniSGF6WmaVZMwPORRHQKON25QZW67sui8G0gu4lSvowVY8laXIGhnRG3Lsv6q_3TrtQRNN4rJmA_kfaiylAM',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+<script>
+// ===== FINAL OVERRIDES: Superadmin=ISP list only, ISP custom pkg, payments ISP-wise, no complaints for owner, staff-add only owner, settings split =====
+(function(){
+if(typeof appSettings!=='undefined'){ appSettings.rent = appSettings.rent || 5000; }
+
+// Packages per ISP + Payments/Complaints per ISP: ensure isp field exists
+try{
+  packagesList.forEach(p=>{ if(!p.isp) p.isp='Ali Net'; });
+  paymentsList.forEach(p=>{ if(!p.isp){ const s=subscribersList.find(x=>x.name===p.customer); p.isp=s?(s.isp||'Ali Net'):'Ali Net'; } });
+  complaintsList.forEach(c=>{ if(!c.isp){ const s=subscribersList.find(x=>x.name===c.customer); c.isp=s?(s.isp||'Ali Net'):'Ali Net'; } });
+}catch(e){}
+
+// ---- applyRole: strict sidebar ----
+applyRole = function(){
+  if(!currentUser) return;
+  const items=document.querySelectorAll('.nav-links li');
+  items.forEach(li=>{
+    const t=li.innerText;
+    if(isOwner()){
+      // Owner: Dashboard, Subscribers (ISP list), Payments (ISP-wise), Staff Ledger (add), Super Admin, Settings. Hide: Packages, Complaints, Areas, WhatsApp
+      if(t.includes('Super Admin')||t.includes('Dashboard')||t.includes('Subscribers')||t.includes('Payments')||t.includes('Staff Ledger')||t.includes('Settings')) li.style.display='';
+      else li.style.display='none';
+    } else if(isISP()){
+      if(t.includes('Super Admin')) li.style.display='none'; else li.style.display='';
+    } else {
+      // staff
+      if(t.includes('Super Admin')||t.includes('Staff Ledger')||t.includes('Settings')) li.style.display='none'; else li.style.display='';
+    }
+  });
+  const topBtn=document.querySelector('.top-global-header .btn-primary');
+  if(topBtn){ topBtn.style.display=(isOwner()||(isStaff()&&!canDo('add')))?'none':''; }
+  const ispBar=document.getElementById('ispExcelBar');
+  if(ispBar){ ispBar.style.display=isOwner()?'none':''; }
+  const addBtn=document.getElementById('staffLedgerAddBtn');
+  if(addBtn){ addBtn.style.display=isOwner()?'':'none'; }
+  const ob=document.getElementById('setOwnerBox'), ib=document.getElementById('setIspBox');
+  if(ob) ob.style.display=isOwner()?'':(isISP()?'none':'none');
+  if(ib) ib.style.display=isISP()?'':(isOwner()?'none':'none');
+  // preload ISP settings box
+  if(isISP()&&ib){
+    try{
+      const k='cloudisp_ispsettings_'+myISP();
+      const d=JSON.parse(localStorage.getItem(k)||'{}');
+      if(d.company) document.getElementById('setIspCompany').value=d.company;
+      if(d.phone) document.getElementById('setIspPhone').value=d.phone;
+      if(d.collector) document.getElementById('setIspCollector').value=d.collector;
+      if(!d.company){ document.getElementById('setIspCompany').value=myISP(); }
+    }catch(e){}
+  }
+  if(isOwner()) switchTabForce('superadmin'); else switchTabForce('dashboard');
+  calculateLedger(); renderSubscribersTable(); renderISPs(); renderAllStaff(); renderWaTable(); loadWhatsAppLink();
+};
+
+// ---- switchTab guards ----
+const _origSwitch2=switchTab;
+switchTab=function(tabId,el){
+  if(isOwner()&&(tabId==='packages'||tabId==='complaints'||tabId==='areas'||tabId==='whatsapp-billing')){ alert('Ye option sirf ISP ke panel me hai!'); return; }
+  if(tabId==='superadmin'&&!isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger'&&isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+  try{
+    if(!el||!el.parentElement){
+      document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
+      document.querySelectorAll('.nav-links li').forEach(li=>li.classList.remove('active'));
+      const tgt=document.getElementById(tabId); if(tgt) tgt.classList.add('active');
+      document.querySelectorAll('.nav-links li').forEach(li=>{ const oc=li.getAttribute('onclick')||''; if(oc.includes("'"+tabId+"'")) li.classList.add('active'); });
+      if(tabId==='subscribers') renderSubscribersTable();
+      if(tabId==='packages') renderPackages();
+      if(tabId==='payments') renderPayments();
+      if(tabId==='complaints') renderComplaints();
+      if(tabId==='areas') renderAreas();
+      if(tabId==='superadmin') renderISPs();
+    } else { _origSwitch2(tabId,el); }
+  }catch(e){}
+  if(tabId==='whatsapp-billing'){ loadWhatsAppLink(); renderWaTable(); }
+};
+
+// ---- Subscribers: owner sees ONLY ISP list ----
+renderSubscribersTable=function(){
+  const tbody=document.getElementById('subscribersTableBody'); if(!tbody) return; tbody.innerHTML='';
+  if(isOwner()){
+    if(ispsList.length===0){ tbody.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Koi ISP nahi.</td></tr>'; return; }
+    ispsList.forEach(isp=>{
+      const cnt=subscribersList.filter(s=>(s.isp||'Ali Net')===isp.name).length;
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td><strong>'+isp.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+(isp.owner||'')+' - '+(isp.mobile||'')+'</span></td><td>'+(isp.city||'')+'</td><td style="color:#60a5fa;font-weight:bold;">'+cnt+' Users</td><td><span class="badge badge-owner">ISP</span></td><td><button class="btn-primary btn-sm" onclick="switchTabForce(\'superadmin\')">View in Super Admin</button></td>';
+      tbody.appendChild(tr);
+    });
+    return;
+  }
+  const q=(document.getElementById('subSearch')?document.getElementById('subSearch').value.toLowerCase():'');
+  const fs=document.getElementById('subFilterStatus')?document.getElementById('subFilterStatus').value:'';
+  const fa=document.getElementById('subFilterArea')?document.getElementById('subFilterArea').value:'';
+  const areaSel=document.getElementById('subFilterArea');
+  let pool=subscribersList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=subscribersList.filter(s=>(s.isp||'Ali Net')===m); }
+  if(areaSel&&areaSel.options.length<=1){
+    const areas=[...new Set(pool.map(s=>s.area))];
+    areaSel.innerHTML='<option value="">All Areas</option>';
+    areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;areaSel.appendChild(o);});
+    if(fa) areaSel.value=fa;
+  }
+  let list=pool.filter(s=>{
+    const mq=!q||((s.name||'').toLowerCase().includes(q)||(s.phone||'').includes(q)||(s.package||'').toLowerCase().includes(q));
+    return mq&&(!fs||s.status===fs)&&(!fa||s.area===fa);
+  });
+  if(list.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9ca3af;">No subscribers found.</td></tr>'; return; }
+  const canEdit=canDo('edit');
+  list.forEach(sub=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><strong>'+sub.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">@'+sub.username+' - '+(sub.isp||'')+'</span></td><td>'+sub.package+'<br><span style="color:#60a5fa;font-size:11px;">Rs '+sub.fee+'</span></td><td>'+sub.phone+'</td><td><span style="color:'+(sub.status==='Paid'?'#34d399':'#f87171')+';font-weight:bold;">'+sub.status+'</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal('+sub.id+')">View Profile</button>'+(canEdit?'<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal('+sub.id+')">Edit</button>':'')+'</div></td>';
+    tbody.appendChild(tr);
+  });
+};
+
+// ---- Packages: ISP custom pkg + fee, owner blocked ----
+savePackage=function(){
+  if(isOwner()){ alert('Packages sirf ISP apne panel me banayega!'); return; }
+  if(isStaff()){ alert('Permission nahi hai!'); return; }
+  const n=document.getElementById('pkgName').value; const s=document.getElementById('pkgSpeed').value||n; const f=parseFloat(document.getElementById('pkgFee').value)||0;
+  if(!n||!f){alert('Package Name + Fee zaroori hai (custom fee khud likhen)');return;}
+  packagesList.push({name:n,speed:s,fee:f,isp:myISP()||'Ali Net'});
+  saveOffline(); document.getElementById('packageModal').classList.remove('active'); renderPackages(); alert('Package added! Ab subscriber me yehi pkg + fee use karen.');
+};
+renderPackages=function(){
+  const tb=document.getElementById('packagesTableBody'); if(!tb) return; tb.innerHTML='';
+  if(isOwner()){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#fbbf24;">Packages sirf ISP ke panel me hain.</td></tr>'; return; }
+  let pool=packagesList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===m); }
+  if(pool.length===0){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#9ca3af;">Koi package nahi — + Add Package se custom pkg + fee banayein.</td></tr>'; return; }
+  pool.forEach((p)=>{
+    const idx=packagesList.indexOf(p);
+    const canDel=isISP();
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><strong>'+p.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+(p.isp||'')+'</span></td><td>'+p.speed+'</td><td>Rs '+p.fee+'</td><td>'+(canDel?'<button class="btn-primary btn-sm" style="background:#d9534f;" onclick="packagesList.splice('+idx+',1);saveOffline();renderPackages();">Delete</button>':'<span style="color:#9ca3af;font-size:11px;">Locked</span>')+'</td>';
+    tb.appendChild(tr);
+  });
+};
+
+// ---- Payments: ISP-wise (owner sees ISP summary, ISP sees own) ----
+const _oldCollectFee=collectFee;
+collectFee=function(id){
+  if(!canDo('collect')){ alert('Collect ki permission nahi hai!'); return; }
+  const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
+  const isOff=!navigator.onLine;
+  paymentsList.unshift({date:new Date().toISOString().split('T')[0],customer:sub.name,pkg:sub.package,amount:sub.fee,via:isOff?'Cash (Offline)':'Cash',isp:(sub.isp||myISP()||'Ali Net'),sync:isOff?'pending':'synced'});
+  saveOffline(); _oldCollectFee(id);
+};
+renderPayments=function(){
+  const tb=document.getElementById('paymentsTableBody'); if(!tb) return; tb.innerHTML='';
+  if(isOwner()){
+    // ISP-wise summary
+    if(ispsList.length===0){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Koi ISP nahi.</td></tr>'; return; }
+    ispsList.forEach(isp=>{
+      const rows=paymentsList.filter(p=>(p.isp||'Ali Net')===isp.name);
+      const total=rows.reduce((a,c)=>a+(+c.amount||0),0);
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td>'+new Date().toISOString().split('T')[0]+'</td><td><strong>'+isp.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+rows.length+' recoveries</span></td><td>All pkgs</td><td style="color:#34d399;font-weight:bold;">Rs '+total.toLocaleString()+'</td><td>'+isp.status+'</td>';
+      tb.appendChild(tr);
+    });
+    return;
+  }
+  let pool=paymentsList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===m); }
+  if(pool.length===0){tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">No payments yet.</td></tr>';return;}
+  pool.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML='<td>'+p.date+'</td><td>'+p.customer+'</td><td>'+p.pkg+'</td><td style="color:#34d399;font-weight:bold;">Rs '+p.amount+'</td><td>'+p.via+'</td>'; tb.appendChild(tr); });
+};
+
+// ---- Complaints: owner hidden, ISP own ----
+saveComplaint=function(){
+  const c=document.getElementById('compCustomer').value; const iss=document.getElementById('compIssue').value;
+  if(!iss){alert('Issue likhen');return;}
+  complaintsList.push({date:new Date().toISOString().split('T')[0],customer:c,issue:iss,status:'Pending',isp:myISP()||'Ali Net'});
+  saveOffline(); document.getElementById('complaintModal').classList.remove('active'); renderComplaints();
+};
+renderComplaints=function(){
+  const tb=document.getElementById('complaintsTableBody'); if(!tb) return; tb.innerHTML='';
+  if(isOwner()){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#fbbf24;">Complaints Superadmin panel se hata di gayi hain (sirf ISP dekhega).</td></tr>'; return; }
+  let pool=complaintsList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(x=>(x.isp||'Ali Net')===m); }
+  if(pool.length===0){tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">No complaints. Zabardast!</td></tr>';return;}
+  pool.forEach((c)=>{
+    const idx=complaintsList.indexOf(c);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+c.date+'</td><td>'+c.customer+'</td><td>'+c.issue+'</td><td style="color:'+(c.status==='Pending'?'#fbbf24':'#34d399')+';font-weight:bold;">'+c.status+'</td><td><button class="btn-primary btn-sm btn-success" onclick="complaintsList['+idx+'].status=\'Resolved\';saveOffline();renderComplaints();">Resolve</button></td>';
+    tb.appendChild(tr);
+  });
+};
+openComplaintModal=function(){
+  if(isOwner()){ alert('Complaints sirf ISP ke panel me hai!'); return; }
+  const sel=document.getElementById('compCustomer'); sel.innerHTML='';
+  let pool=subscribersList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(s=>(s.isp||'Ali Net')===m); }
+  pool.forEach(s=>{ const o=document.createElement('option'); o.value=s.name; o.textContent=s.name; sel.appendChild(o); });
+  document.getElementById('complaintModal').classList.add('active');
+};
+
+// ---- Settings split ----
+saveSettings=function(){
+  appSettings.company=document.getElementById('setCompany').value||'CloudISP';
+  appSettings.phone=document.getElementById('setPhone').value||'';
+  appSettings.collector=document.getElementById('setCollector').value||'ADMIN';
+  const r=document.getElementById('setRent'); if(r) appSettings.rent=parseFloat(r.value)||0;
+  saveOffline();
+  alert('Superadmin settings saved!');
+};
+saveIspSettings=function(){
+  if(!isISP()){ alert('Ye sirf ISP ke liye hai!'); return; }
+  const k='cloudisp_ispsettings_'+myISP();
+  localStorage.setItem(k,JSON.stringify({company:document.getElementById('setIspCompany').value,phone:document.getElementById('setIspPhone').value,collector:document.getElementById('setIspCollector').value}));
+  alert('Aap ki ISP settings save ho gayi! Ab invoice par '+document.getElementById('setIspCompany').value+' aayega.');
+};
+
+// refresh after login
+try{ if(currentUser) applyRole(); }catch(e){}
+})();
+
+</script>
+<script>window.__CF$cv$params={r:'a44b3f5db93652a1',t:'MTc5MTAyMzE3NQ==',u:'01a1014cdb8074f39bf174c49d30cf4b',ut:'xbtrm2Ip1Lz5ZFRq12Muk9iinRWYTuUyKELd8ltcpNw-1791023176-1.2.1.1-4Y4W2JUEDVBDmQgX1I2kHCXVnD11UVf27eMan06Dp5dR7Ee3DA4FduNVF.6VyITKHXsM9Grkkkauh7pJ8TAhxWRenGg.uqHZ8F0bUW4Ywts',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
