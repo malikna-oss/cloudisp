@@ -2498,5 +2498,785 @@ try{ if(currentUser) applyRole(); }catch(e){}
 })();
 
 </script>
-<script>window.__CF$cv$params={r:'a44b3f5db93652a1',t:'MTc5MTAyMzE3NQ==',u:'01a1014cdb8074f39bf174c49d30cf4b',ut:'xbtrm2Ip1Lz5ZFRq12Muk9iinRWYTuUyKELd8ltcpNw-1791023176-1.2.1.1-4Y4W2JUEDVBDmQgX1I2kHCXVnD11UVf27eMan06Dp5dR7Ee3DA4FduNVF.6VyITKHXsM9Grkkkauh7pJ8TAhxWRenGg.uqHZ8F0bUW4Ywts',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+<script>
+/* FINAL CUSTOM UPDATE - user requirements 2026-10-04 */
+(function(){
+console.log('Custom update loaded');
+
+// ---- 1. Extend permissions: ensure all existing staff have new keys ----
+try{
+  systemUsers.forEach(u=>{
+    if(u.role==='staff'){
+      u.perms = Object.assign({add:true,edit:false,collect:true,del:false,view:true,whatsapp:true,complaints:false}, u.perms||{});
+    }
+  });
+  saveUsers();
+}catch(e){}
+
+// ---- 2. Extend canDo for new permission types ----
+const _canDoPrev = canDo;
+canDo = function(what){
+  if(!currentUser) return true;
+  if(currentUser.role==='owner'||currentUser.role==='isp') return true;
+  const pr = currentUser.perms||{};
+  if(what==='view') return pr.view!==false; // default true
+  if(what==='whatsapp') return !!pr.whatsapp;
+  if(what==='complaints') return !!pr.complaints;
+  return _canDoPrev(what);
+};
+
+// ---- 3. Inject extra permission checkboxes into Add Staff modal ----
+function injectExtraPerms(){
+  const box = document.querySelector('#staffCreateModal .form-group div[style*="flex"]');
+  if(!box) return;
+  if(document.getElementById('permView')) return;
+  box.innerHTML += '<label><input type="checkbox" id="permView" checked style="width:auto;"> 👀 View Profile</label>'
+    + '<label><input type="checkbox" id="permWhatsapp" checked style="width:auto;"> 💬 WhatsApp Bill</label>'
+    + '<label><input type="checkbox" id="permComplaints" checked style="width:auto;"> 🛠️ Complaints</label>';
+  // note about Add/Edit fields
+  const note = document.createElement('p');
+  note.style.cssText='font-size:11px;color:#9ca3af;margin-top:8px;';
+  note.innerHTML='ℹ️ <b>Add User</b> me ye sab shamil hai: Name, Username, Package, Fee, Installation, Balance, Mobile, CNIC, Connection Type, Due Date, Area, GPS, Address, Remarks.<br>ℹ️ <b>Edit User</b> me ye sab + Status, Sub-Area, Connection Date shamil hai.';
+  box.parentElement.appendChild(note);
+}
+
+// ---- 4. Override saveNewStaff to save extended perms ----
+const _saveNewStaffPrev = saveNewStaff;
+saveNewStaff = function(){
+  if(isStaff()){ alert('Permission nahi hai!'); return; }
+  injectExtraPerms();
+  const n=document.getElementById('newStaffName').value.trim();
+  const m=document.getElementById('newStaffMobile').value.trim();
+  const ps=document.getElementById('newStaffPass').value.trim();
+  let isp=document.getElementById('newStaffIsp').value;
+  if(isISP()) isp=myISP();
+  if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
+  if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
+  const g=id=>{const el=document.getElementById(id); return el?el.checked:false;};
+  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints')};
+  // Excel + Areas + Packages staff ke liye hamesha OFF (sirf ISP/Superadmin)
+  perms.excel=false; perms.areas=false; perms.packages=false;
+  systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+  saveUsers(); renderAllStaff(); document.getElementById('staffCreateModal').classList.remove('active');
+  alert('Staff ban gaya! Login: '+m+' / '+ps+' ('+isp+')');
+};
+
+// ---- 5. Proper Permission Edit Modal (checkbox on/off) ----
+function ensurePermModal(){
+  if(document.getElementById('permEditModal')) return;
+  const d=document.createElement('div');
+  d.id='permEditModal'; d.className='modal-overlay';
+  d.innerHTML='<div class="modal-box"><div class="modal-header"><h3>⚙️ Staff Permissions On/Off</h3><button class="close-btn" onclick="document.getElementById(\'permEditModal\').classList.remove(\'active\')">&times;</button></div>'
+  +'<input type="hidden" id="permEditMob">'
+  +'<p id="permEditName" style="font-size:13px;color:#9ca3af;margin-bottom:10px;"></p>'
+  +'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;background:#0b0f19;padding:12px;border-radius:8px;">'
+  +'<label><input type="checkbox" id="e_permAdd" style="width:auto;"> ➕ Add New Subscriber (Name, Username, Package, Fee, Install, Balance, Mobile, CNIC, Type, Due Date, Area, GPS, Address, Remarks)</label>'
+  +'<label><input type="checkbox" id="e_permEdit" style="width:auto;"> ✏️ Edit Subscriber Profile (upar wali sab fields + Status, Sub-Area, Connection Date)</label>'
+  +'<label><input type="checkbox" id="e_permView" style="width:auto;"> 👀 View Profile</label>'
+  +'<label><input type="checkbox" id="e_permCollect" style="width:auto;"> 💰 Collect Fee / Recovery</label>'
+  +'<label><input type="checkbox" id="e_permDel" style="width:auto;"> 🗑️ Delete User</label>'
+  +'<label><input type="checkbox" id="e_permWhatsapp" style="width:auto;"> 💬 WhatsApp Bill bhejna</label>'
+  +'<label><input type="checkbox" id="e_permComplaints" style="width:auto;"> 🛠️ Complaints (dekhna / resolve)</label>'
+  +'<p style="font-size:11px;color:#f87171;">❌ Areas/Zones, Packages Management, Excel Import — ye sirf ISP / Superadmin ke paas honge, staff ko nahi milenge.</p>'
+  +'</div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:12px;" onclick="savePermEdits()">💾 Save Permissions</button></div>';
+  document.body.appendChild(d);
+}
+editStaffPerms = function(mob){
+  if(isStaff()) return;
+  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
+  if(isISP() && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
+  ensurePermModal();
+  document.getElementById('permEditMob').value=mob;
+  document.getElementById('permEditName').innerText=s.name+' ('+s.mobile+' • '+s.isp+') — tik karein = ON, untick = OFF';
+  const p=s.perms||{};
+  document.getElementById('e_permAdd').checked=!!p.add;
+  document.getElementById('e_permEdit').checked=!!p.edit;
+  document.getElementById('e_permView').checked=(p.view!==false);
+  document.getElementById('e_permCollect').checked=!!p.collect;
+  document.getElementById('e_permDel').checked=!!p.del;
+  document.getElementById('e_permWhatsapp').checked=!!p.whatsapp;
+  document.getElementById('e_permComplaints').checked=!!p.complaints;
+  document.getElementById('permEditModal').classList.add('active');
+};
+savePermEdits = function(){
+  const mob=document.getElementById('permEditMob').value;
+  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
+  s.perms={
+    add:document.getElementById('e_permAdd').checked,
+    edit:document.getElementById('e_permEdit').checked,
+    view:document.getElementById('e_permView').checked,
+    collect:document.getElementById('e_permCollect').checked,
+    del:document.getElementById('e_permDel').checked,
+    whatsapp:document.getElementById('e_permWhatsapp').checked,
+    complaints:document.getElementById('e_permComplaints').checked,
+    excel:false, areas:false, packages:false
+  };
+  saveUsers(); renderAllStaff();
+  document.getElementById('permEditModal').classList.remove('active');
+  alert('Permissions update ho gayi! ✅ ON / ❌ OFF apply ho gaya.');
+};
+
+// ---- 6. Collector tracking ----
+const _collectForTrack = collectFee;
+collectFee = function(id){
+  if(!canDo('collect')){ alert('Aap ko Fee Collect ki permission nahi hai!'); return; }
+  const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
+  const who = currentUser ? (currentUser.name+' ('+currentUser.mobile+')') : 'ADMIN';
+  const isOff=!navigator.onLine;
+  paymentsList.unshift({date:new Date().toISOString().split('T')[0],customer:sub.name,pkg:sub.package,amount:sub.fee,via:isOff?'Cash (Offline)':'Cash',isp:(sub.isp||myISP()||'Ali Net'),collector:who,sync:isOff?'pending':'synced'});
+  saveOffline();
+  // original collect (status Paid + invoice) — call inner original without double payment
+  // _collectForTrack already adds payment, so just update status here to avoid double entry
+  sub.status='Paid'; sub.type='active';
+  calculateLedger(); renderSubscribersTable(); renderPayments();
+  try{closeUserProfileModal();}catch(e){}
+  try{openInvoiceModal(sub.id);}catch(e){}
+  alert('Fee collected by '+who+' ✅');
+};
+
+// ---- 7. applyRole — Packages hatao, Areas sirf ISP, Excel sirf Owner+ISP ----
+applyRole = function(){
+  if(!currentUser) return;
+  injectExtraPerms();
+  const items=document.querySelectorAll('.nav-links li');
+  items.forEach(li=>{
+    const t=li.innerText;
+    if(t.includes('Packages')){ li.style.display='none'; return; } // Packages Management hata diya
+    if(t.includes('Areas')){ // Areas/Zones sirf ISP
+      li.style.display = isISP() ? '' : 'none';
+      return;
+    }
+    if(isOwner()){
+      if(t.includes('Super Admin')||t.includes('Dashboard')||t.includes('Subscribers')||t.includes('Payments')||t.includes('Staff Ledger')||t.includes('Settings')) li.style.display='';
+      else li.style.display='none';
+    } else if(isISP()){
+      if(t.includes('Super Admin')) li.style.display='none'; else li.style.display='';
+      if(t.includes('Packages')) li.style.display='none';
+    } else {
+      // staff: Super Admin, Staff Ledger, Settings, Areas, Packages hidden + complaints/payments perm check
+      if(t.includes('Super Admin')||t.includes('Staff Ledger')||t.includes('Settings')||t.includes('Areas')||t.includes('Packages')) li.style.display='none';
+      else if(t.includes('Complaints') && !canDo('complaints')) li.style.display='none';
+      else li.style.display='';
+    }
+  });
+  const topBtn=document.querySelector('.top-global-header .btn-primary');
+  if(topBtn){ topBtn.style.display=(isOwner()||(isStaff()&&!canDo('add')))?'none':''; }
+  const ispBar=document.getElementById('ispExcelBar');
+  if(ispBar){ ispBar.style.display=(isOwner()||isStaff())?'none':''; } // Excel sirf ISP (Superadmin apne panel se)
+  const addBtn=document.getElementById('staffLedgerAddBtn');
+  if(addBtn){ addBtn.style.display=(isOwner()||isISP())?'':'none'; addBtn.innerText='+ Add Staff (Salary)'; }
+  // ISP ke liye Staff Ledger page me Login-Staff add button + table inject karo
+  ensureIspStaffSection();
+  const ob=document.getElementById('setOwnerBox'), ib=document.getElementById('setIspBox');
+  if(ob) ob.style.display=isOwner()?'':'none';
+  if(ib) ib.style.display=isISP()?'':'none';
+  if(isISP()&&ib){
+    try{
+      const k='cloudisp_ispsettings_'+myISP();
+      const d=JSON.parse(localStorage.getItem(k)||'{}');
+      if(d.company) document.getElementById('setIspCompany').value=d.company;
+      if(d.phone) document.getElementById('setIspPhone').value=d.phone;
+      if(d.collector) document.getElementById('setIspCollector').value=d.collector;
+      if(!d.company){ document.getElementById('setIspCompany').value=myISP(); }
+    }catch(e){}
+  }
+  if(isOwner()) switchTabForce('superadmin'); else switchTabForce('dashboard');
+  calculateLedger(); renderSubscribersTable(); renderISPs(); renderAllStaff(); renderWaTable(); loadWhatsAppLink();
+  // staff dashboard extra
+  applyDashboardVisibility();
+};
+
+// ISP Staff section inside Staff Ledger page
+function ensureIspStaffSection(){
+  let sec=document.getElementById('ispLoginStaffCard');
+  if(!sec){
+    const ledger=document.getElementById('staff-ledger');
+    if(!ledger) return;
+    sec=document.createElement('div');
+    sec.id='ispLoginStaffCard'; sec.className='card';
+    sec.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;"><h3 style="color:#60a5fa;">👷 Login Staff & Permissions (ISP apne staff yahan add karein)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Login Staff</button></div>'
+    +'<p style="font-size:11px;color:#9ca3af;margin-bottom:10px;">Superadmin bhi yahan se kisi bhi ISP me staff add kar sakta hai. ISP sirf apne ISP me add karega. Har permission tik = ON, untick = OFF.</p>'
+    +'<table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="ispLoginStaffBody"></tbody></table>';
+    ledger.appendChild(sec);
+  }
+  sec.style.display=(isOwner()||isISP())?'':'none';
+  renderIspLoginStaff();
+}
+function renderIspLoginStaff(){
+  const tb=document.getElementById('ispLoginStaffBody'); if(!tb) return;
+  let list=systemUsers.filter(u=>u.role==='staff');
+  if(isISP()) list=list.filter(s=>s.isp===myISP());
+  if(list.length===0){ tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#9ca3af;">Koi login staff nahi — + Add Login Staff dabayein.</td></tr>'; return; }
+  tb.innerHTML='';
+  list.forEach(s=>{
+    const p=s.perms||{};
+    const txt=[p.add?'➕Add':'',p.edit?'✏️Edit':'',p.view!==false?'👀View':'',p.collect?'💰Collect':'',p.del?'🗑️Del':'',p.whatsapp?'💬WA':'',p.complaints?'🛠️Comp':''].filter(Boolean).join(' ');
+    const tr=document.createElement('tr');
+    const safeM=String(s.mobile).replace(/'/g,'');
+    tr.innerHTML='<td><strong>'+s.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+s.mobile+'</span></td><td>'+s.isp+'</td><td><span class="hidden-pass">••••••</span></td><td style="font-size:11px;">'+(txt||'No access')+'</td><td><div class="action-btns"><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editStaffPerms(\''+safeM+'\')">⚙️ Perms</button>'+(isOwner()?'<button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteStaff(\''+safeM+'\')">Delete</button>':'')+'</div></td>';
+    tb.appendChild(tr);
+  });
+}
+// renderAllStaff ko bhi update karo taake dono tables sync hon
+const _renderAllStaffPrev = renderAllStaff;
+renderAllStaff = function(){
+  try{_renderAllStaffPrev();}catch(e){}
+  try{renderIspLoginStaff();}catch(e){}
+};
+
+// ---- 8. Dashboard: Owner=ISP cards, Staff=Revenue hide + Bakaya, ISP=Recovery report ----
+function applyDashboardVisibility(){
+  const boxes=document.querySelectorAll('#dashboard .stat-box');
+  if(!boxes || boxes.length<6) return;
+  // reset titles first (for role switch)
+  const titles=[
+    ['Total Subscribers',''],
+    ['Active Connections',''],
+    ['Monthly Revenue',''],
+    ['Paid Users',''],
+    ['Unpaid / Expired',''],
+    ['Staff Members','']
+  ];
+  if(isOwner()){
+    const totIsp=ispsList.length;
+    const paidIsp=ispsList.filter(i=>i.status==='Paid').length;
+    const unIsp=totIsp-paidIsp;
+    const totUsers=subscribersList.length;
+    const bakaya=subscribersList.filter(s=>s.status==='Unpaid').reduce((a,c)=>a+(+c.fee||0)+(+c.balance||0),0);
+    const totStaff=systemUsers.filter(u=>u.role==='staff').length;
+    const vals=[totIsp,paidIsp,unIsp,totUsers,'Rs '+bakaya.toLocaleString(),totStaff];
+    const lbl=['Total ISPs (All ISP)','Paid ISPs ✅','Unpaid / Blocked ISPs ❌','Total Users (Sab ISPs)','Total Bakaya (Unpaid Rs)','Login Staff'];
+    boxes.forEach((b,i)=>{
+      const t=b.querySelector('.stat-title'); if(t) t.innerHTML=lbl[i]+' <span style="font-size:9px;color:#60a5fa;float:right;">(Click 🔍)</span>';
+      const v=b.querySelector('.stat-value'); if(v) v.innerText=vals[i];
+      b.style.display='';
+    });
+    // owner click -> superadmin tab
+    boxes.forEach(b=>{ b.onclick=function(){ switchTabForce('superadmin'); }; });
+  } else if(isStaff()){
+    // Monthly Revenue hide (3rd box index 2)
+    boxes[2].style.display='none';
+    boxes.forEach((b,i)=>{ if(i!==2) b.style.display=''; });
+    // Unpaid box me total bakaya show karo
+    try{
+      const m=myISP();
+      const pool=subscribersList.filter(s=>(s.isp||'Ali Net')===m);
+      const bakaya=pool.filter(s=>s.status==='Unpaid').reduce((a,c)=>a+(+c.fee||0)+(+c.balance||0),0);
+      const cnt=pool.filter(s=>s.status==='Unpaid').length;
+      const t5=boxes[4].querySelector('.stat-title'); if(t5) t5.innerHTML='Unpaid / Bakaya (Rs) <span style="font-size:9px;color:#f87171;float:right;">(Click 🔍)</span>';
+      const v5=boxes[4].querySelector('.stat-value'); if(v5) v5.innerText=cnt+' (Rs '+bakaya.toLocaleString()+')';
+      // revenue box clear
+      // paid/active normal
+      boxes[0].onclick=function(){openCardModal('total');};
+      boxes[1].onclick=function(){openCardModal('active');};
+      boxes[3].onclick=function(){openCardModal('paid');};
+      boxes[4].onclick=function(){openCardModal('unpaid');};
+      boxes[5].onclick=function(){alert('Staff list sirf ISP/Superadmin dekh sakta hai!');};
+    }catch(e){}
+  } else {
+    // ISP: sab show + titles reset
+    const lbl2=['Total Subscribers','Active Connections','Monthly Revenue (Paid Total)','Paid Users','Unpaid / Bakaya','Staff Members'];
+    boxes.forEach((b,i)=>{ b.style.display=''; const t=b.querySelector('.stat-title'); if(t) t.childNodes[0].textContent=lbl2[i]+' '; });
+    boxes[0].onclick=function(){openCardModal('total');};
+    boxes[1].onclick=function(){openCardModal('active');};
+    boxes[2].onclick=function(){openCardModal('revenue');};
+    boxes[3].onclick=function(){openCardModal('paid');};
+    boxes[4].onclick=function(){openCardModal('unpaid');};
+    boxes[5].onclick=function(){openDashboardStaffHistory();};
+  }
+  renderRecoveryBox();
+}
+
+// Recovery box: ISP ko sab show ho — kis ne kitni recovery ki
+function renderRecoveryBox(){
+  let box=document.getElementById('recoveryReportBox');
+  if(isOwner()||isStaff()){
+    if(box) box.style.display='none';
+    return;
+  }
+  if(!isISP()){ if(box) box.style.display='none'; return; }
+  if(!box){
+    const dash=document.getElementById('dashboard');
+    box=document.createElement('div');
+    box.id='recoveryReportBox'; box.className='card';
+    dash.appendChild(box);
+  }
+  box.style.display='';
+  const m=myISP();
+  const pool=paymentsList.filter(p=>(p.isp||'Ali Net')===m);
+  const total=pool.reduce((a,c)=>a+(+c.amount||0),0);
+  const byCol={};
+  pool.forEach(p=>{ const k=p.collector||'Unknown'; byCol[k]=(byCol[k]||0)+(+p.amount||0); });
+  let rows='';
+  Object.keys(byCol).forEach(k=>{ rows+='<tr><td><strong>'+k+'</strong></td><td>'+pool.filter(p=>(p.collector||'Unknown')===k).length+' recoveries</td><td style="color:#34d399;font-weight:bold;">Rs '+byCol[k].toLocaleString()+'</td></tr>'; });
+  if(rows==='') rows='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Abhi koi recovery nahi.</td></tr>';
+  box.innerHTML='<h3 style="color:#34d399;margin-bottom:10px;">💰 Recovery Report — kis ne kitni recovery ki ('+m+')</h3>'
+  +'<p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Total Collected: <b style="color:#34d399;">Rs '+total.toLocaleString()+'</b> • '+pool.length+' payments</p>'
+  +'<table><thead><tr><th>Collected By (Staff/ISP)</th><th>Count</th><th>Amount</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// calculateLedger ko wrap karo taake dashboard visibility hamesha apply ho
+const _calcPrev = calculateLedger;
+calculateLedger = function(){
+  try{_calcPrev();}catch(e){console.log(e);}
+  // Owner cards ko ISP stats se overwrite karo
+  if(isOwner()){
+    try{
+      const totIsp=ispsList.length;
+      const paidIsp=ispsList.filter(i=>i.status==='Paid').length;
+      const unIsp=totIsp-paidIsp;
+      const totUsers=subscribersList.length;
+      const bakaya=subscribersList.filter(s=>s.status==='Unpaid').reduce((a,c)=>a+(+c.fee||0)+(+c.balance||0),0);
+      document.getElementById('countTotal').innerText=totIsp;
+      document.getElementById('countActive').innerText=paidIsp;
+      document.getElementById('countPaid').innerText=totUsers;
+      document.getElementById('countUnpaid').innerText=unIsp;
+      document.getElementById('valRevenue').innerText='Rs '+bakaya.toLocaleString();
+      document.getElementById('totalStaffCount').innerText=systemUsers.filter(u=>u.role==='staff').length;
+    }catch(e){}
+  }
+  if(isStaff()){
+    try{
+      const m=myISP();
+      const pool=subscribersList.filter(s=>(s.isp||'Ali Net')===m);
+      const bakaya=pool.filter(s=>s.status==='Unpaid').reduce((a,c)=>a+(+c.fee||0)+(+c.balance||0),0);
+      const cnt=pool.filter(s=>s.status==='Unpaid').length;
+      document.getElementById('countUnpaid').innerText=cnt+' (Rs '+bakaya.toLocaleString()+')';
+    }catch(e){}
+  }
+  // Staff Ledger table: Owner + ISP dono dekh sakte hain
+  try{
+    const tbody=document.getElementById('staffTableBody');
+    if(tbody && (isOwner()||isISP())){
+      tbody.innerHTML='';
+      const showN = isOwner() ? staffList.length : staffList.length;
+      document.getElementById('totalStaffCount').innerText = isOwner()? staffList.length : subscribersList.filter(s=>(s.isp||'Ali Net')===myISP()).length;
+      // salary ledger shared — show all with add/leave/history (ISP can manage)
+      const now=new Date(); const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+      if(staffList.length===0) tbody.innerHTML='<tr><td colspan=6 style="text-align:center;color:#9ca3af;">Koi salary staff nahi — + Add Staff dabayein.</td></tr>';
+      staffList.forEach((staff,index)=>{
+        const perDay=staff.salary/dim; const totLeave=staff.leaves.length;
+        const leaveDed=perDay*totLeave;
+        let totAdv=staff.advances.reduce((s,x)=>s+x.amount,0);
+        const rem=Math.round(staff.salary-totAdv-leaveDed);
+        const tr=document.createElement('tr');
+        tr.innerHTML='<td><strong>'+staff.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+staff.role+'</span></td><td>Rs '+staff.salary.toLocaleString()+'</td><td><span style="color:#f87171;">Rs '+totAdv.toLocaleString()+'</span></td><td>'+totLeave+' Days</td><td style="font-weight:bold;color:#34d399;">Rs '+rem.toLocaleString()+'</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="openAdvanceModal('+index+')">+ Adv</button><button class="btn-primary btn-sm btn-warning" onclick="openLeaveModal('+index+')">Leave</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="viewHistory('+index+')">History</button></div></td>';
+        tbody.appendChild(tr);
+      });
+      if(isISP()){
+        // ISP dashboard staff count = login staff count
+        try{document.getElementById('totalStaffCount').innerText=systemUsers.filter(u=>u.role==='staff'&&u.isp===myISP()).length;}catch(e){}
+      }
+    }
+  }catch(e){}
+  try{applyDashboardVisibility();}catch(e){}
+  try{renderIspLoginStaff();}catch(e){}
+};
+
+// openStaffModal (salary) Owner + ISP dono
+openStaffModal = function(){ if(!(isOwner()||isISP())){ alert('Sirf Superadmin/ISP staff add kar sakta hai!'); return; } document.getElementById('staffModal').classList.add('active'); };
+
+// ---- 9. Profile modal: permission ke hisaab se buttons ----
+const _openProfilePrev = openUserProfileModal;
+openUserProfileModal = function(id){
+  const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
+  // staff ko view permission chahiye
+  if(isStaff() && !canDo('view')){ alert('Aap ko View ki permission nahi hai!'); return; }
+  _openProfilePrev(id);
+  // buttons ko permission se hide karo
+  try{
+    const c=document.getElementById('userProfileContent');
+    const html=c.innerHTML;
+    // crude: replace buttons by checking perms
+    const btns=c.querySelectorAll('button, a');
+    // Edit button
+    if(!canDo('edit')){
+      c.querySelectorAll('button').forEach(b=>{ if(b.textContent.includes('Edit')) b.style.display='none'; });
+    }
+    if(!canDo('del')){
+      c.querySelectorAll('button').forEach(b=>{ if(b.textContent.includes('Delete')) b.style.display='none'; });
+    }
+    if(!canDo('collect')){
+      c.querySelectorAll('button').forEach(b=>{ if(b.textContent.includes('Collect Fee')) b.style.display='none'; });
+    }
+    if(!canDo('whatsapp')){
+      c.querySelectorAll('a').forEach(a=>{ if(a.textContent.includes('💬')) a.style.display='none'; });
+    }
+  }catch(e){}
+};
+
+// Subscribers table already respects edit — extend for view/collect
+const _renderSubsPrev = renderSubscribersTable;
+renderSubscribersTable = function(){
+  if(isOwner()){ _renderSubsPrev(); return; }
+  if(isStaff() && !canDo('view')){
+    const tb=document.getElementById('subscribersTableBody');
+    tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#f87171;">🔒 Aap ko View ki permission nahi hai — ISP se permission lein.</td></tr>';
+    return;
+  }
+  _renderSubsPrev();
+  // WhatsApp column? keep simple — profile modal already gated
+};
+
+// ---- 10. Payments: ISP ko collector dikhao ----
+const _renderPayPrev = renderPayments;
+renderPayments = function(){
+  const tb=document.getElementById('paymentsTableBody'); if(!tb) return;
+  if(isOwner()){ _renderPayPrev(); return; }
+  if(isStaff() && !canDo('collect')){
+    // staff without collect still sees? hide amounts? show locked
+    tb.innerHTML='<tr><td colspan=6 style="text-align:center;color:#f87171;">🔒 Payments dekhne ki permission nahi hai.</td></tr>';
+    return;
+  }
+  let pool=paymentsList;
+  if(isISP()||isStaff()){ const m=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===m); }
+  if(pool.length===0){tb.innerHTML='<tr><td colspan=6 style="text-align:center;color:#9ca3af;">No payments yet.</td></tr>';return;}
+  // ensure header has collector
+  const thead=tb.parentElement.querySelector('thead tr');
+  if(thead && thead.children.length===5){
+    thead.innerHTML='<tr><th>Date</th><th>Customer</th><th>Package</th><th>Amount</th><th>Via</th><th>Collected By</th></tr>';
+  }
+  tb.innerHTML='';
+  pool.forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+p.date+'</td><td>'+p.customer+'</td><td>'+p.pkg+'</td><td style="color:#34d399;font-weight:bold;">Rs '+p.amount+'</td><td>'+p.via+'</td><td style="font-size:11px;color:#60a5fa;">'+(p.collector||'-')+'</td>';
+    tb.appendChild(tr);
+  });
+};
+
+// ---- 11. Excel: sirf Owner + ISP ----
+importExcelISP = function(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  if(isStaff()){ alert('Excel Import sirf Superadmin / ISP kar sakta hai!'); ev.target.value=''; return; }
+  if(!canDo('add')){ alert('Add ki permission nahi hai!'); ev.target.value=''; return; }
+  const targetIsp=myISP()||'Ali Net';
+  readExcelFile(file, rows=>bulkAddUsers(rows,targetIsp));
+  ev.target.value='';
+};
+
+// ---- 12. switchTab guards: Packages block, Areas staff block ----
+const _swPrev = switchTab;
+switchTab = function(tabId, el){
+  if(tabId==='packages'){ alert('Packages Management hata diya gaya hai — Add New Subscriber me direct package + fee likhen!'); return; }
+  if(tabId==='areas' && isStaff()){ alert('Areas/Zones sirf ISP ke panel me hai!'); return; }
+  if(tabId==='superadmin' && !isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+  if(tabId==='complaints' && isStaff() && !canDo('complaints')){ alert('Complaints ki permission nahi hai!'); return; }
+  if(tabId==='whatsapp-billing' && isStaff() && !canDo('whatsapp')){ alert('WhatsApp Billing ki permission nahi hai!'); return; }
+  try{
+    if(!el||!el.parentElement){
+      document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
+      document.querySelectorAll('.nav-links li').forEach(li=>li.classList.remove('active'));
+      const tgt=document.getElementById(tabId); if(tgt) tgt.classList.add('active');
+      document.querySelectorAll('.nav-links li').forEach(li=>{ const oc=li.getAttribute('onclick')||''; if(oc.includes("'"+tabId+"'")) li.classList.add('active'); });
+      if(tabId==='subscribers') renderSubscribersTable();
+      if(tabId==='payments') renderPayments();
+      if(tabId==='complaints') renderComplaints();
+      if(tabId==='areas') renderAreas();
+      if(tabId==='superadmin') renderISPs();
+    } else { _swPrev(tabId, el); }
+  }catch(e){}
+  if(tabId==='whatsapp-billing'){ loadWhatsAppLink(); renderWaTable(); }
+};
+
+// Complaints render: staff perm check
+const _renderCompPrev = renderComplaints;
+renderComplaints = function(){
+  if(isStaff() && !canDo('complaints')){
+    const tb=document.getElementById('complaintsTableBody');
+    tb.innerHTML='<tr><td colspan=5 style="text-align:center;color:#f87171;">🔒 Complaints ki permission nahi hai.</td></tr>';
+    return;
+  }
+  _renderCompPrev();
+};
+
+// init refresh
+try{ injectExtraPerms(); }catch(e){}
+try{ if(currentUser) applyRole(); else { calculateLedger(); } }catch(e){}
+
+})();
+
+</script>
+<script>
+/* V2 UPDATE: Field-level permissions for Add New Subscriber + Staff Add only Superadmin */
+(function(){
+console.log('V2 update loaded');
+
+// ---- Field definitions: key, label, add input id, edit input id ----
+const FIELD_DEFS = [
+  {key:'f_name', label:'Name', add:'subName', edit:'editSubName'},
+  {key:'f_username', label:'Username', add:'subUsername', edit:'editSubUsername'},
+  {key:'f_package', label:'Package', add:'subPackage', edit:'editSubPackage'},
+  {key:'f_fee', label:'Monthly Fee', add:'subFee', edit:'editSubFee'},
+  {key:'f_install', label:'Installation Charges', add:'subInstallCharges', edit:null},
+  {key:'f_balance', label:'Previous Balance / Balance', add:'subPrevBalance', edit:'editSubBalance'},
+  {key:'f_mobile', label:'Mobile Number', add:'subPhone', edit:'editSubPhone'},
+  {key:'f_cnic', label:'CNIC Number', add:'subCnic', edit:'editSubCnic'},
+  {key:'f_type', label:'Connection Type', add:'subConnectionType', edit:'editSubConnectionType'},
+  {key:'f_duedate', label:'Due Date', add:'subDueDate', edit:'editSubDueDate'},
+  {key:'f_area', label:'Area / Sub-Area', add:'subArea', edit:'editSubArea'},
+  {key:'f_gps', label:'Address / GPS Link', add:'subGps', edit:'editSubGps'},
+  {key:'f_address', label:'Customer Complete Address', add:'subFullAddress', edit:'editSubFullAddress'},
+  {key:'f_remarks', label:'Remarks', add:'subRemarks', edit:'editSubRemarks'},
+];
+window.FIELD_DEFS = FIELD_DEFS;
+
+function defaultFieldPerms(){
+  const o={};
+  FIELD_DEFS.forEach(f=>o[f.key]=true);
+  return o;
+}
+function ensureFieldPerms(){
+  try{
+    systemUsers.forEach(u=>{
+      if(u.role==='staff'){
+        u.perms = u.perms||{};
+        FIELD_DEFS.forEach(f=>{ if(!(f.key in u.perms)) u.perms[f.key]=true; });
+        // old staff: if edit false, keep fields true (fields control visibility, edit controls save)
+        if(u.perms.view===undefined) u.perms.view=true;
+        if(u.perms.whatsapp===undefined) u.perms.whatsapp=true;
+      }
+    });
+    saveUsers();
+  }catch(e){}
+}
+ensureFieldPerms();
+
+function hasFieldPerm(key){
+  if(!currentUser) return true;
+  if(currentUser.role==='owner'||currentUser.role==='isp') return true;
+  const p=currentUser.perms||{};
+  return p[key]!==false;
+}
+
+// ---- Inject field checkboxes into Add-Staff modal ----
+function injectFieldPermsUI(){
+  const modal=document.querySelector('#staffCreateModal .modal-box');
+  if(!modal || document.getElementById('fieldPermsBox')) return;
+  const box=document.createElement('div');
+  box.id='fieldPermsBox';
+  box.style.cssText='background:#0b0f19;padding:10px;border-radius:8px;margin-top:8px;';
+  let h='<label style="font-size:12px;color:#fbbf24;font-weight:bold;">📝 Add New Subscriber — har field ki alag permission (tik = ON, untick = OFF):</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px;">';
+  FIELD_DEFS.forEach(f=>{
+    h+='<label><input type="checkbox" id="perm_'+f.key+'" checked style="width:auto;"> '+f.label+'</label>';
+  });
+  h+='</div><p style="font-size:11px;color:#9ca3af;margin-top:6px;">Staff ko Add/Edit me sirf wahi fields nazar aayengi jin ki permission ON hogi.</p>';
+  box.innerHTML=h;
+  // insert before Save button
+  const btn=modal.querySelector('button.btn-success');
+  modal.insertBefore(box, btn);
+}
+// call now + on applyRole
+try{injectFieldPermsUI();}catch(e){}
+
+// ---- Extend perm edit modal with field checkboxes ----
+function injectFieldPermsIntoEditModal(){
+  const box=document.querySelector('#permEditModal .modal-box div[style*="flex-direction"]');
+  if(!box || document.getElementById('e_perm_f_name')) return;
+  let h='<div style="border-top:1px solid #374151;margin-top:6px;padding-top:8px;"><p style="font-size:12px;color:#fbbf24;font-weight:bold;margin-bottom:6px;">📝 Har field ki alag permission:</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
+  FIELD_DEFS.forEach(f=>{
+    h+='<label><input type="checkbox" id="e_perm_'+f.key+'" checked style="width:auto;"> '+f.label+'</label>';
+  });
+  h+='</div></div>';
+  box.insertAdjacentHTML('beforeend', h);
+}
+
+// ---- Override saveNewStaff (ONLY Superadmin can add) ----
+saveNewStaff = function(){
+  if(!isOwner()){ alert('Sirf Superadmin staff add kar sakta hai! ISP add nahi kar sakta.'); return; }
+  injectFieldPermsUI();
+  const n=document.getElementById('newStaffName').value.trim();
+  const m=document.getElementById('newStaffMobile').value.trim();
+  const ps=document.getElementById('newStaffPass').value.trim();
+  let isp=document.getElementById('newStaffIsp').value;
+  if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
+  if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
+  const g=id=>{const el=document.getElementById(id); return el?el.checked:false;};
+  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints')};
+  FIELD_DEFS.forEach(f=>{ perms[f.key]=g('perm_'+f.key); });
+  perms.excel=false; perms.areas=false; perms.packages=false;
+  systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+  saveUsers(); renderAllStaff(); document.getElementById('staffCreateModal').classList.remove('active');
+  alert('Staff ban gaya! Login: '+m+' / '+ps+' ('+isp+')');
+};
+
+// ---- Override openStaffCreateModal: only owner ----
+openStaffCreateModal = function(){
+  if(!isOwner()){ alert('Sirf Superadmin naya staff add kar sakta hai!'); return; }
+  const sel=document.getElementById('newStaffIsp'); sel.innerHTML='';
+  ispsList.forEach(i=>{const o=document.createElement('option');o.value=i.name;o.textContent=i.name;sel.appendChild(o);});
+  sel.disabled=false;
+  injectFieldPermsUI();
+  // reset checkboxes to checked for new staff
+  try{
+    ['permAdd','permEdit','permCollect','permView','permWhatsapp','permComplaints'].forEach(id=>{const e=document.getElementById(id); if(e) e.checked=true;});
+    const d=document.getElementById('permDelete'); if(d) d.checked=false;
+    FIELD_DEFS.forEach(f=>{const e=document.getElementById('perm_'+f.key); if(e) e.checked=true;});
+  }catch(e){}
+  document.getElementById('staffCreateModal').classList.add('active');
+};
+openStaffModal = function(){ if(!isOwner()){ alert('Sirf Superadmin salary staff add kar sakta hai!'); return; } document.getElementById('staffModal').classList.add('active'); };
+
+// ---- editStaffPerms: owner + ISP can edit ON/OFF, but ISP cannot add new ----
+const _editPermsV1 = editStaffPerms;
+editStaffPerms = function(mob){
+  if(isStaff()) return;
+  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
+  if(isISP() && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
+  ensurePermModal();
+  injectFieldPermsIntoEditModal();
+  document.getElementById('permEditMob').value=mob;
+  document.getElementById('permEditName').innerText=s.name+' ('+s.mobile+' • '+s.isp+') — tik = ON, untick = OFF';
+  const p=s.perms||{};
+  const set=(id,v)=>{const e=document.getElementById(id); if(e) e.checked=!!v;};
+  set('e_permAdd',p.add); set('e_permEdit',p.edit); set('e_permView',(p.view!==false));
+  set('e_permCollect',p.collect); set('e_permDel',p.del);
+  set('e_permWhatsapp',p.whatsapp); set('e_permComplaints',p.complaints);
+  FIELD_DEFS.forEach(f=>{ set('e_perm_'+f.key, (p[f.key]!==false)); });
+  document.getElementById('permEditModal').classList.add('active');
+};
+savePermEdits = function(){
+  const mob=document.getElementById('permEditMob').value;
+  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
+  const g=id=>{const e=document.getElementById(id); return e?e.checked:false;};
+  s.perms={
+    add:g('e_permAdd'), edit:g('e_permEdit'), view:g('e_permView'),
+    collect:g('e_permCollect'), del:g('e_permDel'),
+    whatsapp:g('e_permWhatsapp'), complaints:g('e_permComplaints'),
+    excel:false, areas:false, packages:false
+  };
+  FIELD_DEFS.forEach(f=>{ s.perms[f.key]=g('e_perm_'+f.key); });
+  saveUsers(); renderAllStaff();
+  document.getElementById('permEditModal').classList.remove('active');
+  alert('Permissions update ho gayi! Har field ki alag permission apply ho gayi ✅');
+};
+
+// ---- Hide Add buttons from ISP, keep view + perms editable ----
+function refreshAddButtons(){
+  // Staff Ledger salary add
+  const ab=document.getElementById('staffLedgerAddBtn');
+  if(ab) ab.style.display=isOwner()?'':'none';
+  // ISP login staff card add button
+  const card=document.getElementById('ispLoginStaffCard');
+  if(card){
+    card.style.display=(isOwner()||isISP())?'':'none';
+    const btn=card.querySelector('button');
+    if(btn) btn.style.display=isOwner()?'':'none'; // add sirf superadmin
+    const note=card.querySelector('p');
+    if(note && isISP()) note.innerHTML='ISP naya staff add nahi kar sakta — staff sirf Superadmin add karega. ISP sirf permissions ON/OFF kar sakta hai.';
+  }
+}
+
+// wrap applyRole to refresh
+const _applyV1 = applyRole;
+applyRole = function(){
+  _applyV1();
+  try{injectFieldPermsUI();}catch(e){}
+  try{refreshAddButtons();}catch(e){}
+};
+
+// ---- Field-level enforcement in Add / Edit modals ----
+function applyFieldVisibility(mode){
+  if(!isStaff()) {
+    // owner/isp: show all
+    FIELD_DEFS.forEach(f=>{
+      const id = mode==='add'?f.add:f.edit;
+      if(!id) return;
+      const el=document.getElementById(id);
+      if(el && el.closest('.form-group')) el.closest('.form-group').style.display='';
+    });
+    return;
+  }
+  FIELD_DEFS.forEach(f=>{
+    const id = mode==='add'?f.add:f.edit;
+    if(!id) return;
+    const el=document.getElementById(id);
+    if(!el) return;
+    const grp=el.closest('.form-group');
+    if(!grp) return;
+    grp.style.display = hasFieldPerm(f.key) ? '' : 'none';
+  });
+}
+
+// wrap open modals
+const _openAddV1 = openAddSubscriberModal;
+openAddSubscriberModal = function(){
+  if(!canDo('add')){ alert('Aap ko Add User ki permission nahi hai!'); return; }
+  // call original inner (bypass our previous wrapper's canDo double-check by calling prev)
+  // _openAddV1 already checks canDo, so just call its inner logic via stored orig
+  _openAddV1();
+  setTimeout(()=>applyFieldVisibility('add'), 50);
+};
+const _openEditV1 = openEditSubscriberModal;
+openEditSubscriberModal = function(id){
+  if(!canDo('edit')){ alert('Aap ko Edit ki permission nahi hai!'); return; }
+  _openEditV1(id);
+  setTimeout(()=>applyFieldVisibility('edit'), 50);
+};
+
+// ---- Guard saves: staff cannot save disallowed fields ----
+const _saveNewSubV1 = saveNewSubscriber;
+saveNewSubscriber = function(){
+  if(isStaff()){
+    // force defaults for hidden fields before save validation
+    FIELD_DEFS.forEach(f=>{
+      if(!hasFieldPerm(f.key) && f.add){
+        const el=document.getElementById(f.add);
+        if(el){
+          if(el.tagName==='SELECT') el.selectedIndex=0;
+          else el.value='';
+        }
+      }
+    });
+    // required check: if required field hidden, unhide warning
+    const need=[['subName','f_name'],['subUsername','f_username'],['subPackage','f_package'],['subFee','f_fee'],['subPhone','f_mobile']];
+    for(const [id,key] of need){
+      if(!hasFieldPerm(key)){
+        alert('Aap ko '+key+' ki permission nahi hai — ISP/Superadmin se ON karwayein!');
+        return;
+      }
+    }
+  }
+  _saveNewSubV1();
+};
+const _saveEditSubV1 = saveEditedSubscriber;
+saveEditedSubscriber = function(){
+  if(isStaff()){
+    const id=parseInt(document.getElementById('editSubId').value);
+    const sub=subscribersList.find(s=>s.id===id);
+    if(sub){
+      // restore old values for disallowed fields
+      FIELD_DEFS.forEach(f=>{
+        if(!hasFieldPerm(f.key) && f.edit){
+          const el=document.getElementById(f.edit);
+          if(!el) return;
+          // map back to sub keys
+          const map={editSubName:'name',editSubUsername:'username',editSubPackage:'package',editSubFee:'fee',editSubBalance:'balance',editSubPhone:'phone',editSubCnic:'cnic',editSubConnectionType:'connectionType',editSubDueDate:'dueDate',editSubArea:'area',editSubSubArea:'subArea',editSubGps:'gpsLocation',editSubConnectionDate:'connectionDate',editSubFullAddress:'address',editSubRemarks:'remarks'};
+          // f.edit covers main; subArea special: f_area controls both editSubArea + editSubSubArea
+          if(f.key==='f_area'){
+            el.value=sub.area||'';
+            const sa=document.getElementById('editSubSubArea'); if(sa) sa.value=sub.subArea||'';
+          } else if(f.key==='f_address'){
+            el.value=sub.address||'';
+          } else if(f.key==='f_balance'){
+            el.value=sub.balance||0;
+          } else {
+            const k=map[f.edit];
+            if(k) el.value=sub[k]!==undefined?sub[k]:el.value;
+          }
+        }
+      });
+    }
+  }
+  _saveEditSubV1();
+};
+
+// init
+try{ if(currentUser) applyRole(); }catch(e){}
+try{refreshAddButtons();}catch(e){}
+
+})();
+
+</script>
+<script>window.__CF$cv$params={r:'a44b3f5db93652a1',t:'MTc5MTAyMzE3NQ==',u:'01a1014cdb8074f39bf174c49d30cf4b',ut:'xbtrm2Ip1Lz5ZFRq12Muk9iinRWYTuUyKELd8ltcpNw-1791023176-1.2.1.1-4Y4W2JUEDVBDmQgX1I2kHCXVnD11UVf27eMan06Dp5dR7Ee3DA4FduNVF.6VyITKHXsM9Grkkkauh7pJ8TAhxWRenGg.uqHZ8F0bUW4Ywts',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a45626b688227383',t:'MTc5MTEzNzUwOA==',u:'01a1081d742273c8bcaf4d552ba5a922',ut:'WrTsA5bd7qUDATp5QIe.6q77SZHhI_qEMpjVa3Ki2YE-1791137510-1.2.1.1-B7I.WGFZd.KjwSyRpCRAMtb7YV4And4wjmuDdvG6CnH6dQXPII94DEOakW0RMX76lSstCGJLGGqZ97QQ8ZWglMWrwWT1fPksToFiu6nIm_w',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
