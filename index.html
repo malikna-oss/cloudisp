@@ -3277,6 +3277,31 @@ try{refreshAddButtons();}catch(e){}
 
 })();
 
+</script><!-- Supabase CDN Script -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Yahan apna Supabase URL aur Anon Key dal dein
+  const supabaseUrl = 'https://iiuzjtphgeqeimotwlrn.supabase.co';
+  const supabaseKey = 'sb_publishable_wgegkMwk17YpPXbTDiClrw_YPM4JXgV';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+      auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+      }
+  });
+
+  // Subscribers Delete Fix Query
+  async function deleteSubscriber(id) {
+      if(!confirm("Kya aap waqai isay delete karna chahte hain?")) return;
+      const { error } = await supabase.from('subscribers').delete().eq('id', id);
+      if (error) {
+          alert("Delete error: " + error.message);
+      } else {
+          alert("Record permanently delete ho gaya!");
+          location.reload();
+      }
+  }
 </script>
 <script>window.__CF$cv$params={r:'a44b3f5db93652a1',t:'MTc5MTAyMzE3NQ==',u:'01a1014cdb8074f39bf174c49d30cf4b',ut:'xbtrm2Ip1Lz5ZFRq12Muk9iinRWYTuUyKELd8ltcpNw-1791023176-1.2.1.1-4Y4W2JUEDVBDmQgX1I2kHCXVnD11UVf27eMan06Dp5dR7Ee3DA4FduNVF.6VyITKHXsM9Grkkkauh7pJ8TAhxWRenGg.uqHZ8F0bUW4Ywts',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a45626b688227383',t:'MTc5MTEzNzUwOA==',u:'01a1081d742273c8bcaf4d552ba5a922',ut:'WrTsA5bd7qUDATp5QIe.6q77SZHhI_qEMpjVa3Ki2YE-1791137510-1.2.1.1-B7I.WGFZd.KjwSyRpCRAMtb7YV4And4wjmuDdvG6CnH6dQXPII94DEOakW0RMX76lSstCGJLGGqZ97QQ8ZWglMWrwWT1fPksToFiu6nIm_w',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
