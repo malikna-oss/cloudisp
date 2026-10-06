@@ -3302,25 +3302,64 @@ try{refreshAddButtons();}catch(e){}
           location.reload();
       }
   }
-</script><script>
+</script>
   // --- CloudISP Advanced Feature Updates & Handlers ---
-  
-  // 1. Session & 30-Minute Expiry Check
+  <script>
+  // --- 1. Live Supabase Data Fetching & Sync ---
+  async function loadRealtimeSubscribers() {
+      const { data, error } = await supabase.from('subscribers').select('*');
+      if (!error && data) {
+          const tbody = document.getElementById('subscribersTableBody');
+          if (tbody && data.length > 0) {
+              tbody.innerHTML = '';
+              data.forEach(sub => {
+                  tbody.innerHTML += `<tr>
+                      <td>${sub.name || 'N/A'}</td>
+                      <td>${sub.package || 'N/A'}</td>
+                      <td>${sub.phone || 'N/A'}</td>
+                      <td><span class="badge badge-isp">${sub.status || 'Active'}</span></td>
+                      <td><button class="btn-primary btn-sm" onclick="permanentDeleteRecord('subscribers', '${sub.id}')">🗑️ Delete</button></td>
+                  </tr>`;
+              });
+          }
+      }
+  }
+
+  // --- 2. Session Management ---
   window.addEventListener('DOMContentLoaded', () => {
+      loadRealtimeSubscribers();
       const session = localStorage.getItem('cloud_isp_session');
+      const now = new Date().getTime();
       if (session) {
-          const data = JSON.parse(session);
-          if (new Date().getTime() > data.expiry) {
+          try {
+              const data = JSON.parse(session);
+              if (now > data.expiry) {
+                  localStorage.removeItem('cloud_isp_session');
+              } else {
+                  data.expiry = now + (30 * 60 * 1000);
+                  localStorage.setItem('cloud_isp_session', JSON.stringify(data));
+              }
+          } catch (e) {
               localStorage.removeItem('cloud_isp_session');
-              alert("Session expired after 30 minutes. Please login again.");
           }
       } else {
-          // Set initial session to prevent logout on refresh/tab change
-          const sessionData = {
+          localStorage.setItem('cloud_isp_session', JSON.stringify({
               user: "Admin",
-              expiry: new Date().getTime() + (30 * 60 * 1000) // 30 Minutes
-          };
-          localStorage.setItem('cloud_isp_session', JSON.stringify(sessionData));
+              expiry: now + (30 * 60 * 1000)
+          }));
       }
   });
 
+  // --- 3. Permanent Delete ---
+  async function permanentDeleteRecord(table, id) {
+      if(!confirm("Are you sure? This record will be permanently deleted.")) return;
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      if(error) {
+          alert("Delete Error: " + error.message);
+      } else {
+          alert("Record permanently deleted!");
+          location.reload();
+      }
+  }
+</script>
+ 
