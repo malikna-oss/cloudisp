@@ -3350,16 +3350,5 @@ try{refreshAddButtons();}catch(e){}
       }
   });
 
-  // --- 3. Permanent Delete ---
-  async function permanentDeleteRecord(table, id) {
-      if(!confirm("Are you sure? This record will be permanently deleted.")) return;
-      const { error } = await supabase.from(table).delete().eq('id', id);
-      if(error) {
-          alert("Delete Error: " + error.message);
-      } else {
-          alert("Record permanently deleted!");
-          location.reload();
-      }
-  }
 </script>
  
