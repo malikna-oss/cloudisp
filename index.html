@@ -449,6 +449,13 @@
         .header-banner h1 { font-size: 18px; }
     }
     </style>
+    <style>
+    html.cisp-restoring #loginScreen{visibility:hidden !important;}
+    html.cisp-restoring body::after{content:'⏳ Load ho raha hai...';position:fixed;inset:0;z-index:99998;background:#0b0f19;color:#9ca3af;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    </style>
+    <script>
+    (function(){ try{ var s=JSON.parse(sessionStorage.getItem('cisp_session')||'null'); if(s && Date.now()<=s.expiry) document.documentElement.classList.add('cisp-restoring'); }catch(e){} })();
+    </script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -523,27 +530,27 @@
         <div class="grid-6">
             <div class="stat-box" onclick="openCardModal('total')">
                 <div class="stat-title">Total Subscribers <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #ffffff;" id="countTotal">2</div>
+                <div class="stat-value" style="color: #ffffff;" id="countTotal">0</div>
             </div>
             <div class="stat-box" onclick="openCardModal('active')">
                 <div class="stat-title">Active Connections <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #34d399;" id="countActive">1</div>
+                <div class="stat-value" style="color: #34d399;" id="countActive">0</div>
             </div>
             <div class="stat-box" onclick="openCardModal('revenue')">
                 <div class="stat-title">Monthly Revenue <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #60a5fa;" id="valRevenue">Rs 1,500</div>
+                <div class="stat-value" style="color: #60a5fa;" id="valRevenue">Rs 0</div>
             </div>
             <div class="stat-box" onclick="openCardModal('paid')">
                 <div class="stat-title">Paid Users <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #34d399;" id="countPaid">1</div>
+                <div class="stat-value" style="color: #34d399;" id="countPaid">0</div>
             </div>
             <div class="stat-box" onclick="openCardModal('unpaid')">
                 <div class="stat-title">Unpaid / Expired <span style="font-size:9px; color:#f87171; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #f87171;" id="countUnpaid">1</div>
+                <div class="stat-value" style="color: #f87171;" id="countUnpaid">0</div>
             </div>
             <div class="stat-box" onclick="openDashboardStaffHistory()">
                 <div class="stat-title">Staff Members <span style="font-size:9px; color:#fbbf24; float:right;">(Click 📜)</span></div>
-                <div class="stat-value" style="color: #fbbf24;" id="totalStaffCount">1</div>
+                <div class="stat-value" style="color: #fbbf24;" id="totalStaffCount">0</div>
             </div>
         </div>
     </div>
@@ -652,7 +659,7 @@
         <div class="card" style="max-width:600px;" id="setIspBox">
             <h3 style="color:#60a5fa;margin-bottom:12px;">📡 My ISP — Company Settings</h3>
             <div class="form-group"><label>My Company Name</label><input type="text" id="setIspCompany" value="My ISP"></div>
-            <div class="form-group"><label>My Support Number</label><input type="text" id="setIspPhone" value="03001112222"></div>
+            <div class="form-group"><label>My Support Number</label><input type="text" id="setIspPhone" value="" placeholder="e.g. 03001112222"></div>
             <div class="form-group"><label>Collected By Name</label><input type="text" id="setIspCollector" value="ADMIN"></div>
             <button class="btn-primary btn-success" onclick="saveIspSettings()">💾 Save My Settings</button>
         </div>
@@ -1035,63 +1042,10 @@
             if(tabId === 'superadmin') { renderISPs(); }
         }
 
-        let subscribersList = [
-            { 
-                id: 1, 
-                name: "Ali Ahmed", 
-                isp: "Ali Net",
-                username: "aliahmed",
-                package: "10 Mbps", 
-                fee: 1500,
-                installCharges: 0,
-                balance: 0,
-                phone: "923001112233", 
-                status: "Paid", 
-                type: "active",
-                address: "House #12, Street 3, Main Market Lahore",
-                area: "Gulberg",
-                subArea: "Block A",
-                cnic: "35202-1234567-1",
-                dueDate: "30",
-                connectionDate: "18/02/2026",
-                connectionType: "Fiber Internet",
-                gpsLocation: "https://maps.google.com/?q=31.5204,74.3587",
-                remarks: "Verified connection"
-            },
-            { 
-                id: 2, 
-                name: "Usman Khan", 
-                isp: "Ali Net",
-                username: "usmankhan",
-                package: "20 Mbps", 
-                fee: 2500,
-                installCharges: 0,
-                balance: 500,
-                phone: "923004445566", 
-                status: "Unpaid", 
-                type: "unpaid",
-                address: "Office #4, Plaza Liberty Chowk Lahore",
-                area: "Liberty",
-                subArea: "Commercial",
-                cnic: "35201-9876543-2",
-                dueDate: "15",
-                connectionDate: "10/06/2025",
-                connectionType: "Fiber Internet",
-                gpsLocation: "https://maps.google.com/?q=31.5100,74.3400",
-                remarks: "Commercial client"
-            }
-        ];
+        // Example/demo data hata diya gaya — sirf wahi data rahega jo aap khud add karenge
+        let subscribersList = [];
 
-        let staffList = [
-            { 
-                name: "Naeem", 
-                role: "Technician", 
-                salary: 30000, 
-                phone: "923001234567",
-                leaves: [{ date: "2026-10-01", reason: "Emergency work" }], 
-                advances: [{ amount: 5000, reason: "Emergency cash", date: "2026-10-01" }] 
-            }
-        ];
+        let staffList = [];
 
         function calculateLedger() {
             const now = new Date();
@@ -1470,9 +1424,9 @@
                 name: name,
                 username: username,
                 package: pkg,
-                fee: fee + installCharges + prevBalance,
+                fee: fee,
                 installCharges: installCharges,
-                balance: prevBalance,
+                balance: prevBalance + installCharges,
                 phone: phone,
                 status: "Unpaid",
                 type: "unpaid",
@@ -1738,18 +1692,16 @@
         }
 
         // ===== FULL APP DATA =====
-        let packagesList = [{name:'10 Mbps',speed:'10 Mbps',fee:1500},{name:'20 Mbps',speed:'20 Mbps',fee:2500}];
-        let paymentsList = [{date:'2026-10-01',customer:'Ali Ahmed',pkg:'10 Mbps',amount:1500,via:'Cash'}];
+        let packagesList = [];
+        let paymentsList = [];
         let complaintsList = [];
-        let areasList = ['Gulberg','Liberty'];
-        let ispsList = [{name:'Ali Net',city:'Lahore',users:120,status:'Paid'},{name:'Fast Net',city:'Karachi',users:80,status:'Unpaid'}];
-        let appSettings = {company:'DEMO ISP',phone:'0300-8816822',collector:'ADMIN DEMO'};
+        let areasList = [];
+        let ispsList = [];
+        let appSettings = {company:'CloudISP',phone:'',collector:'ADMIN'};
 
         // ===== ROLE SYSTEM: Number login + SuperAdmin>ISP>Staff =====
         let systemUsers = [
-            {role:'owner', name:'Super Admin', mobile:'03008845608', pass:'8845', isp:'ALL'},
-            {role:'isp', name:'Ali Net Owner', company:'Ali Net', mobile:'03001112222', pass:'isp123', isp:'Ali Net', address:'Main Road Lahore'},
-            {role:'staff', name:'Field Boy', mobile:'03003334444', pass:'staff123', isp:'Ali Net', perms:{add:true,edit:true,collect:true,del:false}}
+            {role:'owner', name:'Super Admin', mobile:'03008845608', pass:'8845', isp:'ALL'}
         ];
         let currentUser = null;
         try{ const su=localStorage.getItem('cloudisp_users'); if(su) systemUsers=JSON.parse(su); }catch(e){}
@@ -1848,13 +1800,7 @@
                     const s = systemUsers.find(x=>x.mobile===SUPERADMIN_MOBILE);
                     s.role='owner'; s.pass=SUPERADMIN_PASS; s.name='Super Admin'; s.isp='ALL';
                 }
-                // ensure demo ISP + staff exist
-                if(!systemUsers.find(x=>x.mobile==='03001112222')){
-                    systemUsers.push({role:'isp', name:'Ali Net Owner', company:'Ali Net', mobile:'03001112222', pass:'isp123', isp:'Ali Net', address:'Main Road Lahore'});
-                }
-                if(!systemUsers.find(x=>x.mobile==='03003334444')){
-                    systemUsers.push({role:'staff', name:'Field Boy', mobile:'03003334444', pass:'staff123', isp:'Ali Net', perms:{add:true,edit:true,collect:true,del:false}});
-                }
+                // (demo ISP + staff ab khud se dobara nahi bante)
                 // ensure ispsList entries have login fields
                 ispsList.forEach(isp=>{
                     const u = systemUsers.find(x=>x.role==='isp' && (x.isp===isp.name || x.company===isp.name));
@@ -3424,7 +3370,9 @@ try{refreshAddButtons();}catch(e){}
     });
     hydrating = false;
 
-    if(changed){
+    if(changed && typeof window.cloudispApplyRemote === 'function'){
+      try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
+    } else if(changed){
       const last = +sessionStorage.getItem('cloudisp_reload_ts') || 0;
       if(Date.now() - last > 5000){
         sessionStorage.setItem('cloudisp_reload_ts', String(Date.now()));
@@ -3443,6 +3391,7 @@ try{refreshAddButtons();}catch(e){}
     }
 
     ready = true;
+    window.__cloudispReady = true;
     window.dispatchEvent(new Event('cloudisp-ready'));
     if(Object.keys(pending).length) schedule(200);
 
@@ -3464,14 +3413,16 @@ try{refreshAddButtons();}catch(e){}
   const TAB_KEY     = 'cisp_tab';
   const TTL         = 30 * 60 * 1000;   // 30 minute
   let restored = false;
+  // Session ab har TAB ka alag hai (sessionStorage): naya tab = login page, refresh = wahi page
+  try{ localStorage.removeItem(SESSION_KEY); localStorage.removeItem(TAB_KEY); }catch(e){}
 
   // ---------- Session (30 min, activity par barhta hai) ----------
   function saveSession(){
     if(!currentUser) return;
-    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({ mobile: currentUser.mobile, expiry: Date.now() + TTL })); }catch(e){}
+    try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({ mobile: currentUser.mobile, expiry: Date.now() + TTL })); }catch(e){}
   }
   function readSession(){
-    try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
+    try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
   }
   function updateWho(){
     const chip = document.getElementById('whoChip');
@@ -3483,7 +3434,7 @@ try{refreshAddButtons();}catch(e){}
 
   const _signOut = signOut;
   signOut = function(){
-    try{ localStorage.removeItem(SESSION_KEY); localStorage.removeItem(TAB_KEY); }catch(e){}
+    try{ sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(TAB_KEY); }catch(e){}
     _signOut();
     updateWho();
   };
@@ -3503,13 +3454,13 @@ try{refreshAddButtons();}catch(e){}
     if(restored) return;
     restored = true;
     const sess = readSession();
-    if(!sess || Date.now() > sess.expiry){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
+    if(!sess || Date.now() > sess.expiry){ try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
     const u = systemUsers.find(function(x){ return x.mobile === sess.mobile; });
-    if(!u){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
+    if(!u){ try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
     currentUser = u;
+    const tab = sessionStorage.getItem(TAB_KEY);
     document.getElementById('loginScreen').classList.remove('active');
     applyRole();
-    const tab = localStorage.getItem(TAB_KEY);
     if(tab && document.getElementById(tab)){
       const li = Array.prototype.find.call(document.querySelectorAll('.nav-links li'), function(l){
         const oc = l.getAttribute('onclick') || '';
@@ -3535,12 +3486,13 @@ try{refreshAddButtons();}catch(e){}
     }
   })();
   function endLoading(){
+    document.documentElement.classList.remove('cisp-restoring');
     const ls = document.getElementById('loginScreen'); if(ls) ls.style.visibility = '';
     const ld = document.getElementById('sessionLoading'); if(ld) ld.remove();
   }
   // cloud data aane ke baad restore karo (4 sec me na aaye to local data se)
   window.addEventListener('cloudisp-ready', restoreSession);
-  setTimeout(restoreSession, 4000);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restoreSession); else setTimeout(restoreSession, 0);
 
   // activity => 30 min dobara shuru
   let lastTouch = 0;
@@ -3571,7 +3523,7 @@ try{refreshAddButtons();}catch(e){}
   if(nav) nav.addEventListener('click', function(e){
     const li = e.target.closest('li');
     const m = li && (li.getAttribute('onclick') || '').match(/switchTab\('([^']+)'/);
-    if(m) try{ localStorage.setItem(TAB_KEY, m[1]); }catch(err){}
+    if(m) try{ sessionStorage.setItem(TAB_KEY, m[1]); }catch(err){}
   });
 
   // ---------- Staff categories (preset permissions) ----------
@@ -3718,5 +3670,795 @@ try{refreshAddButtons();}catch(e){}
   updateWho();
 })();
 </script>
+<!-- ===== V3 UPDATE: data isolation, demo cleanup, salary ledger, permissions popup, ISP cards, password change, fee history ===== -->
+<script>
+(function(){
+console.log('V3 update loaded');
+
+/* ---------------- Helpers ---------------- */
+const esc = v => String(v==null?'':v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const subIsp = s => (s && s.isp) || 'Ali Net';
+const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const fmt = n => 'Rs ' + Math.round(num(n)).toLocaleString();
+const pad = n => String(n).padStart(2,'0');
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function thisMonth(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1); }
+const ym = d => String(d||'').slice(0,7);
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthLabel(m){ if(!m||m.length<7) return m||'-'; const y=m.slice(0,4), mm=+m.slice(5,7); return (MONTHS[mm-1]||m)+' '+y; }
+function newId(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function toWa(m){ m=String(m||'').replace(/\D/g,''); if(m.indexOf('0')===0) m='92'+m.slice(1); return m; }
+function mySubs(){ if(!currentUser || isOwner()) return []; const m=myISP(); return subscribersList.filter(s=>subIsp(s)===m); }
+function canAccessSub(sub){ return !!(sub && currentUser && !isOwner() && subIsp(sub)===myISP()); }
+function ledgerScope(){ if(!currentUser) return null; if(isOwner()) return 'ALL'; if(isISP()) return myISP(); return null; }
+function closeAllModals(){ document.querySelectorAll('.modal-overlay.active').forEach(m=>{ if(m.id!=='loginScreen') m.classList.remove('active'); }); }
+function modal(id, html, width){
+  let d=document.getElementById(id);
+  if(!d){ d=document.createElement('div'); d.id=id; d.className='modal-overlay'; document.body.appendChild(d); }
+  d.innerHTML='<div class="modal-box" style="width:'+(width||560)+'px;">'+html+'</div>';
+  d.onclick=function(e){ if(e.target===d) d.classList.remove('active'); };
+  d.classList.add('active');
+  return d;
+}
+window.v3Close = function(id){ const d=document.getElementById(id); if(d) d.classList.remove('active'); };
+function head(title, id){ return '<div class="modal-header"><h3>'+title+'</h3><button class="close-btn" onclick="v3Close(\''+id+'\')">&times;</button></div>'; }
+
+/* ---------------- Data migration (har ISP ka data alag tag) ---------------- */
+function ensureOwner(){
+  try{
+    if(!Array.isArray(systemUsers)) systemUsers=[];
+    let s=systemUsers.find(x=>x.mobile===SUPERADMIN_MOBILE);
+    if(!s){ systemUsers.unshift({role:'owner',name:'Super Admin',mobile:SUPERADMIN_MOBILE,pass:SUPERADMIN_PASS,isp:'ALL'}); }
+    else { s.role='owner'; s.pass=SUPERADMIN_PASS; s.name='Super Admin'; s.isp='ALL'; }
+  }catch(e){}
+}
+function migrate(){
+  let changed=false;
+  try{
+    // Salary staff: har entry ka ISP tag
+    staffList.forEach(st=>{
+      if(!st.id){ st.id=newId('st'); changed=true; }
+      if(!st.isp){ st.isp='ALL'; changed=true; }
+      if(!Array.isArray(st.leaves)){ st.leaves=[]; changed=true; }
+      if(!Array.isArray(st.advances)){ st.advances=[]; changed=true; }
+      st.advances.forEach(a=>{ if(!a.id){ a.id=newId('a'); changed=true; } a.amount=num(a.amount); });
+      st.leaves.forEach(l=>{ if(!l.id){ l.id=newId('l'); changed=true; } });
+      st.salary=num(st.salary);
+    });
+    // Areas: purani string list ko ISP-wise objects me badlo
+    if(areasList.some(a=>typeof a==='string')){
+      const out=[];
+      areasList.forEach(a=>{
+        if(typeof a!=='string'){ out.push(a); return; }
+        const isps=[...new Set(subscribersList.filter(s=>s.area===a).map(subIsp))];
+        isps.forEach(isp=>{ if(!out.some(x=>x.name===a&&x.isp===isp)) out.push({name:a,isp:isp}); });
+      });
+      areasList=out; changed=true;
+    }
+    // Payments: id + subscriber link + month
+    paymentsList.forEach(p=>{
+      if(!p.id){ p.id=newId('p'); changed=true; }
+      if(!p.isp){ const s=subscribersList.find(x=>x.name===p.customer); p.isp=s?subIsp(s):'Ali Net'; changed=true; }
+      if(!p.month){ p.month=ym(p.date)||thisMonth(); changed=true; }
+      if(p.subId==null){
+        const m=subscribersList.filter(x=>x.name===p.customer && subIsp(x)===p.isp);
+        if(m.length===1){ p.subId=m[0].id; changed=true; }
+      }
+      if(!p.ts){ p.ts=Date.parse(p.date||'')||0; changed=true; }
+    });
+  }catch(e){ console.log('migrate',e); }
+  return changed;
+}
+
+/* ---------------- One-time cleanup of example/demo data ---------------- */
+function cleanupSeeds(){
+  if(localStorage.getItem('cloudisp_cleanup_v3')) return;
+  try{
+    const isSeedSub=s=>(s.name==='Ali Ahmed'&&s.username==='aliahmed'&&s.phone==='923001112233')||(s.name==='Usman Khan'&&s.username==='usmankhan'&&s.phone==='923004445566');
+    subscribersList=subscribersList.filter(s=>!isSeedSub(s));
+    paymentsList=paymentsList.filter(p=>!(p.date==='2026-10-01'&&p.customer==='Ali Ahmed'&&num(p.amount)===1500&&p.pkg==='10 Mbps'));
+    staffList=staffList.filter(st=>!(st.name==='Naeem'&&st.phone==='923001234567'&&num(st.salary)===30000
+      &&(st.advances||[]).every(a=>a.date==='2026-10-01'&&num(a.amount)===5000)
+      &&(st.leaves||[]).every(l=>l.date==='2026-10-01')));
+    const aliReal=subscribersList.some(s=>subIsp(s)==='Ali Net');
+    if(!aliReal){
+      systemUsers=systemUsers.filter(u=>!(u.role==='isp'&&u.mobile==='03001112222'&&u.pass==='isp123'));
+      systemUsers=systemUsers.filter(u=>!(u.role==='staff'&&u.mobile==='03003334444'&&u.pass==='staff123'));
+      ispsList=ispsList.filter(i=>!(i.name==='Ali Net'&&(!i.mobile||i.mobile==='-'||i.mobile==='03001112222')));
+      packagesList=packagesList.filter(p=>!((p.isp||'Ali Net')==='Ali Net'&&((p.name==='10 Mbps'&&num(p.fee)===1500)||(p.name==='20 Mbps'&&num(p.fee)===2500))));
+    }
+    if(!subscribersList.some(s=>s.isp==='Fast Net')) ispsList=ispsList.filter(i=>!(i.name==='Fast Net'&&i.city==='Karachi'&&(!i.mobile||i.mobile==='-')));
+    areasList=areasList.filter(a=>!(typeof a==='string'&&(a==='Gulberg'||a==='Liberty')&&!subscribersList.some(s=>s.area===a)));
+    ensureOwner(); migrate();
+    areasList=areasList.filter(a=>a&&typeof a==='object'&&ispsList.some(i=>i.name===a.isp));
+    saveUsers(); saveOffline();
+    localStorage.setItem('cloudisp_cleanup_v3','1');
+    if(currentUser && !systemUsers.includes(currentUser)){
+      const u=systemUsers.find(x=>x.mobile===currentUser.mobile);
+      if(u) currentUser=u; else { signOut(); return; }
+    }
+    refreshViews();
+    console.log('Example data cleanup done');
+  }catch(e){ console.log('cleanup',e); }
+}
+
+/* ---------------- Re-load data (cloud / other tab) without page reload ---------------- */
+function refreshViews(){
+  if(!currentUser) return;
+  try{ calculateLedger(); }catch(e){}
+  ['renderSubscribersTable','renderPayments','renderComplaints','renderAreas','renderISPs','renderAllStaff','renderWaTable'].forEach(fn=>{ try{ window[fn](); }catch(e){} });
+}
+window.cloudispApplyRemote=function(){
+  try{ loadOffline(); }catch(e){}
+  try{ const su=localStorage.getItem('cloudisp_users'); if(su) systemUsers=JSON.parse(su); }catch(e){}
+  ensureOwner();
+  if(migrate()) saveOffline();
+  if(currentUser){
+    const u=systemUsers.find(x=>x.mobile===currentUser.mobile);
+    if(!u){ signOut(); return; }
+    currentUser=u;
+  }
+  refreshViews();
+};
+let syncT=null;
+window.addEventListener('storage', function(e){
+  if(e.storageArea!==localStorage || !e.key || e.key.indexOf('cloudisp_')!==0) return;
+  clearTimeout(syncT); syncT=setTimeout(window.cloudispApplyRemote, 300);
+});
+window.addEventListener('cloudisp-ready', function(){ cleanupSeeds(); });
+if(window.__cloudispReady) setTimeout(cleanupSeeds, 0);
+
+/* ---------------- Sign out: screen saaf karo ---------------- */
+const _signOutV2=signOut;
+signOut=function(){
+  _signOutV2();
+  closeAllModals();
+  ['subscribersTableBody','staffTableBody','paymentsTableBody','complaintsTableBody','areasTableBody','waTableBody','ispsTableBody','allStaffTableBody','ispLoginStaffBody','cardModalList'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=''; });
+  const rb=document.getElementById('recoveryReportBox'); if(rb) rb.innerHTML='';
+};
+
+/* ---------------- Guards: doosre ISP ka record kabhi na khule ---------------- */
+['openUserProfileModal','openEditSubscriberModal','deleteSubscriber','sendWaBill'].forEach(fn=>{
+  const prev=window[fn]; if(typeof prev!=='function') return;
+  window[fn]=function(id){
+    const sub=subscribersList.find(s=>s.id===id);
+    if(!canAccessSub(sub)){ alert('Ye record aap ke ISP ka nahi hai!'); return; }
+    return prev.apply(this, arguments);
+  };
+});
+const _saveEditV2=saveEditedSubscriber;
+saveEditedSubscriber=function(){
+  const id=parseInt(document.getElementById('editSubId').value);
+  const sub=subscribersList.find(s=>s.id===id);
+  if(!canAccessSub(sub)){ alert('Ye record aap ke ISP ka nahi hai!'); return; }
+  _saveEditV2();
+};
+
+/* Profile: Payment + Log Hist icons kaam karein */
+const _profileV2=openUserProfileModal;
+openUserProfileModal=function(id){
+  _profileV2(id);
+  try{
+    const c=document.getElementById('userProfileContent');
+    c.querySelectorAll('div').forEach(d=>{
+      const t=d.textContent.trim();
+      if(t==='📁Log Hist'){ d.style.cursor='pointer'; d.style.color='#2563eb'; d.onclick=()=>openPayHistory(id); }
+      if(t==='💳Payment' && canDo('collect')){ d.style.cursor='pointer'; d.style.color='#009688'; d.onclick=()=>collectFee(id); }
+    });
+    const sub=subscribersList.find(s=>s.id===id);
+    // Total Payable = fee + balance
+    c.querySelectorAll('span').forEach(sp=>{ if(sp.textContent.trim()==='Total Payable :' && sp.nextElementSibling) sp.nextElementSibling.textContent=fmt(owed(sub)); });
+    const hb=document.createElement('button');
+    hb.textContent='📜 Fee History'; hb.style.cssText='width:100%;margin-top:8px;background:#4b5563;color:#fff;border:none;padding:8px;border-radius:4px;font-weight:bold;cursor:pointer;font-size:11px;';
+    hb.onclick=()=>openPayHistory(id);
+    c.querySelector('.user-profile-view').appendChild(hb);
+  }catch(e){}
+};
+
+/* Edit modal: Sub-Area bhi Area permission se control ho */
+const _openEditV3=openEditSubscriberModal;
+openEditSubscriberModal=function(id){
+  _openEditV3(id);
+  setTimeout(()=>{ try{
+    const g=document.getElementById('editSubSubArea'); if(!g) return;
+    const grp=g.closest('.form-group');
+    if(grp) grp.style.display=(isStaff() && (currentUser.perms||{}).f_area===false)?'none':'';
+  }catch(e){} },80);
+};
+
+/* Subscribers table: area filter hamesha apne ISP ke areas se */
+const _renderSubsV2=renderSubscribersTable;
+renderSubscribersTable=function(){
+  _renderSubsV2();
+  try{
+    const sel=document.getElementById('subFilterArea'); if(!sel || isOwner()) return;
+    const cur=sel.value;
+    const areas=[...new Set(mySubs().map(s=>s.area).filter(Boolean))].sort();
+    sel.innerHTML='<option value="">All Areas</option>'+areas.map(a=>'<option value="'+esc(a)+'">'+esc(a)+'</option>').join('');
+    if(areas.includes(cur)) sel.value=cur;
+  }catch(e){}
+};
+
+/* ---------------- Dashboard cards (ISP-wise lists) ---------------- */
+let cardType='total';
+function ispBakaya(name){ return subscribersList.filter(s=>subIsp(s)===name && s.status==='Unpaid').reduce((a,s)=>a+owed(s),0); }
+openCardModal=function(type){
+  cardType=type;
+  const titles={total:'📋 Total Subscribers List',active:'🟢 Active Connections List',revenue:'💰 Monthly Revenue (Paid Users)',paid:'✅ Paid Users List',unpaid:'❌ Unpaid / Expired Users List',
+    isp_all:'📡 All ISPs',isp_paid:'✅ Paid ISPs',isp_unpaid:'❌ Unpaid / Blocked ISPs',isp_users:'👥 ISP-wise Users',isp_bakaya:'💸 ISP-wise Bakaya'};
+  document.getElementById('cardModalTitle').innerText=titles[type]||'List Details';
+  const inp=document.getElementById('modalSearchInput'); inp.value='';
+  inp.placeholder=type.indexOf('isp_')===0?'🔍 Search ISP name / owner / mobile...':'🔍 Search by name / mobile...';
+  filterCardList();
+  document.getElementById('cardModal').classList.add('active');
+};
+filterCardList=function(){
+  const q=(document.getElementById('modalSearchInput').value||'').toLowerCase();
+  const el=document.getElementById('cardModalList'); el.innerHTML='';
+  const empty='<li style="text-align:center;color:#9ca3af;padding:15px;">No records found.</li>';
+  if(cardType.indexOf('isp_')===0){
+    if(!isOwner()){ el.innerHTML=empty; return; }
+    let list=ispsList.slice();
+    if(cardType==='isp_paid') list=list.filter(i=>i.status==='Paid');
+    if(cardType==='isp_unpaid') list=list.filter(i=>i.status!=='Paid');
+    if(cardType==='isp_bakaya') list=list.filter(i=>ispBakaya(i.name)>0);
+    list=list.filter(i=>!q||[i.name,i.owner,i.mobile,i.city].some(v=>String(v||'').toLowerCase().includes(q)));
+    if(!list.length){ el.innerHTML=empty; return; }
+    list.forEach(i=>{
+      const users=subscribersList.filter(s=>subIsp(s)===i.name).length;
+      const paid=i.status==='Paid';
+      const li=document.createElement('li'); li.className='search-modal-item';
+      li.innerHTML='<div style="font-weight:bold;font-size:14px;color:#fff;display:flex;justify-content:space-between;align-items:center;"><span>📡 '+esc(i.name)+'</span><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:'+(paid?'rgba(52,211,153,.15)':'rgba(248,113,113,.15)')+';color:'+(paid?'#34d399':'#f87171')+';">'+(paid?'Paid':'Unpaid / Blocked')+'</span></div>'
+        +'<div style="font-size:12px;color:#9ca3af;margin-top:4px;">'+esc(i.owner||'-')+' • '+esc(i.mobile||'-')+' • '+esc(i.city||'')+'</div>'
+        +'<div style="font-size:12px;margin-top:4px;"><span style="color:#60a5fa;">Users: '+users+'</span> &nbsp; <span style="color:#f87171;">Bakaya: '+fmt(ispBakaya(i.name))+'</span></div>';
+      li.onclick=()=>{ closeCardModal(); switchTabForce('superadmin'); };
+      el.appendChild(li);
+    });
+    return;
+  }
+  let list=mySubs();
+  if(cardType==='active'||cardType==='paid'||cardType==='revenue') list=list.filter(s=>s.status==='Paid');
+  if(cardType==='unpaid') list=list.filter(s=>s.status==='Unpaid');
+  list=list.filter(s=>!q||String(s.name||'').toLowerCase().includes(q)||String(s.phone||'').includes(q)||String(s.username||'').toLowerCase().includes(q));
+  if(!list.length){ el.innerHTML=empty; return; }
+  list.forEach(s=>{
+    const li=document.createElement('li'); li.className='search-modal-item';
+    li.innerHTML='<div style="font-weight:bold;font-size:14px;color:#fff;display:flex;justify-content:space-between;align-items:center;"><span>👤 '+esc(s.name)+' ('+esc(s.package)+')</span><span style="font-size:11px;color:#60a5fa;">View Profile ➔</span></div>'
+      +'<div style="font-size:12px;color:#9ca3af;margin-top:4px;">Phone: '+esc(s.phone)+' | Status: <span style="color:'+(s.status==='Paid'?'#34d399':'#f87171')+'">'+esc(s.status)+'</span>'+(s.status==='Unpaid'?' | Bakaya: '+fmt(owed(s)):'')+'</div>';
+    li.onclick=()=>openUserProfileModal(s.id);
+    el.appendChild(li);
+  });
+};
+function dashboardHandlers(){
+  const boxes=document.querySelectorAll('#dashboard .stat-box'); if(boxes.length<6) return;
+  if(isOwner()){
+    const map=['isp_all','isp_paid','isp_unpaid','isp_users','isp_bakaya'];
+    boxes.forEach((b,i)=>{ b.onclick = i<5 ? ()=>openCardModal(map[i]) : ()=>switchTabForce('superadmin'); });
+  } else if(isISP()){
+    boxes[5].onclick=()=>openDashboardStaffHistory();
+  }
+}
+openDashboardStaffHistory=function(){
+  const sc=ledgerScope(); if(!sc){ alert('Staff list sirf ISP/Superadmin dekh sakta hai!'); return; }
+  const list=staffList.filter(s=>s.isp===sc); const m=thisMonth();
+  let h='';
+  if(!list.length) h='<p style="color:#9ca3af;text-align:center;padding:20px;">Koi staff nahi.</p>';
+  list.forEach(st=>{
+    const c=calcSalary(st,m);
+    h+='<div style="background:#0b0f19;padding:14px;border-radius:10px;margin-bottom:12px;border:1px solid #374151;"><h4 style="color:#34d399;margin-bottom:6px;">👤 '+esc(st.name)+' ('+esc(st.role)+')</h4>'
+      +'<p style="font-size:12px;color:#9ca3af;">Salary '+fmt(st.salary)+' • Advance '+fmt(c.adv)+' • Leaves '+c.leaves+' din (−'+fmt(c.ded)+') • <b style="color:#34d399;">Baqi '+fmt(c.remaining)+'</b> ('+monthLabel(m)+')</p></div>';
+  });
+  document.getElementById('historyTitle').innerText='📜 Staff Members — '+monthLabel(m);
+  document.getElementById('historyContent').innerHTML=h;
+  document.getElementById('historyModal').classList.add('active');
+};
+
+/* ---------------- Staff Salary Ledger (har staff par same rule) ---------------- */
+function ledgerMonth(){ const el=document.getElementById('ledgerMonth'); return (el&&el.value)||thisMonth(); }
+function calcSalary(st, month){
+  const y=+month.slice(0,4), m=+month.slice(5,7);
+  const dim=new Date(y,m,0).getDate();
+  const salary=num(st.salary);
+  const advs=(st.advances||[]).filter(a=>ym(a.date)===month);
+  const lvs=(st.leaves||[]).filter(l=>ym(l.date)===month);
+  const adv=advs.reduce((a,x)=>a+num(x.amount),0);
+  const perDay=salary/dim;
+  const ded=Math.round(perDay*lvs.length);
+  return {dim, salary, adv, leaves:lvs.length, perDay, ded, remaining:Math.round(salary-adv-ded)};
+}
+function autoLinkLoginStaff(scope){
+  if(!scope || scope==='ALL') return false;
+  let ch=false;
+  systemUsers.filter(u=>u.role==='staff' && u.isp===scope && !u.noLedger).forEach(u=>{
+    if(!staffList.some(s=>s.loginMobile===u.mobile)){
+      staffList.push({id:newId('st'), name:u.name, role:u.category||'Staff', salary:0, phone:toWa(u.mobile), isp:scope, loginMobile:u.mobile, leaves:[], advances:[]});
+      ch=true;
+    }
+  });
+  return ch;
+}
+function injectLedgerUI(){
+  const card=document.querySelector('#staff-ledger .card'); if(!card || document.getElementById('ledgerMonth')) return;
+  const h3=card.querySelector('h3'); if(!h3) return;
+  const bar=document.createElement('div');
+  bar.style.cssText='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;';
+  h3.style.marginBottom='0'; h3.id='ledgerTitle';
+  h3.parentNode.insertBefore(bar,h3); bar.appendChild(h3);
+  const r=document.createElement('div'); r.style.cssText='display:flex;align-items:center;gap:8px;';
+  r.innerHTML='<label style="font-size:12px;color:#9ca3af;">Mahina:</label><input type="month" id="ledgerMonth" style="width:170px;" value="'+thisMonth()+'">';
+  bar.appendChild(r);
+  const note=document.createElement('p');
+  note.style.cssText='font-size:11px;color:#9ca3af;margin-bottom:12px;';
+  note.innerHTML='Rule (har staff par): <b>Baqi Salary = Base Salary − Us mahine ka Advance − (Base Salary ÷ mahine ke din × Chhuttiyan)</b>';
+  bar.after(note);
+  document.getElementById('ledgerMonth').addEventListener('change', renderLedger);
+}
+function renderLedger(){
+  const tb=document.getElementById('staffTableBody'); if(!tb) return;
+  const sc=ledgerScope();
+  if(!sc){ tb.innerHTML='<tr><td colspan=6 style="text-align:center;color:#fbbf24;padding:16px;">🔒 Staff ledger sirf ISP / Superadmin dekh sakta hai.</td></tr>'; return; }
+  injectLedgerUI();
+  if(autoLinkLoginStaff(sc)) saveOffline();
+  const month=ledgerMonth();
+  const t=document.getElementById('ledgerTitle'); if(t) t.textContent='📋 Salary Ledger — '+monthLabel(month);
+  tb.innerHTML='';
+  const list=staffList.map((s,i)=>({s,i})).filter(x=>x.s.isp===sc);
+  if(!list.length){ tb.innerHTML='<tr><td colspan=6 style="text-align:center;color:#9ca3af;padding:16px;">Koi staff nahi — "+ Add Staff" dabayein.</td></tr>'; return; }
+  list.forEach(({s,i})=>{
+    const c=calcSalary(s,month);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><strong>'+esc(s.name)+'</strong><br><span style="color:#9ca3af;font-size:11px;">'+esc(s.role)+(s.loginMobile?' • 🔑 Login staff':'')+'</span></td>'
+      +'<td>'+(c.salary?fmt(c.salary):'<span style="color:#fbbf24;font-size:12px;">Salary set karein</span>')+'</td>'
+      +'<td><span style="color:#f87171;">'+fmt(c.adv)+'</span></td>'
+      +'<td>'+c.leaves+' Days'+(c.ded?'<br><span style="color:#f87171;font-size:11px;">−'+fmt(c.ded)+'</span>':'')+'</td>'
+      +'<td style="font-weight:bold;color:'+(c.remaining<0?'#f87171':'#34d399')+';">'+fmt(c.remaining)+'</td>'
+      +'<td><div class="action-btns" style="flex-wrap:wrap;"><button class="btn-primary btn-sm btn-success" onclick="openAdvanceModal('+i+')">+ Adv</button><button class="btn-primary btn-sm btn-warning" onclick="openLeaveModal('+i+')">Leave</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="viewHistory('+i+')">History</button><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editLedgerStaff('+i+')">✏️ Edit</button><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteLedgerStaff('+i+')">🗑️</button></div></td>';
+    tb.appendChild(tr);
+  });
+}
+function ledgerOk(i){ const s=staffList[i]; if(!s || s.isp!==ledgerScope()){ alert('Ye staff aap ka nahi hai!'); return null; } return s; }
+openStaffModal=function(){ if(!ledgerScope()){ alert('Sirf ISP / Superadmin staff add kar sakta hai!'); return; } document.getElementById('staffModal').classList.add('active'); };
+addStaff=function(){
+  const sc=ledgerScope(); if(!sc) return;
+  const name=document.getElementById('staffName').value.trim();
+  const role=document.getElementById('staffRole').value.trim();
+  const salary=num(document.getElementById('staffSalary').value);
+  const phone=toWa(document.getElementById('staffPhone').value);
+  if(!name||!role||!salary){ alert('Name, Role aur Salary zaroori hain!'); return; }
+  staffList.push({id:newId('st'), name, role, salary, phone, isp:sc, leaves:[], advances:[]});
+  saveOffline(); closeStaffModal();
+  ['staffName','staffRole','staffSalary','staffPhone'].forEach(id=>document.getElementById(id).value='');
+  renderLedger(); calculateLedger();
+};
+const _openAdv=openAdvanceModal, _openLeave=openLeaveModal;
+openAdvanceModal=function(i){ if(ledgerOk(i)) _openAdv(i); };
+openLeaveModal=function(i){ if(ledgerOk(i)) _openLeave(i); };
+saveAdvance=function(){
+  const i=+document.getElementById('advanceStaffIndex').value; const s=ledgerOk(i); if(!s) return;
+  const amount=num(document.getElementById('advAmount').value);
+  const reason=document.getElementById('advReason').value||'Advance';
+  if(!amount){ alert('Sahi amount likhen!'); return; }
+  const date=todayStr();
+  s.advances.push({id:newId('a'), amount, reason, date});
+  saveOffline(); closeAdvanceModal(); renderLedger();
+  const c=calcSalary(s,ym(date));
+  if(s.phone){
+    const msg='Dear '+s.name+', aap ka Advance record ho gaya.\n- Amount: '+fmt(amount)+'\n- Remarks: '+reason+'\n- Date: '+date+'\n----------------\n'+monthLabel(ym(date))+' Total Advance: '+fmt(c.adv)+'\nBaqi Salary: '+fmt(c.remaining);
+    window.open('https://wa.me/'+s.phone+'?text='+encodeURIComponent(msg),'_blank');
+  }
+};
+saveLeave=function(){
+  const i=+document.getElementById('leaveStaffIndex').value; const s=ledgerOk(i); if(!s) return;
+  const date=document.getElementById('leaveDate').value;
+  const reason=document.getElementById('leaveReason').value||'Leave';
+  if(!date){ alert('Leave ki date select karein!'); return; }
+  s.leaves.push({id:newId('l'), date, reason});
+  saveOffline(); closeLeaveModal(); renderLedger();
+  const c=calcSalary(s,ym(date));
+  if(s.phone){
+    const msg='Dear '+s.name+', aap ki Chhutti record ho gayi.\n- Date: '+date+'\n- Reason: '+reason+'\n----------------\n'+monthLabel(ym(date))+' Total Chhuttiyan: '+c.leaves+' din (−'+fmt(c.ded)+')\nBaqi Salary: '+fmt(c.remaining);
+    window.open('https://wa.me/'+s.phone+'?text='+encodeURIComponent(msg),'_blank');
+  }
+};
+viewHistory=function(i){
+  const s=ledgerOk(i); if(!s) return;
+  const months=[...new Set([...s.advances.map(a=>ym(a.date)),...s.leaves.map(l=>ym(l.date)),thisMonth()])].filter(Boolean).sort().reverse();
+  let h='<h4 style="color:#fbbf24;margin-bottom:8px;font-size:14px;">📊 Mahina-war Hisaab</h4><table style="width:100%;margin-bottom:18px;"><thead><tr><th>Mahina</th><th>Salary</th><th>Advance</th><th>Chhutti</th><th>Baqi</th></tr></thead><tbody>';
+  months.forEach(m=>{ const c=calcSalary(s,m); h+='<tr><td>'+monthLabel(m)+'</td><td>'+fmt(c.salary)+'</td><td style="color:#f87171;">'+fmt(c.adv)+'</td><td>'+c.leaves+' (−'+fmt(c.ded)+')</td><td style="color:#34d399;font-weight:bold;">'+fmt(c.remaining)+'</td></tr>'; });
+  h+='</tbody></table>';
+  h+='<h4 style="color:#fbbf24;margin-bottom:8px;font-size:14px;">💵 Advance History</h4><table style="width:100%;margin-bottom:18px;"><thead><tr><th>Date</th><th>Remarks</th><th>Amount</th><th></th></tr></thead><tbody>';
+  if(!s.advances.length) h+='<tr><td colspan=4 style="text-align:center;color:#9ca3af;">Koi advance nahi.</td></tr>';
+  s.advances.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).forEach(a=>{ h+='<tr><td>'+esc(a.date)+'</td><td>'+esc(a.reason)+'</td><td style="color:#f87171;">'+fmt(a.amount)+'</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="delLedgerItem('+i+',\'advances\',\''+a.id+'\')">🗑️</button></td></tr>'; });
+  h+='</tbody></table><h4 style="color:#fbbf24;margin-bottom:8px;font-size:14px;">📅 Chhutti History</h4><table style="width:100%;"><thead><tr><th>Date</th><th>Reason</th><th></th></tr></thead><tbody>';
+  if(!s.leaves.length) h+='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Koi chhutti nahi.</td></tr>';
+  s.leaves.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).forEach(l=>{ h+='<tr><td>'+esc(l.date)+'</td><td style="color:#fbbf24;">'+esc(l.reason)+'</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="delLedgerItem('+i+',\'leaves\',\''+l.id+'\')">🗑️</button></td></tr>'; });
+  h+='</tbody></table>';
+  document.getElementById('historyTitle').innerText='📜 History: '+s.name+' ('+s.role+')';
+  document.getElementById('historyContent').innerHTML=h;
+  document.getElementById('historyModal').classList.add('active');
+};
+window.delLedgerItem=function(i,type,id){
+  const s=ledgerOk(i); if(!s) return;
+  if(!confirm('Ye entry delete karni hai?')) return;
+  s[type]=s[type].filter(x=>x.id!==id);
+  saveOffline(); renderLedger(); viewHistory(i);
+};
+window.editLedgerStaff=function(i){
+  const s=ledgerOk(i); if(!s) return;
+  let ispSel='';
+  if(isOwner()){
+    ispSel='<div class="form-group"><label>Kis ka staff hai</label><select id="lsIsp"><option value="ALL">Superadmin (apna)</option>'+ispsList.map(x=>'<option value="'+esc(x.name)+'"'+(x.name===s.isp?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></div>';
+  }
+  modal('v3LedgerEdit', head('✏️ Edit Staff','v3LedgerEdit')
+    +'<div class="form-group"><label>Full Name *</label><input id="lsName" value="'+esc(s.name)+'"></div>'
+    +'<div class="form-group"><label>Role / Designation *</label><input id="lsRole" value="'+esc(s.role)+'"></div>'
+    +'<div class="form-group"><label>Monthly Base Salary (Rs) *</label><input type="number" id="lsSalary" value="'+esc(s.salary||'')+'"></div>'
+    +'<div class="form-group"><label>WhatsApp Number</label><input id="lsPhone" value="'+esc(s.phone||'')+'" placeholder="923001234567"></div>'
+    +ispSel
+    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveLedgerStaff('+i+')">💾 Save</button>', 460);
+};
+window.saveLedgerStaff=function(i){
+  const s=ledgerOk(i); if(!s) return;
+  const name=document.getElementById('lsName').value.trim(), role=document.getElementById('lsRole').value.trim(), sal=num(document.getElementById('lsSalary').value);
+  if(!name||!role||!sal){ alert('Name, Role aur Salary zaroori hain!'); return; }
+  s.name=name; s.role=role; s.salary=sal; s.phone=toWa(document.getElementById('lsPhone').value);
+  const isel=document.getElementById('lsIsp'); if(isel && isOwner()) s.isp=isel.value;
+  saveOffline(); v3Close('v3LedgerEdit'); renderLedger(); calculateLedger();
+};
+window.deleteLedgerStaff=function(i){
+  const s=ledgerOk(i); if(!s) return;
+  if(!confirm('"'+s.name+'" ko Salary Ledger se DELETE karna hai? (us ka advance/chhutti record bhi hat jayega)')) return;
+  if(s.loginMobile){ const u=systemUsers.find(x=>x.mobile===s.loginMobile); if(u){ u.noLedger=true; saveUsers(); } }
+  staffList.splice(i,1);
+  saveOffline(); renderLedger(); calculateLedger();
+};
+
+const _calcV2=calculateLedger;
+calculateLedger=function(){
+  try{ _calcV2(); }catch(e){ console.log(e); }
+  try{ renderLedger(); }catch(e){ console.log(e); }
+  try{ dashboardHandlers(); }catch(e){}
+};
+
+/* ---------------- Staff Permissions popup (button ab kaam karta hai) ---------------- */
+const ACTIONS=[['add','➕ Add New Subscriber'],['edit','✏️ Edit Subscriber'],['view','👀 View Profile'],['collect','💰 Collect Fee / Recovery'],['del','🗑️ Delete Subscriber'],['whatsapp','💬 WhatsApp Bill'],['complaints','🛠️ Complaints']];
+editStaffPerms=function(mob){
+  if(!(isOwner()||isISP())) return;
+  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s){ alert('Staff nahi mila!'); return; }
+  if(isISP() && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
+  const p=s.perms||{};
+  const FD=window.FIELD_DEFS||[];
+  const cb=(id,on,label)=>'<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#111827;border:1px solid #1f2937;border-radius:6px;cursor:pointer;font-size:12px;color:#e5e7eb;"><input type="checkbox" class="v3perm" id="'+id+'"'+(on?' checked':'')+' style="width:auto;"> '+label+'</label>';
+  let h=head('⚙️ Staff Permissions','v3PermModal')
+    +'<p style="font-size:13px;color:#9ca3af;margin-bottom:12px;"><b style="color:#fff;">'+esc(s.name)+'</b> • '+esc(s.mobile)+' • '+esc(s.isp)+'<br>Tik = ON, khali = OFF</p>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn-primary btn-sm btn-success" onclick="document.querySelectorAll(\'.v3perm\').forEach(c=>c.checked=true)">✅ Sab ON</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="document.querySelectorAll(\'.v3perm\').forEach(c=>c.checked=false)">❌ Sab OFF</button></div>'
+    +'<p style="font-size:12px;color:#fbbf24;font-weight:bold;margin-bottom:6px;">🔧 Kaam ki Permissions</p>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">'+ACTIONS.map(a=>cb('v3p_'+a[0], a[0]==='view'?p.view!==false:!!p[a[0]], a[1])).join('')+'</div>'
+    +'<p style="font-size:12px;color:#fbbf24;font-weight:bold;margin-bottom:6px;">📝 Subscriber Fields (Add / Edit form me kaun si field nazar aaye)</p>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">'+FD.map(f=>cb('v3f_'+f.key, p[f.key]!==false, esc(f.label))).join('')+'</div>'
+    +'<p style="font-size:11px;color:#9ca3af;margin-top:10px;">Areas/Zones, Packages aur Excel Import sirf ISP / Superadmin ke paas rehte hain.</p>'
+    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:12px;" onclick="saveStaffPermsV3(\''+esc(s.mobile)+'\')">💾 Save Permissions</button>';
+  modal('v3PermModal', h, 620);
+};
+window.saveStaffPermsV3=function(mob){
+  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s) return;
+  if(isISP() && s.isp!==myISP()) return;
+  const g=id=>{ const e=document.getElementById(id); return e?e.checked:false; };
+  const perms={excel:false,areas:false,packages:false};
+  ACTIONS.forEach(a=>perms[a[0]]=g('v3p_'+a[0]));
+  (window.FIELD_DEFS||[]).forEach(f=>perms[f.key]=g('v3f_'+f.key));
+  s.perms=perms;
+  saveUsers(); renderAllStaff();
+  v3Close('v3PermModal');
+  alert('Permissions save ho gayi ✅');
+};
+
+/* ---------------- Areas: har ISP ke apne ---------------- */
+renderAreas=function(){
+  const tb=document.getElementById('areasTableBody'); if(!tb) return; tb.innerHTML='';
+  if(!isISP()){ tb.innerHTML='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Areas sirf ISP ke panel me hain.</td></tr>'; return; }
+  const m=myISP();
+  const list=areasList.map((a,i)=>({a,i})).filter(x=>x.a && typeof x.a==='object' && x.a.isp===m);
+  if(!list.length){ tb.innerHTML='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Koi area nahi — "+ Add Area" dabayein.</td></tr>'; return; }
+  list.forEach(({a,i})=>{
+    const cnt=mySubs().filter(s=>s.area===a.name).length;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><strong>'+esc(a.name)+'</strong></td><td>'+cnt+' users</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteAreaV3('+i+')">Delete</button></td>';
+    tb.appendChild(tr);
+  });
+};
+addArea=function(){
+  if(!isISP()){ alert('Areas sirf ISP add kar sakta hai!'); return; }
+  const n=(prompt('Naye area ka naam likhen:')||'').trim(); if(!n) return;
+  if(areasList.some(a=>a&&a.isp===myISP()&&String(a.name).toLowerCase()===n.toLowerCase())){ alert('Ye area pehle se hai!'); return; }
+  areasList.push({name:n, isp:myISP()}); saveOffline(); renderAreas();
+};
+window.deleteAreaV3=function(i){
+  const a=areasList[i]; if(!a || a.isp!==myISP()) return;
+  if(!confirm('"'+a.name+'" area delete karna hai?')) return;
+  areasList.splice(i,1); saveOffline(); renderAreas();
+};
+
+/* ---------------- ISP Settings: Password Change ---------------- */
+function injectPasswordUI(){
+  const box=document.getElementById('setIspBox'); if(!box || document.getElementById('ispPwBox')) return;
+  const d=document.createElement('div'); d.id='ispPwBox';
+  d.style.cssText='border-top:1px solid #374151;margin-top:20px;padding-top:16px;';
+  d.innerHTML='<h3 style="color:#fbbf24;margin-bottom:12px;">🔑 Password Change</h3>'
+    +'<div class="form-group"><label>Purana (Current) Password *</label><input type="password" id="ispCurPass" autocomplete="current-password"></div>'
+    +'<div class="form-group"><label>Naya Password * (kam az kam 4 harf)</label><input type="password" id="ispNewPass" autocomplete="new-password"></div>'
+    +'<div class="form-group"><label>Naya Password dobara likhen *</label><input type="password" id="ispNewPass2" autocomplete="new-password"></div>'
+    +'<label style="font-size:12px;color:#9ca3af;display:flex;align-items:center;gap:6px;margin-bottom:12px;"><input type="checkbox" style="width:auto;" onchange="[\'ispCurPass\',\'ispNewPass\',\'ispNewPass2\'].forEach(id=>document.getElementById(id).type=this.checked?\'text\':\'password\')"> Password dikhayein</label>'
+    +'<button class="btn-primary" onclick="changeIspPassword()">🔑 Change Password</button>';
+  box.appendChild(d);
+}
+window.changeIspPassword=function(){
+  if(!isISP()){ alert('Ye option sirf ISP ke liye hai!'); return; }
+  const cur=document.getElementById('ispCurPass').value.trim();
+  const n1=document.getElementById('ispNewPass').value.trim();
+  const n2=document.getElementById('ispNewPass2').value.trim();
+  if(!cur||!n1||!n2){ alert('Teeno khane bharein!'); return; }
+  if(cur!==currentUser.pass){ alert('Purana password galat hai!'); return; }
+  if(n1.length<4){ alert('Naya password kam az kam 4 harf ka ho!'); return; }
+  if(n1!==n2){ alert('Naya password dono jagah same nahi hai!'); return; }
+  if(n1===cur){ alert('Naya password purane se alag rakhen!'); return; }
+  currentUser.pass=n1;
+  const isp=ispsList.find(i=>i.name===myISP()); if(isp) isp.pass=n1;
+  saveUsers(); saveOffline();
+  ['ispCurPass','ispNewPass','ispNewPass2'].forEach(id=>document.getElementById(id).value='');
+  alert('Password change ho gaya ✅\nAgli dafa naye password se login karein.');
+};
+
+/* ---------------- Fee Collect + Slip + History ---------------- */
+function subPayments(sub){
+  return paymentsList.filter(p=> p.subId!=null ? p.subId===sub.id : (p.customer===sub.name && (p.isp||'Ali Net')===subIsp(sub)));
+}
+function sortPays(a,b){ return String(a.month).localeCompare(String(b.month)) || String(a.date).localeCompare(String(b.date)) || (num(a.ts)-num(b.ts)); }
+function latestPay(sub){ const l=subPayments(sub).slice().sort(sortPays); return l[l.length-1]||null; }
+function payParts(sub, month){
+  const already=subPayments(sub).some(p=>p.month===month);
+  const fee=already?0:num(sub.fee), prev=num(sub.balance);
+  return {fee, prev, due:fee+prev, already};
+}
+function owed(sub){ if(!sub) return 0; if(sub.status==='Paid') return Math.max(0,num(sub.balance)); return Math.max(0,payParts(sub,thisMonth()).due); }
+function ispSettings(isp){
+  let d={}; try{ d=JSON.parse(localStorage.getItem('cloudisp_ispsettings_'+isp)||'{}'); }catch(e){}
+  const u=systemUsers.find(x=>x.role==='isp'&&x.isp===isp);
+  return {company:d.company||isp, phone:d.phone||(u?u.mobile:''), collector:d.collector||'ADMIN'};
+}
+function pRem(p){ return p.remaining!=null ? num(p.remaining) : 0; }
+function pDue(p){ return p.due!=null ? num(p.due) : num(p.amount); }
+
+collectFee=function(id){
+  if(!canDo('collect')){ alert('Aap ko Fee Collect ki permission nahi hai!'); return; }
+  const sub=subscribersList.find(s=>s.id===id);
+  if(!canAccessSub(sub)){ alert('Ye record aap ke ISP ka nahi hai!'); return; }
+  const m=thisMonth(); const pp=payParts(sub,m);
+  const h=head('💰 Fee Collect — '+esc(sub.name),'v3Collect')
+    +'<div style="background:#0b0f19;border:1px solid #374151;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af;margin-bottom:12px;">'+esc(sub.package)+' • @'+esc(sub.username)+' • '+esc(sub.phone)+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+    +'<div class="form-group"><label>Kis mahine ki fee</label><input type="month" id="cfMonth" value="'+m+'"></div>'
+    +'<div class="form-group"><label>Paid Via</label><select id="cfVia"><option>Cash</option><option>Easypaisa</option><option>JazzCash</option><option>Bank Transfer</option></select></div>'
+    +'<div class="form-group"><label>Monthly Fee</label><input id="cfFee" readonly></div>'
+    +'<div class="form-group"><label>Pichla Bakaya / Balance</label><input id="cfPrev" readonly></div>'
+    +'<div class="form-group"><label>Total Payable</label><input id="cfDue" readonly style="color:#fbbf24;font-weight:bold;"></div>'
+    +'<div class="form-group"><label>Wasool Raqam (Received) *</label><input type="number" id="cfAmt"></div>'
+    +'</div>'
+    +'<div class="form-group"><label>Remarks</label><input id="cfRemarks" placeholder="optional"></div>'
+    +'<p id="cfRem" style="font-size:13px;margin-bottom:12px;"></p>'
+    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="confirmCollectV3('+sub.id+')">✅ Fee Wasool Karein + Slip</button>';
+  modal('v3Collect', h, 560);
+  const upd=(resetAmt)=>{
+    const mm=document.getElementById('cfMonth').value||m; const x=payParts(sub,mm);
+    document.getElementById('cfFee').value=x.already?'0 (is mahine ki fee pehle li ja chuki)':x.fee;
+    document.getElementById('cfPrev').value=x.prev;
+    document.getElementById('cfDue').value=x.due;
+    if(resetAmt) document.getElementById('cfAmt').value=Math.max(0,x.due);
+    const r=x.due-num(document.getElementById('cfAmt').value);
+    document.getElementById('cfRem').innerHTML=r>0?'<span style="color:#f87171;">Baqi Bakaya: <b>'+fmt(r)+'</b></span>':(r<0?'<span style="color:#34d399;">Advance (agle mahine me minus): <b>'+fmt(-r)+'</b></span>':'<span style="color:#34d399;">Poori fee wasool ✅</span>');
+  };
+  document.getElementById('cfMonth').addEventListener('change',()=>upd(true));
+  document.getElementById('cfAmt').addEventListener('input',()=>upd(false));
+  upd(true);
+};
+window.confirmCollectV3=function(id){
+  const sub=subscribersList.find(s=>s.id===id); if(!canAccessSub(sub)||!canDo('collect')) return;
+  const month=document.getElementById('cfMonth').value||thisMonth();
+  const amount=num(document.getElementById('cfAmt').value);
+  if(amount<=0){ alert('Wasool raqam likhen!'); return; }
+  const x=payParts(sub,month);
+  const who=currentUser?(currentUser.name+' ('+currentUser.mobile+')'):'ADMIN';
+  const isOff=!navigator.onLine;
+  const rec={id:newId('p'), subId:sub.id, isp:subIsp(sub), customer:sub.name, pkg:sub.package, month, date:todayStr(), ts:Date.now(),
+    fee:x.fee, prevBalance:x.prev, due:x.due, amount, remaining:x.due-amount,
+    via:(document.getElementById('cfVia').value||'Cash')+(isOff?' (Offline)':''), collector:who,
+    remarks:document.getElementById('cfRemarks').value||'', sync:isOff?'pending':'synced'};
+  paymentsList.unshift(rec);
+  sub.balance=rec.remaining; sub.status=rec.remaining<=0?'Paid':'Unpaid'; sub.type=sub.status==='Paid'?'active':'unpaid';
+  saveOffline();
+  v3Close('v3Collect'); try{ closeUserProfileModal(); }catch(e){}
+  refreshViews();
+  openInvoiceModal(sub.id, rec.id);
+};
+
+function slipHtml(sub, p){
+  const st=ispSettings(subIsp(sub));
+  const paid=!!p;
+  const fee=paid?(p.fee!=null?num(p.fee):num(p.amount)):payParts(sub,thisMonth()).fee;
+  const prev=paid?num(p.prevBalance):num(sub.balance);
+  const due=paid?pDue(p):fee+prev;
+  const rem=paid?pRem(p):due;
+  const row=(k,v,c)=>'<div><b>'+k+' :</b> '+(c?'<span style="color:'+c+';">'+v+'</span>':v)+'</div>';
+  return '<div style="text-align:center;border-bottom:2px solid #ff7a00;padding-bottom:8px;margin-bottom:12px;"><h2 style="margin:0;font-size:18px;">'+esc(st.company)+'</h2><p style="margin:2px 0 0;font-size:12px;color:#333;">'+esc(st.phone)+'</p></div>'
+    +'<div style="font-size:12px;line-height:1.7;">'
+    +row('Bill No', paid?esc(String(p.id).slice(-8).toUpperCase()):String(sub.id)+thisMonth().replace('-',''))
+    +row('Mahina', monthLabel(paid?p.month:thisMonth()))
+    +row('Name', esc(sub.name))+row('User ID', esc(sub.username))+row('Mobile Number', esc(sub.phone))
+    +row('Due Date', esc(sub.dueDate))+row('Connection Type', esc(sub.connectionType))+row('Package', esc(paid?(p.pkg||sub.package):sub.package))
+    +row('Monthly Fee', fmt(fee))+row('Previous Balance', fmt(prev))
+    +'</div><div style="margin:12px 0;font-size:14px;font-weight:bold;color:#0275d8;">Total Bill Payable : '+fmt(due)+'</div>'
+    +'<div style="text-align:center;margin:15px 0;"><div style="display:inline-block;border:2px solid '+(paid?'#5cb85c':'#d9534f')+';color:'+(paid?'#5cb85c':'#d9534f')+';padding:6px 20px;font-size:16px;font-weight:bold;border-radius:5px;">'+(paid?'PAID : '+fmt(p.amount):'UNPAID')+'</div></div>'
+    +'<div style="font-size:12px;line-height:1.7;border-top:1px dashed #ccc;padding-top:8px;">'
+    +row('Remaining Balance', fmt(rem), rem>0?'#d9534f':'#009688')
+    +(paid?row('Paid Via', esc(p.via||'Cash'))+row('Collected By', esc(p.collector||st.collector),'purple')+row('Date', esc(p.date)):'')
+    +row('Comments', esc((paid&&p.remarks)||sub.remarks||'Thank You For Payment'),'#009688')
+    +'</div><p style="text-align:center;font-size:9px;color:#777;margin-top:10px;">This is a computer generated invoice and needs no signature</p>';
+}
+openInvoiceModal=function(id, payId){
+  const sub=subscribersList.find(s=>s.id===id);
+  if(!canAccessSub(sub)){ alert('Ye record aap ke ISP ka nahi hai!'); return; }
+  try{ closeUserProfileModal(); }catch(e){}
+  v3Close('v3History');
+  let p=null;
+  if(payId) p=paymentsList.find(x=>x.id===payId)||null;
+  else { const lp=latestPay(sub); if(lp && sub.status==='Paid') p=lp; }
+  const btn=(txt,bg,fn,flex)=>'<button onclick="'+fn+'" style="flex:'+(flex||1)+';background:'+bg+';color:#fff;border:none;padding:7px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;">'+txt+'</button>';
+  document.getElementById('invoiceContent').innerHTML='<div class="invoice-view"><div id="v3Slip">'+slipHtml(sub,p)+'</div>'
+    +'<div style="display:flex;gap:4px;margin-top:12px;flex-wrap:wrap;">'
+    +btn('Close','#607d8b','closeInvoiceModal()')
+    +btn('📜 History','#3f51b5','openPayHistory('+sub.id+')',1.3)
+    +(canDo('whatsapp')?btn('WhatsApp','#25D366','sendSlipWa('+sub.id+',\''+(p?p.id:'')+'\')',1.2):'')
+    +btn('Print','#e91e63','printSlip()')
+    +'</div></div>';
+  document.getElementById('invoiceModal').classList.add('active');
+};
+window.printSlip=function(){
+  const html=document.getElementById('v3Slip').innerHTML;
+  const w=window.open('','_blank','width=420,height=680');
+  if(!w){ window.print(); return; }
+  w.document.write('<html><head><title>Fee Slip</title></head><body style="font-family:Arial,sans-serif;padding:16px;color:#333;">'+html+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
+};
+window.sendSlipWa=function(id,payId){
+  const sub=subscribersList.find(s=>s.id===id); if(!canAccessSub(sub)) return;
+  if(!sub.phone){ alert('Customer ka mobile nahi hai'); return; }
+  const st=ispSettings(subIsp(sub)); const p=payId?paymentsList.find(x=>x.id===payId):null;
+  let t;
+  if(p) t='Assalam-o-Alaikum '+sub.name+'!\n'+st.company+' — Fee Slip\nMahina: '+monthLabel(p.month)+'\nPackage: '+(p.pkg||sub.package)+'\nTotal Bill: '+fmt(pDue(p))+'\nWasool: '+fmt(p.amount)+'\nBaqi Bakaya: '+fmt(pRem(p))+'\nDate: '+p.date+'\nShukriya!';
+  else t='Assalam-o-Alaikum '+sub.name+'!\n'+st.company+'\nAap ka '+sub.package+' ka bill '+fmt(owed(sub))+' due hai.\nShukriya!';
+  window.open('https://wa.me/'+toWa(sub.phone)+'?text='+encodeURIComponent(t),'_blank');
+};
+
+let histOpen={};
+window.openPayHistory=function(subId){
+  const sub=subscribersList.find(s=>s.id===subId);
+  if(!canAccessSub(sub)){ alert('Ye record aap ke ISP ka nahi hai!'); return; }
+  const pays=subPayments(sub).slice().sort(sortPays);
+  const groups={}; pays.forEach(p=>{ const m=p.month||ym(p.date); (groups[m]=groups[m]||[]).push(p); });
+  const cm=thisMonth();
+  const months=Object.keys(groups);
+  if(!groups[cm] && sub.status==='Unpaid') months.push(cm);
+  months.sort().reverse();
+  const canEdit=isISP();
+  let h=head('📜 Fee History — '+esc(sub.name),'v3History')
+    +'<p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">'+esc(sub.package)+' • @'+esc(sub.username)+' • Abhi ka bakaya: <b style="color:'+(owed(sub)>0?'#f87171':'#34d399')+';">'+fmt(owed(sub))+'</b><br>Kisi mahine par click karein — us mahine ki detail khul jayegi.</p>';
+  if(!months.length) h+='<p style="text-align:center;color:#9ca3af;padding:20px;">Abhi koi payment history nahi.</p>';
+  months.forEach(m=>{
+    const list=groups[m]||[];
+    let bill, paid, bak, status;
+    if(list.length){ bill=pDue(list[0]); paid=list.reduce((a,p)=>a+num(p.amount),0); bak=pRem(list[list.length-1]); status=bak>0?'Bakaya':'Paid'; }
+    else { const x=payParts(sub,m); bill=x.due; paid=0; bak=x.due; status='Unpaid'; }
+    const col=status==='Paid'?'#34d399':'#f87171';
+    const open=!!histOpen[subId+'_'+m];
+    h+='<div style="background:#0b0f19;border:1px solid '+(open?'#2563eb':'#374151')+';border-radius:8px;margin-bottom:8px;">'
+      +'<div onclick="toggleHistMonth('+subId+',\''+m+'\')" style="padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+      +'<b style="color:#fff;">'+(open?'▾':'▸')+' '+monthLabel(m)+'</b>'
+      +'<span style="font-size:12px;color:#9ca3af;">Bill '+fmt(bill)+' • <span style="color:#34d399;">Paid '+fmt(paid)+'</span> • <span style="color:'+(bak>0?'#f87171':'#9ca3af')+';">Bakaya '+fmt(Math.max(0,bak))+'</span></span>'
+      +'<span style="font-size:11px;padding:2px 8px;border-radius:20px;color:'+col+';border:1px solid '+col+';">'+status+'</span></div>';
+    if(open){
+      h+='<div style="padding:0 12px 12px;">';
+      if(!list.length) h+='<p style="font-size:12px;color:#f87171;">Is mahine koi payment nahi hui — poora bill '+fmt(bill)+' bakaya hai.</p>';
+      list.forEach(p=>{
+        h+='<div style="border-top:1px solid #1f2937;padding-top:8px;margin-top:8px;font-size:12px;color:#d1d5db;line-height:1.7;">'
+          +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;"><span>📅 '+esc(p.date)+' • '+esc(p.via||'Cash')+'</span><span style="color:#60a5fa;">'+esc(p.collector||'-')+'</span></div>'
+          +'<div>Monthly Fee: '+fmt(p.fee!=null?p.fee:p.amount)+' • Pichla Bakaya: '+fmt(p.prevBalance||0)+' • <b>Total: '+fmt(pDue(p))+'</b></div>'
+          +'<div><span style="color:#34d399;">Wasool: <b>'+fmt(p.amount)+'</b></span> • <span style="color:'+(pRem(p)>0?'#f87171':'#9ca3af')+';">Baqi: <b>'+fmt(pRem(p))+'</b></span>'+(p.remarks?' • '+esc(p.remarks):'')+'</div>'
+          +'<div style="display:flex;gap:6px;margin-top:6px;"><button class="btn-primary btn-sm" onclick="openInvoiceModal('+subId+',\''+p.id+'\')">🧾 Slip</button>'
+          +(canEdit?'<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editPayV3(\''+p.id+'\','+subId+')">✏️ Edit</button><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deletePayV3(\''+p.id+'\','+subId+')">🗑️ Delete</button>':'')
+          +'</div></div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  modal('v3History', h, 620);
+};
+window.toggleHistMonth=function(subId,m){ const k=subId+'_'+m; histOpen[k]=!histOpen[k]; openPayHistory(subId); };
+function afterPayChange(sub, rec){
+  const lp=latestPay(sub);
+  if(lp){ sub.balance=pRem(lp); sub.status=pRem(lp)<=0?'Paid':'Unpaid'; }
+  else if(rec){ sub.balance=num(rec.prevBalance); sub.status='Unpaid'; }
+  sub.type=sub.status==='Paid'?'active':'unpaid';
+  saveOffline(); refreshViews();
+}
+window.editPayV3=function(pid, subId){
+  if(!isISP()){ alert('History sirf ISP edit kar sakta hai!'); return; }
+  const p=paymentsList.find(x=>x.id===pid); const sub=subscribersList.find(s=>s.id===subId);
+  if(!p||!canAccessSub(sub)) return;
+  const h=head('✏️ Edit Payment — '+esc(sub.name),'v3PayEdit')
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+    +'<div class="form-group"><label>Mahina</label><input type="month" id="peMonth" value="'+esc(p.month||ym(p.date))+'"></div>'
+    +'<div class="form-group"><label>Date</label><input type="date" id="peDate" value="'+esc(p.date)+'"></div>'
+    +'<div class="form-group"><label>Monthly Fee</label><input type="number" id="peFee" value="'+num(p.fee!=null?p.fee:p.amount)+'"></div>'
+    +'<div class="form-group"><label>Pichla Bakaya</label><input type="number" id="pePrev" value="'+num(p.prevBalance)+'"></div>'
+    +'<div class="form-group"><label>Wasool Raqam *</label><input type="number" id="peAmt" value="'+num(p.amount)+'"></div>'
+    +'<div class="form-group"><label>Paid Via</label><input id="peVia" value="'+esc(p.via||'Cash')+'"></div>'
+    +'</div><div class="form-group"><label>Remarks</label><input id="peRemarks" value="'+esc(p.remarks||'')+'"></div>'
+    +'<p id="peInfo" style="font-size:13px;margin-bottom:12px;"></p>'
+    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="savePayV3(\''+pid+'\','+subId+')">💾 Save Changes</button>';
+  modal('v3PayEdit', h, 540);
+  const upd=()=>{ const due=num(document.getElementById('peFee').value)+num(document.getElementById('pePrev').value); const r=due-num(document.getElementById('peAmt').value);
+    document.getElementById('peInfo').innerHTML='Total: <b>'+fmt(due)+'</b> • '+(r>0?'<span style="color:#f87171;">Baqi Bakaya: <b>'+fmt(r)+'</b></span>':'<span style="color:#34d399;">Poori fee wasool ✅</span>'); };
+  ['peFee','pePrev','peAmt'].forEach(id=>document.getElementById(id).addEventListener('input',upd)); upd();
+};
+window.savePayV3=function(pid, subId){
+  if(!isISP()) return;
+  const p=paymentsList.find(x=>x.id===pid); const sub=subscribersList.find(s=>s.id===subId);
+  if(!p||!canAccessSub(sub)) return;
+  const amt=num(document.getElementById('peAmt').value);
+  if(amt<0){ alert('Sahi raqam likhen!'); return; }
+  p.month=document.getElementById('peMonth').value||p.month;
+  p.date=document.getElementById('peDate').value||p.date;
+  p.fee=num(document.getElementById('peFee').value);
+  p.prevBalance=num(document.getElementById('pePrev').value);
+  p.due=p.fee+p.prevBalance; p.amount=amt; p.remaining=p.due-amt;
+  p.via=document.getElementById('peVia').value||'Cash';
+  p.remarks=document.getElementById('peRemarks').value||'';
+  p.editedBy=currentUser.name+' • '+todayStr();
+  p.subId=sub.id;
+  afterPayChange(sub,p);
+  v3Close('v3PayEdit'); histOpen[subId+'_'+p.month]=true; openPayHistory(subId);
+  alert('History update ho gayi ✅');
+};
+window.deletePayV3=function(pid, subId){
+  if(!isISP()) return;
+  const p=paymentsList.find(x=>x.id===pid); const sub=subscribersList.find(s=>s.id===subId);
+  if(!p||!canAccessSub(sub)) return;
+  if(!confirm(monthLabel(p.month)+' ki '+fmt(p.amount)+' wali payment DELETE karni hai?')) return;
+  paymentsList=paymentsList.filter(x=>x.id!==pid);
+  afterPayChange(sub,p);
+  openPayHistory(subId);
+};
+
+/* ---------------- applyRole: V3 UI ---------------- */
+const _applyV2=applyRole;
+applyRole=function(){
+  _applyV2();
+  try{
+    const ab=document.getElementById('staffLedgerAddBtn');
+    if(ab){ ab.style.display=(isOwner()||isISP())?'':'none'; ab.innerText='+ Add Staff (Salary)'; }
+    injectLedgerUI(); injectPasswordUI();
+    ['ispCurPass','ispNewPass','ispNewPass2'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+    calculateLedger();
+  }catch(e){ console.log(e); }
+};
+
+/* ---------------- init ---------------- */
+ensureOwner();
+if(migrate()) saveOffline();
+try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
+})();
+</script>
+
 </body>
 </html>
