@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>CloudISP - Pro Billing & Management System</title>
+    <title>CloudISP -   Billing & Management System</title>
     <style>
         * {
             margin: 0;
@@ -411,6 +411,43 @@
     .wa-box{background:#0b0f19;border:1px solid #374151;border-radius:12px;padding:16px;}
     .qr-box{background:#fff;border-radius:12px;padding:12px;display:inline-block;}
     .hidden-pass{letter-spacing:3px;}
+
+    /* ===== v2: professional responsive layer ===== */
+    html { -webkit-text-size-adjust: 100%; }
+    body { height: 100vh; height: 100dvh; }
+    .top-global-header { gap: 10px; }
+    .who-chip { margin-right: auto; font-size: 12px; color: #9ca3af; background: #111827; border: 1px solid #1f2937; padding: 6px 12px; border-radius: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }
+    .btn-logout { background: rgba(239,68,68,.12); color: #f87171; border: 1px solid rgba(239,68,68,.3); padding: 10px 16px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .2s; }
+    .btn-logout:hover { background: rgba(239,68,68,.25); }
+    .hb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cat-badge { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(168,85,247,.15); color: #c084fc; border: 1px solid rgba(168,85,247,.3); }
+    .demo-badge { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(217,119,6,.15); color: #fbbf24; border: 1px solid rgba(217,119,6,.35); }
+    .main-content .card { overflow-x: auto; }
+    .main-content table { min-width: 560px; }
+    .modal-box { max-width: 94vw; max-height: 92vh; overflow-y: auto; }
+    button, .btn-primary, .nav-links li a { -webkit-tap-highlight-color: transparent; }
+    @media (max-width: 900px) {
+        .sidebar { flex-shrink: 0; flex-wrap: nowrap; gap: 8px; }
+        .sidebar-top { flex: 1; min-width: 0; }
+        .nav-links { flex: 1; min-width: 0; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .logo-text p { display: none; }
+        .sidebar > div:last-child { display: none; }
+        .top-global-header { height: auto; flex-shrink: 0; }
+        .main-content { flex: 1; min-height: 0; }
+        .header-banner { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px; }
+        .hb-actions { width: 100%; }
+        .hb-actions .btn-primary { flex: 1; justify-content: center; }
+    }
+    @media (max-width: 560px) {
+        .grid-6 { grid-template-columns: 1fr; }
+        input, select, textarea { font-size: 16px; }
+        .who-chip { font-size: 11px; max-width: 40%; }
+        .top-global-header { padding: 8px 10px; }
+        .top-global-header .btn-primary, .btn-logout { padding: 9px 10px; font-size: 12px; }
+        .modal-box [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+        .header-banner h1 { font-size: 18px; }
+    }
     </style>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -461,7 +498,7 @@
             </ul>
         </div>
         <div>
-            <button class="sign-out-btn" onclick="alert('Signed out successfully!')">
+            <button class="sign-out-btn" onclick="signOut()">
                 🚪 Sign out
             </button>
         </div>
@@ -469,7 +506,9 @@
 
     <!-- Top Global Header Bar with Add Subscriber Button on Top -->
     <div class="top-global-header">
+        <span id="whoChip" class="who-chip"></span>
         <button class="btn-primary btn-success" onclick="openAddSubscriberModal()">+ Add Subscriber</button>
+        <button class="btn-logout" id="topLogoutBtn" onclick="signOut()">🚪 Logout</button>
     </div>
 
     <!-- 1. Dashboard Section -->
@@ -621,7 +660,7 @@
 
     <!-- Super Admin Section -->
     <div id="superadmin" class="main-content">
-        <div class="header-banner"><div><h1>👑 Super Admin — Rent Panel</h1><p>Multiple ISPs — add, block, rent status</p></div><button class="btn-primary" onclick="addISP()">+ Add ISP</button></div>
+        <div class="header-banner"><div><h1>👑 Super Admin — Rent Panel</h1><p>Multiple ISPs — add, block, rent status</p></div><div class="hb-actions"><button class="btn-primary" onclick="addISP()">+ Add ISP</button><button class="btn-primary btn-warning" onclick="createDemoISP()">🧪 Demo ISP Create</button></div></div>
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                 <h3 style="color:#fbbf24;">👑 All ISP Clients — Sirf Count (Detail Hidden)</h3>
@@ -884,7 +923,7 @@
     <div id="ispCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👑 Add ISP (Owner Panel)</h3><button class="close-btn" onclick="document.getElementById('ispCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="newIspCompany" placeholder="e.g. Ali Net"></div><div class="form-group"><label>Owner Name *</label><input id="newIspOwner" placeholder="e.g. Ali Ahmed"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newIspMobile" placeholder="e.g. 03001112222"></div><div class="form-group"><label>Password Bana Kar Den *</label><input id="newIspPass" placeholder="e.g. isp123"></div><div class="form-group"><label>City</label><input id="newIspCity" placeholder="Lahore"></div><div class="form-group"><label>Address</label><input id="newIspAddr" placeholder="Shop #, Road"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveNewISP()">Save ISP</button></div></div>
 
     <!-- SuperAdmin/ISP: Add Staff Modal with Permissions -->
-    <div id="staffCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👷 Add Staff + Permissions</h3><button class="close-btn" onclick="document.getElementById('staffCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff Name *</label><input id="newStaffName" placeholder="Staff name"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newStaffMobile" placeholder="e.g. 03003334444"></div><div class="form-group"><label>Password *</label><input id="newStaffPass" placeholder="e.g. staff123"></div><div class="form-group"><label>ISP Select Karen</label><select id="newStaffIsp"></select></div></div><div class="form-group"><label>Permissions (ISP staff ko kya de sakta hai):</label><div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;background:#0b0f19;padding:10px;border-radius:8px;"><label><input type="checkbox" id="permAdd" checked style="width:auto;"> ➕ Add User</label><label><input type="checkbox" id="permEdit" checked style="width:auto;"> ✏️ Edit User</label><label><input type="checkbox" id="permCollect" checked style="width:auto;"> 💰 Collect Fee</label><label><input type="checkbox" id="permDelete" style="width:auto;"> 🗑️ Delete</label></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveNewStaff()">Save Staff</button></div></div>
+    <div id="staffCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👷 Add Staff + Permissions</h3><button class="close-btn" onclick="document.getElementById('staffCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff Name *</label><input id="newStaffName" placeholder="Staff name"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newStaffMobile" placeholder="e.g. 03003334444"></div><div class="form-group"><label>Password *</label><input id="newStaffPass" placeholder="e.g. staff123"></div><div class="form-group"><label>ISP Select Karen</label><select id="newStaffIsp"></select></div><div class="form-group"><label>Staff Category</label><select id="newStaffCategory" onchange="applyStaffPreset(this.value)"><option value="">Custom (manual)</option><option value="Collector">Collector</option><option value="Technician">Technician</option><option value="Billing Clerk">Billing Clerk</option><option value="Support">Support</option><option value="Manager">Manager</option></select></div></div><div class="form-group"><label>Permissions (ISP staff ko kya de sakta hai):</label><div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;background:#0b0f19;padding:10px;border-radius:8px;"><label><input type="checkbox" id="permAdd" checked style="width:auto;"> ➕ Add User</label><label><input type="checkbox" id="permEdit" checked style="width:auto;"> ✏️ Edit User</label><label><input type="checkbox" id="permCollect" checked style="width:auto;"> 💰 Collect Fee</label><label><input type="checkbox" id="permDelete" style="width:auto;"> 🗑️ Delete</label></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveNewStaff()">Save Staff</button></div></div>
 
     <!-- Package Modal -->
     <div id="packageModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>📦 Add Package</h3><button class="close-btn" onclick="document.getElementById('packageModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Package Name</label><input id="pkgName" placeholder="e.g. 15 Mbps Fiber"></div><div class="form-group"><label>Speed</label><input id="pkgSpeed" placeholder="e.g. 15 Mbps"></div><div class="form-group"><label>Monthly Fee (Rs)</label><input type="number" id="pkgFee" placeholder="e.g. 2000"></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="savePackage()">Save Package</button></div></div>
@@ -1835,6 +1874,8 @@
                 localStorage.setItem('cloudisp_pkgs', JSON.stringify(packagesList));
                 localStorage.setItem('cloudisp_areas', JSON.stringify(areasList));
                 localStorage.setItem('cloudisp_complaints', JSON.stringify(complaintsList));
+                localStorage.setItem('cloudisp_staffledger', JSON.stringify(staffList));
+                localStorage.setItem('cloudisp_appsettings', JSON.stringify(appSettings));
             }catch(e){}
         }
         function loadOffline(){
@@ -1845,6 +1886,8 @@
                 const pk=localStorage.getItem('cloudisp_pkgs'); if(pk) packagesList=JSON.parse(pk);
                 const ar=localStorage.getItem('cloudisp_areas'); if(ar) areasList=JSON.parse(ar);
                 const co=localStorage.getItem('cloudisp_complaints'); if(co) complaintsList=JSON.parse(co);
+                const sl=localStorage.getItem('cloudisp_staffledger'); if(sl) staffList=JSON.parse(sl);
+                const as=localStorage.getItem('cloudisp_appsettings'); if(as) appSettings=Object.assign(appSettings, JSON.parse(as));
             }catch(e){}
         }
 
@@ -3277,78 +3320,382 @@ try{refreshAddButtons();}catch(e){}
 
 })();
 
-</script><!-- Supabase CDN Script -->
+</script>
+<!-- Supabase cloud sync -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Yahan apna Supabase URL aur Anon Key dal dein
-  const supabaseUrl = 'https://iiuzjtphgeqeimotwlrn.supabase.co';
-  const supabaseKey = 'sb_publishable_wgegkMwk17YpPXbTDiClrw_YPM4JXgV';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
-      auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
-      }
-  });
-
-  // Subscribers Delete Fix Query
-  async function deleteSubscriber(id) {
-      if(!confirm("Kya aap waqai isay delete karna chahte hain?")) return;
-      const { error } = await supabase.from('subscribers').delete().eq('id', id);
-      if (error) {
-          alert("Delete error: " + error.message);
-      } else {
-          alert("Record permanently delete ho gaya!");
-          location.reload();
-      }
+(function(){
+  const SB_URL = 'https://iiuzjtphgeqeimotwlrn.supabase.co';
+  const SB_KEY = 'sb_publishable_wgegkMwk17YpPXbTDiClrw_YPM4JXgV';
+  const TABLE  = 'app_data';
+  const PREFIX = 'cloudisp_';
+  // Preview/sandbox iframe me Headers object clone nahi hota => headers ko plain object bana kar bhejo
+  function safeFetch(url, opts){
+    opts = opts || {};
+    const h = {};
+    try{ new Headers(opts.headers || {}).forEach(function(v, k){ h[k] = v; }); }catch(e){}
+    return fetch(url, Object.assign({}, opts, { headers: h }));
   }
-</script>
-  // --- CloudISP Advanced Feature Updates & Handlers ---
-  <script>
-  // --- 1. Live Supabase Data Fetching & Sync ---
-  async function loadRealtimeSubscribers() {
-      const { data, error } = await supabase.from('subscribers').select('*');
-      if (!error && data) {
-          const tbody = document.getElementById('subscribersTableBody');
-          if (tbody && data.length > 0) {
-              tbody.innerHTML = '';
-              data.forEach(sub => {
-                  tbody.innerHTML += `<tr>
-                      <td>${sub.name || 'N/A'}</td>
-                      <td>${sub.package || 'N/A'}</td>
-                      <td>${sub.phone || 'N/A'}</td>
-                      <td><span class="badge badge-isp">${sub.status || 'Active'}</span></td>
-                      <td><button class="btn-primary btn-sm" onclick="permanentDeleteRecord('subscribers', '${sub.id}')">🗑️ Delete</button></td>
-                  </tr>`;
-              });
-          }
-      }
+  const sb = window.supabase.createClient(SB_URL, SB_KEY, { global: { fetch: safeFetch } });
+
+  const origSet = Storage.prototype.setItem;
+  let ready = false, hydrating = false, timer = null;
+  const pending = {}, lastRaw = {};
+
+  // key order independent compare (Postgres jsonb reorders keys)
+  function canon(v){
+    if(Array.isArray(v)) return '['+v.map(canon).join(',')+']';
+    if(v && typeof v==='object') return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canon(v[k])).join(',')+'}';
+    return JSON.stringify(v);
   }
 
-  // --- 2. Session Management ---
-  window.addEventListener('DOMContentLoaded', () => {
-      loadRealtimeSubscribers();
-      const session = localStorage.getItem('cloud_isp_session');
-      const now = new Date().getTime();
-      if (session) {
-          try {
-              const data = JSON.parse(session);
-              if (now > data.expiry) {
-                  localStorage.removeItem('cloud_isp_session');
-              } else {
-                  data.expiry = now + (30 * 60 * 1000);
-                  localStorage.setItem('cloud_isp_session', JSON.stringify(data));
-              }
-          } catch (e) {
-              localStorage.removeItem('cloud_isp_session');
-          }
+  function badge(msg){
+    let b = document.getElementById('cloudSyncBadge');
+    if(!b){
+      b = document.createElement('div');
+      b.id = 'cloudSyncBadge';
+      b.style.cssText = 'position:fixed;bottom:12px;right:12px;z-index:99999;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#7f1d1d;color:#fff;display:none;max-width:70vw;';
+      document.body.appendChild(b);
+    }
+    if(msg){ b.textContent = msg; b.style.display = 'block'; } else { b.style.display = 'none'; }
+  }
+
+  function schedule(ms){ if(!timer) timer = setTimeout(flush, ms || 500); }
+
+  async function flush(){
+    timer = null;
+    if(!ready) return;
+    const keys = Object.keys(pending);
+    if(!keys.length) return;
+    const snapshot = {};
+    keys.forEach(k => { snapshot[k] = pending[k]; delete pending[k]; });
+    const rows = keys.map(k => ({ key:k, value:snapshot[k], updated_at:new Date().toISOString() }));
+    const { error } = await sb.from(TABLE).upsert(rows, { onConflict:'key' });
+    if(error){
+      console.error('Cloud save error:', error.message);
+      badge('☁️ Cloud save error: ' + error.message);
+      keys.forEach(k => { if(!(k in pending)) pending[k] = snapshot[k]; });
+      schedule(5000);
+    } else {
+      badge('');
+    }
+  }
+
+  // Every cloudisp_* localStorage write is also sent to Supabase
+  Storage.prototype.setItem = function(k, v){
+    origSet.call(this, k, v);
+    if(this !== window.localStorage || typeof k !== 'string' || k.indexOf(PREFIX) !== 0 || hydrating) return;
+    if(lastRaw[k] === v) return;
+    lastRaw[k] = v;
+    try{ pending[k] = JSON.parse(v); }catch(e){ pending[k] = v; }
+    schedule(500);
+  };
+
+  async function hydrate(){
+    const { data, error } = await sb.from(TABLE).select('key,value');
+    if(error){
+      console.error('Cloud load error:', error.message);
+      badge('☁️ Cloud se connect nahi hua: ' + error.message);
+      setTimeout(hydrate, 10000);
+      return;
+    }
+    badge('');
+    const remote = {};
+    data.forEach(r => { remote[r.key] = r.value; });
+
+    // 1) Cloud -> this device (cloud wins)
+    let changed = false;
+    hydrating = true;
+    Object.keys(remote).forEach(k => {
+      if(k.indexOf(PREFIX) !== 0) return;
+      let localV = null;
+      try{ const s = localStorage.getItem(k); if(s !== null) localV = JSON.parse(s); }catch(e){}
+      if(localV === null || canon(localV) !== canon(remote[k])){
+        const s = JSON.stringify(remote[k]);
+        origSet.call(localStorage, k, s);
+        lastRaw[k] = s;
+        changed = true;
       } else {
-          localStorage.setItem('cloud_isp_session', JSON.stringify({
-              user: "Admin",
-              expiry: now + (30 * 60 * 1000)
-          }));
+        lastRaw[k] = localStorage.getItem(k);
       }
+    });
+    hydrating = false;
+
+    if(changed){
+      const last = +sessionStorage.getItem('cloudisp_reload_ts') || 0;
+      if(Date.now() - last > 5000){
+        sessionStorage.setItem('cloudisp_reload_ts', String(Date.now()));
+        location.reload();   // app ko cloud wale data ke saath dobara load karo
+        return;
+      }
+    }
+
+    // 2) This device -> cloud (only keys the cloud doesn't have yet)
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf(PREFIX) === 0 && !(k in remote)){
+        const raw = localStorage.getItem(k);
+        try{ pending[k] = JSON.parse(raw); lastRaw[k] = raw; }catch(e){}
+      }
+    }
+
+    ready = true;
+    window.dispatchEvent(new Event('cloudisp-ready'));
+    if(Object.keys(pending).length) schedule(200);
+
+    // Auto-save: add/edit/delete subscribers etc. ab khud save ho jayenge
+    setInterval(function(){
+      try{ if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
+    }, 2000);
+  }
+
+  hydrate();
+})();
+</script>
+
+<!-- ===== v2 features: session, demo ISP, staff categories, delete handling ===== -->
+<script>
+(function(){
+  'use strict';
+  const SESSION_KEY = 'cisp_session';   // (cloudisp_ se shuru nahi => cloud par sync nahi hota, har device ka apna session)
+  const TAB_KEY     = 'cisp_tab';
+  const TTL         = 30 * 60 * 1000;   // 30 minute
+  let restored = false;
+
+  // ---------- Session (30 min, activity par barhta hai) ----------
+  function saveSession(){
+    if(!currentUser) return;
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({ mobile: currentUser.mobile, expiry: Date.now() + TTL })); }catch(e){}
+  }
+  function readSession(){
+    try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
+  }
+  function updateWho(){
+    const chip = document.getElementById('whoChip');
+    if(!chip) return;
+    if(!currentUser){ chip.textContent = ''; return; }
+    const role = currentUser.role === 'owner' ? 'Super Admin' : (currentUser.role === 'isp' ? 'ISP' : 'Staff');
+    chip.textContent = '👤 ' + currentUser.name + (currentUser.role === 'owner' ? '' : ' · ' + role) + (currentUser.role !== 'owner' && currentUser.isp ? ' · ' + currentUser.isp : '');
+  }
+
+  const _signOut = signOut;
+  signOut = function(){
+    try{ localStorage.removeItem(SESSION_KEY); localStorage.removeItem(TAB_KEY); }catch(e){}
+    _signOut();
+    updateWho();
+  };
+
+  const _doLogin = doLogin;
+  doLogin = function(){
+    _doLogin();
+    if(currentUser){ saveSession(); updateWho(); }
+  };
+
+  ['loginUser','loginPass'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
   });
 
+  function restoreSession(){
+    if(restored) return;
+    restored = true;
+    const sess = readSession();
+    if(!sess || Date.now() > sess.expiry){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} return; }
+    const u = systemUsers.find(function(x){ return x.mobile === sess.mobile; });
+    if(!u){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} return; }
+    currentUser = u;
+    document.getElementById('loginScreen').classList.remove('active');
+    applyRole();
+    const tab = localStorage.getItem(TAB_KEY);
+    if(tab && document.getElementById(tab)){
+      const li = Array.prototype.find.call(document.querySelectorAll('.nav-links li'), function(l){
+        const oc = l.getAttribute('onclick') || '';
+        return oc.indexOf("'" + tab + "'") !== -1;
+      });
+      if(li && li.style.display !== 'none') switchTabForce(tab);
+    }
+    saveSession();
+    updateWho();
+  }
+  // cloud data aane ke baad restore karo (4 sec me na aaye to local data se)
+  window.addEventListener('cloudisp-ready', restoreSession);
+  setTimeout(restoreSession, 4000);
+
+  // activity => 30 min dobara shuru
+  let lastTouch = 0;
+  function activity(){
+    if(!currentUser) return;
+    const now = Date.now();
+    if(now - lastTouch < 15000) return;
+    lastTouch = now;
+    saveSession();
+  }
+  ['click','keydown','touchstart','scroll'].forEach(function(ev){
+    document.addEventListener(ev, activity, { passive: true, capture: true });
+  });
+  setInterval(function(){
+    if(!currentUser) return;
+    const sess = readSession();
+    if(!sess || Date.now() > sess.expiry){
+      signOut();
+      alert('30 minute ka session khatam ho gaya. Dobara login karein.');
+    }
+  }, 15000);
+  // doosre tab me logout ho to yahan bhi
+  window.addEventListener('storage', function(e){
+    if(e.key === SESSION_KEY && !e.newValue && currentUser){ signOut(); }
+  });
+  // aakhri khula tab yaad rakho
+  const nav = document.querySelector('.nav-links');
+  if(nav) nav.addEventListener('click', function(e){
+    const li = e.target.closest('li');
+    const m = li && (li.getAttribute('onclick') || '').match(/switchTab\('([^']+)'/);
+    if(m) try{ localStorage.setItem(TAB_KEY, m[1]); }catch(err){}
+  });
+
+  // ---------- Staff categories (preset permissions) ----------
+  const PRESETS = {
+    'Collector':     { p:{view:1,collect:1,whatsapp:1}, f:['f_name','f_package','f_fee','f_balance','f_mobile','f_duedate','f_area','f_gps','f_address'] },
+    'Technician':    { p:{view:1,add:1,edit:1,complaints:1}, fx:['f_fee','f_balance','f_install'] },
+    'Billing Clerk': { p:{view:1,add:1,edit:1,collect:1,whatsapp:1,complaints:1} },
+    'Support':       { p:{view:1,whatsapp:1,complaints:1}, f:['f_name','f_mobile','f_package','f_area','f_address','f_gps'] },
+    'Manager':       { p:{view:1,add:1,edit:1,collect:1,del:1,whatsapp:1,complaints:1} }
+  };
+  const PERM_IDS = { add:'permAdd', edit:'permEdit', collect:'permCollect', del:'permDelete', view:'permView', whatsapp:'permWhatsapp', complaints:'permComplaints' };
+  window.applyStaffPreset = function(cat){
+    const pr = PRESETS[cat]; if(!pr) return;
+    Object.keys(PERM_IDS).forEach(function(k){
+      const e = document.getElementById(PERM_IDS[k]); if(e) e.checked = !!pr.p[k];
+    });
+    (window.FIELD_DEFS || []).forEach(function(f){
+      const e = document.getElementById('perm_' + f.key); if(!e) return;
+      let on = true;
+      if(pr.f)  on = pr.f.indexOf(f.key) !== -1;
+      if(pr.fx) on = pr.fx.indexOf(f.key) === -1;
+      e.checked = on;
+    });
+  };
+
+  const _openStaffCreate = openStaffCreateModal;
+  openStaffCreateModal = function(){
+    _openStaffCreate();
+    const c = document.getElementById('newStaffCategory'); if(c) c.value = '';
+  };
+  const _saveNewStaff = saveNewStaff;
+  saveNewStaff = function(){
+    const mob = (document.getElementById('newStaffMobile').value || '').trim();
+    const cEl = document.getElementById('newStaffCategory');
+    const cat = cEl ? cEl.value : '';
+    _saveNewStaff();
+    const u = systemUsers.find(function(x){ return x.mobile === mob && x.role === 'staff'; });
+    if(u && cat){ u.category = cat; saveUsers(); renderAllStaff(); }
+  };
+  // staff tables me category badge
+  function decorateStaffRows(){
+    ['allStaffTableBody','ispLoginStaffBody'].forEach(function(id){
+      const tb = document.getElementById(id); if(!tb) return;
+      Array.prototype.forEach.call(tb.querySelectorAll('tr'), function(tr){
+        const td = tr.querySelector('td'); if(!td) return;
+        const sp = td.querySelector('span'); if(!sp) return;
+        const u = systemUsers.find(function(x){ return x.role === 'staff' && x.mobile === sp.textContent.trim(); });
+        if(u && u.category && !td.querySelector('.cat-badge')){
+          const b = document.createElement('span'); b.className = 'cat-badge'; b.textContent = u.category;
+          td.querySelector('strong').after(b);
+        }
+      });
+    });
+  }
+  const _renderAllStaff = renderAllStaff;
+  renderAllStaff = function(){ _renderAllStaff(); try{ decorateStaffRows(); }catch(e){} };
+
+  // ---------- Super Admin: Demo ISP create ----------
+  window.createDemoISP = function(){
+    if(!isOwner()){ alert('Sirf Superadmin Demo ISP bana sakta hai!'); return; }
+    let n = 1;
+    while(ispsList.some(function(i){ return i.name === 'Demo ISP ' + n; })) n++;
+    const name = 'Demo ISP ' + n;
+    function freeMobile(prefix){
+      let k = n * 10;
+      for(;;){
+        const m = prefix + String(10000000 + k).slice(1);
+        if(!systemUsers.some(function(u){ return u.mobile === m; })) return m;
+        k++;
+      }
+    }
+    const ispMob = freeMobile('0399'), staffMob = freeMobile('0398');
+    const pass = 'demo123';
+    ispsList.push({ name:name, city:'Lahore', users:3, status:'Paid', owner:'Demo Owner', mobile:ispMob, pass:pass, address:'Demo Address, Lahore', demo:true });
+    systemUsers.push({ role:'isp', name:'Demo Owner ' + n, company:name, mobile:ispMob, pass:pass, isp:name, address:'Demo Address, Lahore', demo:true });
+    const pr = PRESETS['Collector'];
+    const perms = { add:false, edit:false, collect:true, del:false, view:true, whatsapp:true, complaints:false, excel:false, areas:false, packages:false };
+    (window.FIELD_DEFS || []).forEach(function(f){ perms[f.key] = pr.f.indexOf(f.key) !== -1; });
+    systemUsers.push({ role:'staff', name:'Demo Staff ' + n, mobile:staffMob, pass:pass, isp:name, category:'Collector', perms:perms, demo:true });
+    packagesList.push({ name:'Demo 10 Mbps', speed:'10 Mbps', fee:1500, isp:name, demo:true });
+    packagesList.push({ name:'Demo 20 Mbps', speed:'20 Mbps', fee:2500, isp:name, demo:true });
+    let id = subscribersList.length ? Math.max.apply(null, subscribersList.map(function(x){ return x.id; })) + 1 : 1;
+    const today = new Date().toISOString().split('T')[0];
+    [['Demo Customer 1','demo_user1','Demo 10 Mbps',1500,'Unpaid'],
+     ['Demo Customer 2','demo_user2','Demo 20 Mbps',2500,'Paid'],
+     ['Demo Customer 3','demo_user3','Demo 10 Mbps',1500,'Unpaid']].forEach(function(r, i){
+      subscribersList.push({ id:id++, isp:name, name:r[0], username:r[1], package:r[2], fee:r[3], installCharges:0, balance:0,
+        phone:'0300000000' + (i + 1), status:r[4], type:r[4].toLowerCase(), address:'Demo Address', area:'Main', subArea:'Main',
+        cnic:'N/A', dueDate:today, connectionDate:new Date().toLocaleDateString(), connectionType:'Wireless',
+        gpsLocation:'https://maps.google.com/?q=31.5204,74.3587', remarks:'Demo data', demo:true });
+    });
+    saveUsers(); saveOffline();
+    renderISPs(); renderAllStaff(); refreshExcelIspSelect(); calculateLedger();
+    alert('Demo ISP ban gaya ✅\n\nISP Login: ' + ispMob + ' / ' + pass + '\nStaff Login: ' + staffMob + ' / ' + pass + '\n\n(3 demo customers + 2 packages bhi add ho gaye)');
+  };
+
+  // ---------- Proper delete / update handling ----------
+  // Har change foran save (aur cloud par sync) ho
+  const _deleteSub = deleteSubscriber;
+  deleteSubscriber = function(id){ const before = subscribersList.length; _deleteSub(id); if(subscribersList.length !== before) saveOffline(); };
+  const _saveNewSub = saveNewSubscriber;
+  saveNewSubscriber = function(){ _saveNewSub(); saveOffline(); };
+  const _saveEditSub = saveEditedSubscriber;
+  saveEditedSubscriber = function(){ _saveEditSub(); saveOffline(); };
+
+  // ISP delete (sirf Superadmin): ISP + login + staff hatta deta hai, data ka sawal alag se poochta hai
+  deleteISP = function(i){
+    if(!isOwner()){ alert('Sirf Superadmin ISP delete kar sakta hai!'); return; }
+    const isp = ispsList[i]; if(!isp) return;
+    const nm = isp.name;
+    const subs = subscribersList.filter(function(x){ return (x.isp || 'Ali Net') === nm; }).length;
+    const staffN = systemUsers.filter(function(u){ return u.role === 'staff' && u.isp === nm; }).length;
+    if(!confirm('"' + nm + '" ko DELETE karna hai?\n\nISP login + ' + staffN + ' staff login hat jayenge.\nCustomers: ' + subs + '\n\nContinue?')) return;
+    const wipe = confirm('Is ISP ke ' + subs + ' customers, payments, packages aur complaints bhi DELETE karne hain?\n\nOK = sab kuch delete (wapas nahi aayega)\nCancel = sirf ISP + staff delete, customers rehne do');
+    ispsList.splice(i, 1);
+    systemUsers = systemUsers.filter(function(u){ return !((u.role === 'isp' || u.role === 'staff') && u.isp === nm); });
+    if(wipe || isp.demo){
+      subscribersList = subscribersList.filter(function(x){ return (x.isp || 'Ali Net') !== nm; });
+      packagesList    = packagesList.filter(function(x){ return x.isp !== nm; });
+      paymentsList    = paymentsList.filter(function(x){ return x.isp !== nm; });
+      complaintsList  = complaintsList.filter(function(x){ return x.isp !== nm; });
+    }
+    saveUsers(); saveOffline(); renderISPs(); renderAllStaff(); refreshExcelIspSelect(); calculateLedger();
+    alert('"' + nm + '" delete ho gaya ✅');
+  };
+
+  // ISP table me DEMO badge
+  const _renderISPs = renderISPs;
+  renderISPs = function(){
+    _renderISPs();
+    try{
+      const tb = document.getElementById('ispsTableBody'); if(!tb) return;
+      Array.prototype.forEach.call(tb.querySelectorAll('tr'), function(tr, idx){
+        const isp = ispsList[idx]; const st = tr.querySelector('strong');
+        const del = tr.querySelector('button[onclick^="deleteISP"]');
+        if(del){ del.textContent = '🗑️ Delete ISP'; del.style.background = '#dc2626'; }
+        if(isp && isp.demo && st && !tr.querySelector('.demo-badge')){
+          const b = document.createElement('span'); b.className = 'demo-badge'; b.textContent = 'DEMO'; st.after(b);
+        }
+      });
+    }catch(e){}
+  };
+
+  updateWho();
+})();
 </script>
- 
+</body>
+</html>
