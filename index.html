@@ -4460,5 +4460,161 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
 })();
 </script>
 
+<!-- ===== V6: Staff add sirf Superadmin (pakka) + naya Login design ===== -->
+<style>
+  /* Staff add buttons: Superadmin ke ilawa kisi ko kabhi nazar na aayein (koi JS bhi wapas na la sake) */
+  body:not(.cisp-owner) #staffLedgerAddBtn,
+  body:not(.cisp-owner) #ispLoginStaffCard button[onclick^="openStaffCreateModal"],
+  body:not(.cisp-owner) button[onclick^="openStaffModal"],
+  body:not(.cisp-owner) button[onclick^="openStaffCreateModal"]{display:none !important;}
+
+  /* ---------- Login page: poori screen, peeche dashboard nazar nahi aata ---------- */
+  #loginScreen.active{
+    position:fixed !important; inset:0 !important; z-index:100000 !important;
+    display:flex !important; align-items:center; justify-content:center;
+    padding:24px; overflow-y:auto; opacity:1 !important; visibility:visible;
+    background:
+      radial-gradient(900px 600px at 12% 18%, rgba(37,99,235,.35), transparent 60%),
+      radial-gradient(800px 600px at 88% 85%, rgba(6,182,212,.28), transparent 60%),
+      radial-gradient(600px 400px at 70% 10%, rgba(139,92,246,.18), transparent 60%),
+      linear-gradient(160deg,#060912 0%,#0a1020 55%,#07131c 100%) !important;
+    backdrop-filter:none !important;
+  }
+  html.cisp-restoring #loginScreen{visibility:hidden !important;}
+  #loginScreen::before{
+    content:''; position:fixed; inset:0; pointer-events:none; opacity:.35;
+    background-image:linear-gradient(rgba(148,163,184,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.07) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 30%, transparent 75%); mask-image:radial-gradient(ellipse at center, #000 30%, transparent 75%);
+  }
+  .login-shell{position:relative; z-index:1; width:100%; max-width:1000px; display:grid; grid-template-columns:1.05fr .95fr; gap:28px; align-items:center; margin:auto;}
+  .login-hero{color:#e5e7eb; padding:12px 8px;}
+  .login-hero .lh-logo{display:flex; align-items:center; gap:14px; margin-bottom:26px;}
+  .login-hero .lh-mark{width:58px; height:58px; border-radius:16px; background:linear-gradient(135deg,#2563eb,#06b6d4); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(37,99,235,.45);}
+  .login-hero .lh-name{font-size:26px; font-weight:800; letter-spacing:.3px; color:#fff;}
+  .login-hero .lh-name small{display:block; font-size:12px; font-weight:600; color:#7dd3fc; letter-spacing:2px; text-transform:uppercase; margin-top:2px;}
+  .login-hero h1{font-size:38px; line-height:1.15; font-weight:800; color:#fff; margin-bottom:14px;}
+  .login-hero h1 span{background:linear-gradient(90deg,#60a5fa,#22d3ee); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .login-hero p.lh-sub{font-size:15px; color:#94a3b8; line-height:1.6; margin-bottom:26px; max-width:440px;}
+  .lh-feats{display:grid; gap:12px; max-width:440px;}
+  .lh-feat{display:flex; gap:12px; align-items:flex-start; background:rgba(15,23,42,.55); border:1px solid rgba(148,163,184,.12); border-radius:14px; padding:12px 14px;}
+  .lh-feat i{font-style:normal; font-size:18px; width:36px; height:36px; flex-shrink:0; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(37,99,235,.16); border:1px solid rgba(96,165,250,.25);}
+  .lh-feat b{display:block; color:#f1f5f9; font-size:14px; margin-bottom:2px;}
+  .lh-feat span{color:#94a3b8; font-size:12.5px;}
+
+  #loginScreen .modal-box{
+    position:relative; width:100% !important; max-width:430px !important; margin:0 auto; padding:34px 30px 26px !important;
+    text-align:left !important; transform:none !important;
+    background:linear-gradient(180deg, rgba(17,24,39,.92), rgba(11,15,25,.92)) !important;
+    border:1px solid rgba(148,163,184,.16) !important; border-radius:22px !important;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(37,99,235,.08), inset 0 1px 0 rgba(255,255,255,.04) !important;
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    max-height:none !important; overflow:visible !important;
+  }
+  #loginScreen .modal-box::before{content:''; position:absolute; left:30px; right:30px; top:0; height:3px; border-radius:0 0 4px 4px; background:linear-gradient(90deg,#2563eb,#06b6d4,#8b5cf6);}
+  #loginScreen .modal-box > div:first-child{display:none !important;}
+  #loginScreen .modal-box h2{font-size:24px !important; font-weight:800; color:#fff; margin-bottom:4px !important;}
+  #loginScreen .lb-sub{color:#94a3b8; font-size:13.5px; margin-bottom:20px;}
+  #loginScreen .modal-box label{font-size:12px; font-weight:600; color:#cbd5e1; letter-spacing:.2px;}
+  #loginScreen .form-group{margin-bottom:16px;}
+  #loginScreen .lb-field{position:relative;}
+  #loginScreen .lb-field .lb-ico{position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:15px; opacity:.75; pointer-events:none;}
+  #loginScreen .lb-field input{width:100%; padding:14px 46px 14px 42px !important; border-radius:12px !important; background:#0b1222 !important; border:1px solid #1f2a44 !important; color:#fff; font-size:15px; transition:border-color .2s, box-shadow .2s;}
+  #loginScreen .lb-field input:focus{outline:none; border-color:#3b82f6 !important; box-shadow:0 0 0 4px rgba(59,130,246,.18);}
+  #loginScreen .lb-eye{position:absolute; right:8px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:#94a3b8; font-size:16px; cursor:pointer; padding:6px 8px; border-radius:8px;}
+  #loginScreen .lb-eye:hover{background:rgba(148,163,184,.12);}
+  #loginScreen .modal-box button.btn-primary:not(.app-install-btn){
+    width:100%; justify-content:center; padding:14px !important; font-size:15px !important; font-weight:700; border-radius:12px !important;
+    background:linear-gradient(135deg,#2563eb,#0891b2) !important; box-shadow:0 10px 24px rgba(37,99,235,.35); border:none; transition:transform .15s, box-shadow .2s;
+  }
+  #loginScreen .modal-box button.btn-primary:not(.app-install-btn):hover{transform:translateY(-1px); box-shadow:0 14px 30px rgba(37,99,235,.45);}
+  #loginScreen .lb-secure{display:flex; align-items:center; justify-content:center; gap:6px; margin-top:16px; font-size:11.5px; color:#64748b;}
+  #loginScreen #loginInstallBtn{background:rgba(15,23,42,.8) !important; border:1px solid rgba(96,165,250,.35) !important; color:#93c5fd !important; box-shadow:none !important; border-radius:12px !important; padding:12px !important;}
+  #loginScreen #setupLink{text-align:center;}
+  #loginScreen .lb-hide{display:none !important;}
+  @media (max-width: 900px){
+    .login-shell{grid-template-columns:1fr; max-width:440px; gap:18px;}
+    .login-hero{padding:0; text-align:center;}
+    .login-hero .lh-logo{justify-content:center; margin-bottom:6px;}
+    .login-hero h1, .login-hero p.lh-sub, .lh-feats{display:none;}
+  }
+  @media (max-width: 480px){
+    #loginScreen.active{padding:16px; align-items:flex-start;}
+    .login-shell{margin-top:4vh;}
+    #loginScreen .modal-box{padding:26px 20px 20px !important; border-radius:18px !important;}
+  }
+</style>
+<script>
+(function(){
+'use strict';
+/* ---------- Role class (CSS isi se staff-add buttons chhupata hai) ---------- */
+function setRoleClass(){
+  const b = document.body; if(!b) return;
+  b.classList.toggle('cisp-owner', !!(currentUser && currentUser.role === 'owner'));
+  b.classList.toggle('cisp-isp',   !!(currentUser && currentUser.role === 'isp'));
+  b.classList.toggle('cisp-staff', !!(currentUser && currentUser.role === 'staff'));
+}
+const _applyV6 = applyRole;
+applyRole = function(){ setRoleClass(); const r = _applyV6.apply(this, arguments); setRoleClass(); return r; };
+const _signOutV6 = signOut;
+signOut = function(){ const r = _signOutV6.apply(this, arguments); setTimeout(setRoleClass, 0); return r; };
+['openStaffModal','addStaff','openStaffCreateModal','saveNewStaff'].forEach(function(fn){
+  const prev = window[fn]; if(typeof prev !== 'function') return;
+  window[fn] = function(){ if(!(currentUser && currentUser.role === 'owner')){ alert('Naya staff sirf Superadmin bana sakta hai!'); return; } return prev.apply(this, arguments); };
+});
+setInterval(setRoleClass, 1500);
+setRoleClass();
+
+/* ---------- Naya Login page ---------- */
+const svgWifi = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg>';
+function buildLogin(){
+  const scr = document.getElementById('loginScreen'); if(!scr || scr.querySelector('.login-shell')) return;
+  const box = scr.querySelector('.modal-box'); if(!box) return;
+  const shell = document.createElement('div'); shell.className = 'login-shell';
+  const hero = document.createElement('div'); hero.className = 'login-hero';
+  hero.innerHTML =
+      '<div class="lh-logo"><div class="lh-mark">' + svgWifi + '</div><div class="lh-name">CloudISP<small>Billing &amp; Management</small></div></div>'
+    + '<h1>Apna ISP business <span>ek jagah</span> se chalayein</h1>'
+    + '<p class="lh-sub">Customers, monthly fee recovery, bakaya, staff salary aur WhatsApp bills — sab kuch tez, aasaan aur mehfooz.</p>'
+    + '<div class="lh-feats">'
+    +   '<div class="lh-feat"><i>💰</i><div><b>Fee Recovery &amp; Slip</b><span>Mahine ki history, bakaya aur WhatsApp slip</span></div></div>'
+    +   '<div class="lh-feat"><i>👷</i><div><b>Staff &amp; Salary Ledger</b><span>Advance, chhutti aur permissions</span></div></div>'
+    +   '<div class="lh-feat"><i>🔒</i><div><b>Har ISP ka data alag</b><span>Koi doosra ISP aap ka data nahi dekh sakta</span></div></div>'
+    + '</div>';
+  scr.insertBefore(shell, box);
+  shell.appendChild(hero); shell.appendChild(box);
+
+  // card ka andar wala text
+  const h2 = box.querySelector('h2'); if(h2) h2.textContent = 'Welcome back 👋';
+  const ps = Array.prototype.slice.call(box.querySelectorAll(':scope > p'));
+  if(ps[0]){ ps[0].className = 'lb-sub'; ps[0].removeAttribute('style'); ps[0].textContent = 'Apne mobile number aur password se login karein'; }
+  if(ps[1] && /Demo login/i.test(ps[1].textContent)) ps[1].classList.add('lb-hide');
+
+  // inputs ke saath icon + password show/hide
+  function wrap(id, ico, eye){
+    const inp = document.getElementById(id); if(!inp || inp.parentNode.classList.contains('lb-field')) return;
+    const w = document.createElement('div'); w.className = 'lb-field';
+    inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+    const i = document.createElement('span'); i.className = 'lb-ico'; i.textContent = ico; w.insertBefore(i, inp);
+    if(eye){
+      const e = document.createElement('button'); e.type = 'button'; e.className = 'lb-eye'; e.title = 'Password dikhayein'; e.textContent = '👁';
+      e.onclick = function(){ inp.type = inp.type === 'password' ? 'text' : 'password'; e.textContent = inp.type === 'password' ? '👁' : '🙈'; };
+      w.appendChild(e);
+    }
+  }
+  const u = document.getElementById('loginUser'); if(u){ u.setAttribute('inputmode', 'numeric'); u.setAttribute('autocomplete', 'username'); u.placeholder = '03XX XXXXXXX'; }
+  const p = document.getElementById('loginPass'); if(p){ p.setAttribute('autocomplete', 'current-password'); p.placeholder = 'Password likhen'; }
+  wrap('loginUser', '📱', false); wrap('loginPass', '🔑', true);
+  const btn = box.querySelector('button.btn-primary:not(.app-install-btn)'); if(btn && /login/i.test(btn.textContent)) btn.textContent = 'Login';
+  if(!box.querySelector('.lb-secure')){
+    const s = document.createElement('div'); s.className = 'lb-secure'; s.innerHTML = '🔒 Mehfooz login • har ISP ka data alag';
+    const who = document.getElementById('loginWho');
+    if(who && who.nextSibling) box.insertBefore(s, who.nextSibling); else box.appendChild(s);
+  }
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildLogin); else buildLogin();
+})();
+</script>
+
 </body>
 </html>
