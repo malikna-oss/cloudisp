@@ -3349,7 +3349,7 @@ try{refreshAddButtons();}catch(e){}
     return JSON.stringify(v);
   }
 
-  function badge(msg){
+  function badge(msg, ok){
     let b = document.getElementById('cloudSyncBadge');
     if(!b){
       b = document.createElement('div');
@@ -3357,7 +3357,10 @@ try{refreshAddButtons();}catch(e){}
       b.style.cssText = 'position:fixed;bottom:12px;right:12px;z-index:99999;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#7f1d1d;color:#fff;display:none;max-width:70vw;';
       document.body.appendChild(b);
     }
-    if(msg){ b.textContent = msg; b.style.display = 'block'; } else { b.style.display = 'none'; }
+    b.style.background = ok ? '#065f46' : '#7f1d1d';
+    clearTimeout(b._t);
+    if(msg){ b.textContent = msg; b.style.display = 'block'; if(ok) b._t = setTimeout(function(){ b.style.display = 'none'; }, 2500); }
+    else { b.style.display = 'none'; }
   }
 
   function schedule(ms){ if(!timer) timer = setTimeout(flush, ms || 500); }
@@ -3377,7 +3380,7 @@ try{refreshAddButtons();}catch(e){}
       keys.forEach(k => { if(!(k in pending)) pending[k] = snapshot[k]; });
       schedule(5000);
     } else {
-      badge('');
+      badge('☁️ Cloud me save ho gaya', true);
     }
   }
 
@@ -3399,7 +3402,7 @@ try{refreshAddButtons();}catch(e){}
       setTimeout(hydrate, 10000);
       return;
     }
-    badge('');
+    badge('☁️ Cloud connected', true);
     const remote = {};
     data.forEach(r => { remote[r.key] = r.value; });
 
@@ -3500,9 +3503,9 @@ try{refreshAddButtons();}catch(e){}
     if(restored) return;
     restored = true;
     const sess = readSession();
-    if(!sess || Date.now() > sess.expiry){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} return; }
+    if(!sess || Date.now() > sess.expiry){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
     const u = systemUsers.find(function(x){ return x.mobile === sess.mobile; });
-    if(!u){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} return; }
+    if(!u){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} endLoading(); return; }
     currentUser = u;
     document.getElementById('loginScreen').classList.remove('active');
     applyRole();
@@ -3516,6 +3519,24 @@ try{refreshAddButtons();}catch(e){}
     }
     saveSession();
     updateWho();
+    endLoading();
+  }
+  // refresh par login screen ki jhalak na aaye: valid session ho to restore hone tak chhupao
+  (function(){
+    const s0 = readSession();
+    if(s0 && Date.now() <= s0.expiry){
+      const ls = document.getElementById('loginScreen');
+      if(ls) ls.style.visibility = 'hidden';
+      const ld = document.createElement('div');
+      ld.id = 'sessionLoading';
+      ld.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#0b0f19;color:#9ca3af;display:flex;align-items:center;justify-content:center;font-size:14px;';
+      ld.textContent = '⏳ Session load ho raha hai...';
+      document.body.appendChild(ld);
+    }
+  })();
+  function endLoading(){
+    const ls = document.getElementById('loginScreen'); if(ls) ls.style.visibility = '';
+    const ld = document.getElementById('sessionLoading'); if(ld) ld.remove();
   }
   // cloud data aane ke baad restore karo (4 sec me na aaye to local data se)
   window.addEventListener('cloudisp-ready', restoreSession);
