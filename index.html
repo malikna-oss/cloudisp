@@ -1778,7 +1778,7 @@
         function renderAreas(){ const tb=document.getElementById('areasTableBody'); if(!tb) return; tb.innerHTML=''; areasList.forEach((a,i)=>{ const cnt=subscribersList.filter(s=>s.area===a).length; const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${a}</strong></td><td>${cnt} users</td><td><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="areasList.splice(${i},1);renderAreas();">Delete</button></td>`; tb.appendChild(tr); }); }
         function addArea(){ const n=prompt('Naye area ka naam likhen:'); if(n){ areasList.push(n); renderAreas(); } }
         function saveSettings(){ appSettings.company=document.getElementById('setCompany').value; appSettings.phone=document.getElementById('setPhone').value; appSettings.collector=document.getElementById('setCollector').value; alert('Settings saved! Ab invoice par '+appSettings.company+' aayega.'); }
-        function renderISPs(){ const tb=document.getElementById('ispsTableBody'); if(!tb) return; tb.innerHTML=''; ispsList.forEach((isp,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${isp.name||''}</strong><br><span style="color:#9ca3af;font-size:11px;">${isp.owner||''} • ${isp.mobile||''}</span></td><td>${isp.city||''}<br><span style="color:#9ca3af;font-size:11px;">${isp.address||''}</span></td><td style="font-size:12px;">${isp.pass||'-'}</td><td style="color:${isp.status==='Paid'?'#34d399':'#f87171'};font-weight:bold;">${isp.status}</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="ispsList[${i}].status='Paid';renderISPs();">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="ispsList[${i}].status='Unpaid';renderISPs();">Block</button></div></td>`; tb.appendChild(tr); }); try{renderAllStaff();}catch(e){} }
+        function renderISPs(){ const tb=document.getElementById('ispsTableBody'); if(!tb) return; tb.innerHTML=''; ispsList.forEach((isp,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${isp.name||''}</strong><br><span style="color:#9ca3af;font-size:11px;">${isp.owner||''} • ${isp.mobile||''}</span></td><td>${isp.city||''}<br><span style="color:#9ca3af;font-size:11px;">${isp.address||''}</span></td><td style="font-size:12px;">${isp.pass||'-'}</td><td style="color:${isp.status==='Paid'?'#34d399':'#f87171'};font-weight:bold;">${isp.status}</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus(${i},'Paid')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus(${i},'Unpaid')">Block</button></div></td>`; tb.appendChild(tr); }); try{renderAllStaff();}catch(e){} }
         function addISP(){ const n=prompt('ISP ka naam:'); if(!n) return; const c=prompt('City:')||'Lahore'; ispsList.push({name:n,city:c,users:0,status:'Paid'}); renderISPs(); }
 
         // hook collectFee to payments (offline-ready)
@@ -2098,7 +2098,16 @@
             try{renderAllStaff();}catch(e){}
             refreshExcelIspSelect();
         };
-        setIspStatus = function(i,st){ ispsList[i].status=st; saveOffline(); renderISPs(); };
+        setIspStatus = function(i,st){
+          if(!ispsList[i]) return;
+          ispsList[i].status=st;
+          try{ saveOffline(); }catch(e){}
+          try{ if(typeof schedule==='function') schedule(100); }catch(e){}
+          renderISPs();
+          try{ calculateLedger(); }catch(e){}
+          if(st==='Unpaid') alert('"'+ispsList[i].name+'" BLOCK ho gaya ⛔\nISP + us ka staff login nahi kar sakenge.\nData safe rahega.');
+          else alert('"'+ispsList[i].name+'" UNBLOCK ho gaya ✅\nISP + staff dobara login kar sakte hain.');
+        };
         toggleIspPass = function(i,pass){ const el=document.getElementById('ispPass'+i); if(!el) return; const h=el.innerText.trim(); if(h==='••••••'||h==='......'){ el.innerText=pass||'-'; el.classList.remove('hidden-pass'); } else { el.innerText='••••••'; el.classList.add('hidden-pass'); } };
         copyIspLogin = function(i){ const isp=ispsList[i]; const txt='ISP: '+isp.name+' | Login: '+isp.mobile+' | Password: '+isp.pass; try{navigator.clipboard.writeText(txt); alert('Login copy ho gaya:\\n'+txt);}catch(e){ prompt('Copy kar lein:',txt); } };
         deleteISP = function(i){ if(!isOwner()) return; if(!confirm('ISP delete karen? Us ke users nahi delete honge.'))return; const nm=ispsList[i].name; ispsList.splice(i,1); systemUsers=systemUsers.filter(u=>!(u.role==='isp'&&u.isp===nm)); saveUsers(); saveOffline(); renderISPs(); };
@@ -3372,6 +3381,9 @@ try{refreshAddButtons();}catch(e){}
       }
     });
     hydrating = false;
+    try{
+      Object.keys(remote).forEach(function(k){ if(k in pending) delete pending[k]; });
+    }catch(e){}
 
     if(changed && typeof window.cloudispApplyRemote === 'function'){
       try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
@@ -3398,9 +3410,9 @@ try{refreshAddButtons();}catch(e){}
     window.dispatchEvent(new Event('cloudisp-ready'));
     if(Object.keys(pending).length) schedule(200);
 
-    // Auto-save: add/edit/delete subscribers etc. ab khud save ho jayenge
+    // Auto-save: sirf cloud ready hone ke baad (warna purana data delete ko zinda kar deta hai)
     setInterval(function(){
-      try{ if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
+      try{ if(!window.__cloudispReady) return; if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
     }, 2000);
   }
 
@@ -3442,10 +3454,44 @@ try{refreshAddButtons();}catch(e){}
     updateWho();
   };
 
+  // ===== BLOCK SYSTEM: Superadmin Block -> ISP + Staff band, data safe =====
+  function getIspStatus(ispName){
+    try{
+      if(!ispName || ispName==='ALL') return 'Paid';
+      const e = (typeof ispsList!=='undefined') ? ispsList.find(x=>x.name===ispName) : null;
+      if(!e) return 'Paid';
+      return e.status || 'Paid';
+    }catch(err){ return 'Paid'; }
+  }
+  function isIspBlocked(ispName){
+    const st = getIspStatus(ispName);
+    return (st==='Unpaid' || st==='Blocked');
+  }
+  function blockReasonFor(user){
+    if(!user) return null;
+    if(user.role==='isp' && isIspBlocked(user.isp)){
+      return 'Ye ISP Block hai! Superadmin se rabta karein.';
+    }
+    if(user.role==='staff' && isIspBlocked(user.isp)){
+      return 'Aap ka ISP Block hai! Superadmin se rabta karein.';
+    }
+    return null;
+  }
   const _doLogin = doLogin;
   doLogin = function(){
     _doLogin();
-    if(currentUser){ saveSession(); updateWho(); }
+    if(currentUser){
+      const reason = blockReasonFor(currentUser);
+      if(reason){
+        try{ document.getElementById('loginScreen').classList.add('active'); }catch(e){}
+        currentUser = null;
+        try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
+        try{ updateWho(); }catch(e){}
+        alert('⛔ ' + reason + '\n\nData safe hai, delete nahi hua. Unblock par panel wapas chalega.');
+        return;
+      }
+      saveSession(); updateWho();
+    }
   };
 
   ['loginUser','loginPass'].forEach(function(id){
@@ -3511,6 +3557,14 @@ try{refreshAddButtons();}catch(e){}
   });
   setInterval(function(){
     if(!currentUser) return;
+    try{
+      const reason = blockReasonFor(currentUser);
+      if(reason){
+        signOut();
+        alert('⛔ ' + reason + '\n\nData safe hai.');
+        return;
+      }
+    }catch(e){}
     const sess = readSession();
     if(!sess || Date.now() > sess.expiry){
       signOut();
