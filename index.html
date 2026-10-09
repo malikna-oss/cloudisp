@@ -1833,8 +1833,19 @@
                 localStorage.setItem('cloudisp_appsettings', JSON.stringify(appSettings));
             }catch(e){}
         }
+        function normalizeISPs(){
+            try{
+              if(!Array.isArray(ispsList)) ispsList=[];
+              ispsList.forEach(function(isp){
+                if(!isp.name && isp.company) isp.name=isp.company;
+                if(!isp.company && isp.name) isp.company=isp.name;
+                if(!isp.status) isp.status='Paid';
+              });
+            }catch(e){}
+        }
         function loadOffline(){
             try{
+                normalizeISPs();
                 const s=localStorage.getItem('cloudisp_subs'); if(s) subscribersList=JSON.parse(s);
                 const p=localStorage.getItem('cloudisp_payments'); if(p) paymentsList=JSON.parse(p);
                 const ii=localStorage.getItem('cloudisp_isps'); if(ii) ispsList=JSON.parse(ii);
@@ -1843,6 +1854,7 @@
                 const co=localStorage.getItem('cloudisp_complaints'); if(co) complaintsList=JSON.parse(co);
                 const sl=localStorage.getItem('cloudisp_staffledger'); if(sl) staffList=JSON.parse(sl);
                 const as=localStorage.getItem('cloudisp_appsettings'); if(as) appSettings=Object.assign(appSettings, JSON.parse(as));
+                normalizeISPs();
             }catch(e){}
         }
 
@@ -3388,11 +3400,12 @@ try{refreshAddButtons();}catch(e){}
     if(lastRaw[k] === v) return;
     lastRaw[k] = v;
     try{ pending[k] = JSON.parse(v); }catch(e){ pending[k] = v; }
+    try{ origSet.call(localStorage, 'cisp_meta_'+k, String(Date.now())); }catch(e){}
     schedule(500);
   };
 
   async function hydrate(){
-    const { data, error } = await sb.from(TABLE).select('key,value');
+    const { data, error } = await sb.from(TABLE).select('key,value,updated_at');
     if(error){
       console.error('Cloud load error:', error.message);
       badge('☁️ Cloud se connect nahi hua: ' + error.message);
@@ -3401,7 +3414,8 @@ try{refreshAddButtons();}catch(e){}
     }
     badge('☁️ Cloud connected', true);
     const remote = {};
-    data.forEach(r => { remote[r.key] = r.value; });
+    const remoteTsMap = {};
+    data.forEach(r => { remote[r.key] = r.value; if(r.updated_at) remoteTsMap[r.key] = r.updated_at; });
 // v2 data migration
 const v2Migrations = {
   cloudisp_subs_v2: 'cloudisp_subs',
@@ -3432,26 +3446,42 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
     remote[newKey] = oldValue;
   }
 });
-    // 1) Cloud -> this device (cloud wins)
+    // 1) FIX: last-write-wins (pehle cloud-wins tha -> naya data mit jata tha, deleted wapas aa jata tha)
     let changed = false;
     hydrating = true;
+    function localTs(k){ try{ return +(localStorage.getItem('cisp_meta_'+k)||'0'); }catch(e){ return 0; } }
     Object.keys(remote).forEach(k => {
       if(k.indexOf(PREFIX) !== 0) return;
-      let localV = null;
-      try{ const s = localStorage.getItem(k); if(s !== null) localV = JSON.parse(s); }catch(e){}
-      if(localV === null || canon(localV) !== canon(remote[k])){
+      if(k in pending){ try{ lastRaw[k] = localStorage.getItem(k); }catch(e){} return; }
+      let localV = null; let localRaw = null;
+      try{ localRaw = localStorage.getItem(k); if(localRaw !== null) localV = JSON.parse(localRaw); }catch(e){}
+      if(localV === null){
         const s = JSON.stringify(remote[k]);
         origSet.call(localStorage, k, s);
         lastRaw[k] = s;
+        try{ origSet.call(localStorage, 'cisp_meta_'+k, String(Date.now())); }catch(e){}
         changed = true;
+      } else if(canon(localV) !== canon(remote[k])){
+        let remoteTs = 0;
+        try{ if(remoteTsMap && remoteTsMap[k]) remoteTs = Date.parse(remoteTsMap[k]); }catch(e){}
+        const lts = localTs(k);
+        if(remoteTs && lts && lts > remoteTs){
+          try{ pending[k] = localV; }catch(e){}
+          lastRaw[k] = localRaw;
+        } else if(k in pending){
+          lastRaw[k] = localRaw;
+        } else {
+          const s = JSON.stringify(remote[k]);
+          origSet.call(localStorage, k, s);
+          lastRaw[k] = s;
+          changed = true;
+        }
       } else {
         lastRaw[k] = localStorage.getItem(k);
       }
     });
     hydrating = false;
-    try{
-      Object.keys(remote).forEach(function(k){ if(k in pending) delete pending[k]; });
-    }catch(e){}
+    // NOTE: pending ko yahan delete NAHI karte (pehle yahi line naya add mitati thi)
 
     if(changed && typeof window.cloudispApplyRemote === 'function'){
       try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
@@ -3464,10 +3494,10 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
       }
     }
 
-    // 2) This device -> cloud (only keys the cloud doesn't have yet)
+    // 2) This device -> cloud (missing keys, taake naya add/delete cloud jaye)
     for(let i = 0; i < localStorage.length; i++){
       const k = localStorage.key(i);
-      if(k && k.indexOf(PREFIX) === 0 && !(k in remote)){
+      if(k && k.indexOf(PREFIX) === 0 && !(k in remote) && !(k in pending)){
         const raw = localStorage.getItem(k);
         try{ pending[k] = JSON.parse(raw); lastRaw[k] = raw; }catch(e){}
       }
@@ -4747,5 +4777,5 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
     });
   }
 </script>
-</body>
+<script>window.__CF$cv$params={r:'a480a783def6581a',t:'MTc5MTU4MzE4Ng==',u:'01a122adf2b176df946e8a29ad20ec2c',ut:'DYUdOF5Em_I3kRbRHo9DIDw5H3xuNLVi7SoKPSf_uaQ-1791583187-1.2.1.1-TSxX5YliyWODaHZ2I.p6Vfd3_Ra.bwgzj26cdFac3Ez91S27CMftHdBfrvahjePFWvxYLhwZ9u7K.6B1Ue3Xa13H.JDTSE62FQJF7BA19UE',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
