@@ -2116,7 +2116,40 @@
         };
         toggleIspPass = function(i,pass){ const el=document.getElementById('ispPass'+i); if(!el) return; const h=el.innerText.trim(); if(h==='••••••'||h==='......'){ el.innerText=pass||'-'; el.classList.remove('hidden-pass'); } else { el.innerText='••••••'; el.classList.add('hidden-pass'); } };
         copyIspLogin = function(i){ const isp=ispsList[i]; const txt='ISP: '+isp.name+' | Login: '+isp.mobile+' | Password: '+isp.pass; try{navigator.clipboard.writeText(txt); alert('Login copy ho gaya:\\n'+txt);}catch(e){ prompt('Copy kar lein:',txt); } };
-        deleteISP = function(i){ if(!isOwner()) return; if(!confirm('ISP delete karen? Us ke users nahi delete honge.'))return; const nm=ispsList[i].name; ispsList.splice(i,1); systemUsers=systemUsers.filter(u=>!(u.role==='isp'&&u.isp===nm)); saveUsers(); saveOffline(); renderISPs(); };
+deleteISP = function(i){
+  if(!isOwner()) return;
+
+  const isp = ispsList[i];
+  if(!isp) return;
+
+  if(!confirm('ISP, us ka login aur us ke staff accounts delete karen?')){
+    return;
+  }
+
+  const ispName = isp.name;
+
+  // ISP panel/list se delete
+  ispsList.splice(i, 1);
+
+  // ISP login aur us ISP ke staff login delete
+  systemUsers = systemUsers.filter(function(user){
+    return !(
+      (user.role === 'isp' &&
+       (user.isp === ispName || user.company === ispName)) ||
+      (user.role === 'staff' && user.isp === ispName)
+    );
+  });
+
+  // Browser aur Supabase cloud dono mein save
+  saveUsers();
+  saveOffline();
+
+  renderISPs();
+  renderAllStaff();
+
+  alert('ISP, us ka login aur assigned staff delete ho gaye.');
+};
+
 
         // ---- Excel: Template + CSV + XLSX (SheetJS) ----
         function refreshExcelIspSelect(){
@@ -3400,34 +3433,6 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
     remote[newKey] = oldValue;
   }
 });
-// Purane ISP aur staff users ko current users ke saath merge karein
-if (
-  Array.isArray(remote.cloudisp_users_v2) &&
-  Array.isArray(remote.cloudisp_users)
-) {
-  const currentUsers = remote.cloudisp_users;
-
-  const existingMobiles = new Set(
-    currentUsers.map(function(user) {
-      return user.mobile;
-    })
-  );
-
-  const oldIspStaffUsers = remote.cloudisp_users_v2.filter(function(user) {
-    return (
-      (user.role === 'isp' || user.role === 'staff') &&
-      user.mobile &&
-      !existingMobiles.has(user.mobile)
-    );
-  });
-
-  if (oldIspStaffUsers.length > 0) {
-    remote.cloudisp_users =
-      currentUsers.concat(oldIspStaffUsers);
-
-  }
-}
-
     // 1) Cloud -> this device (cloud wins)
     let changed = false;
     hydrating = true;
@@ -3448,7 +3453,6 @@ if (
     try{
       Object.keys(remote).forEach(function(k){ if(k in pending) delete pending[k]; });
     }catch(e){}
-pending.cloudisp_users = remote.cloudisp_users;
 
     if(changed && typeof window.cloudispApplyRemote === 'function'){
       try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
@@ -3491,12 +3495,12 @@ pending.cloudisp_users = remote.cloudisp_users;
   'use strict';
   const SESSION_KEY = 'cisp_session';   // (cloudisp_ se shuru nahi => cloud par sync nahi hota, har device ka apna session)
   const TAB_KEY     = 'cisp_tab';
-  const TTL         = 30 * 60 * 1000;   // 30 minute
+  const TTL         = 30 * 60 * 1000;   // 15 minute
   let restored = false;
   // Session ab har TAB ka alag hai (sessionStorage): naya tab = login page, refresh = wahi page
   try{ localStorage.removeItem(SESSION_KEY); localStorage.removeItem(TAB_KEY); }catch(e){}
 
-  // ---------- Session (30 min, activity par barhta hai) ----------
+  // ---------- Session (15 min, activity par barhta hai) ----------
   function saveSession(){
     if(!currentUser) return;
     try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({ mobile: currentUser.mobile, expiry: Date.now() + TTL })); }catch(e){}
@@ -3608,7 +3612,7 @@ pending.cloudisp_users = remote.cloudisp_users;
   window.addEventListener('cloudisp-ready', restoreSession);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restoreSession); else setTimeout(restoreSession, 0);
 
-  // activity => 30 min dobara shuru
+  // activity => 15 min dobara shuru
   let lastTouch = 0;
   function activity(){
     if(!currentUser) return;
@@ -3633,7 +3637,7 @@ pending.cloudisp_users = remote.cloudisp_users;
     const sess = readSession();
     if(!sess || Date.now() > sess.expiry){
       signOut();
-      alert('30 minute ka session khatam ho gaya. Dobara login karein.');
+      alert('15 minute ka session khatam ho gaya. Dobara login karein.');
     }
   }, 15000);
   // doosre tab me logout ho to yahan bhi
@@ -3652,7 +3656,7 @@ pending.cloudisp_users = remote.cloudisp_users;
   const PRESETS = {
     'Collector':     { p:{view:1,collect:1,whatsapp:1}, f:['f_name','f_package','f_fee','f_balance','f_mobile','f_duedate','f_area','f_gps','f_address'] },
     'Technician':    { p:{view:1,add:1,edit:1,complaints:1}, fx:['f_fee','f_balance','f_install'] },
-    'Billing Clerk': { p:{view:1,add:1,edit:1,collect:1,whatsapp:1,complaints:1} },
+    'helper': { p:{view:1,add:1,edit:1,collect:1,whatsapp:1,complaints:1} },
     'Support':       { p:{view:1,whatsapp:1,complaints:1}, f:['f_name','f_mobile','f_package','f_area','f_address','f_gps'] },
     'Manager':       { p:{view:1,add:1,edit:1,collect:1,del:1,whatsapp:1,complaints:1} }
   };
