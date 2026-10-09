@@ -3369,6 +3369,37 @@ try{refreshAddButtons();}catch(e){}
     badge('☁️ Cloud connected', true);
     const remote = {};
     data.forEach(r => { remote[r.key] = r.value; });
+// v2 data migration
+const v2Migrations = {
+  cloudisp_subs_v2: 'cloudisp_subs',
+  cloudisp_pay_v2: 'cloudisp_payments',
+  cloudisp_isps_v2: 'cloudisp_isps',
+  cloudisp_pkg_v2: 'cloudisp_pkgs',
+  cloudisp_area_v2: 'cloudisp_areas',
+  cloudisp_comp_v2: 'cloudisp_complaints',
+  cloudisp_ledger_v2: 'cloudisp_staffledger',
+  cloudisp_users_v2: 'cloudisp_users'
+};
+
+Object.keys(v2Migrations).forEach(function(oldKey) {
+  const newKey = v2Migrations[oldKey];
+  const oldValue = remote[oldKey];
+  const currentValue = remote[newKey];
+
+  const oldHasData =
+    oldValue !== undefined &&
+    oldValue !== null &&
+    (!Array.isArray(oldValue) || oldValue.length > 0);
+
+  const currentIsEmpty =
+    currentValue === undefined ||
+    currentValue === null ||
+    (Array.isArray(currentValue) && currentValue.length === 0);
+
+  if (oldHasData && currentIsEmpty) {
+    remote[newKey] = oldValue;
+  }
+});
 
     // 1) Cloud -> this device (cloud wins)
     let changed = false;
