@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
     <title>CloudISP -   Billing & Management System</title>
-    <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         * {
@@ -3363,6 +3363,12 @@ try{refreshAddButtons();}catch(e){}
     badge('☁️ Cloud connected', true);
     const remote = {};
     data.forEach(r => { remote[r.key] = r.value; });
+    // Single-version: _v2 wali cloud rows ko apply hi na karo, delete kardo
+    try{
+      const v2keys = Object.keys(remote).filter(function(k){ return /_v2$/.test(k); });
+      v2keys.forEach(function(k){ delete remote[k]; });
+      if(v2keys.length && typeof window.__cloudispDeleteKeys === 'function'){ window.__cloudispDeleteKeys(v2keys); }
+    }catch(e){}
 
     // 1) Cloud -> this device (cloud wins)
     let changed = false;
@@ -3387,14 +3393,8 @@ try{refreshAddButtons();}catch(e){}
 
     if(changed && typeof window.cloudispApplyRemote === 'function'){
       try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
-    } else if(changed){
-      const last = +sessionStorage.getItem('cloudisp_reload_ts') || 0;
-      if(Date.now() - last > 5000){
-        sessionStorage.setItem('cloudisp_reload_ts', String(Date.now()));
-        location.reload();   // app ko cloud wale data ke saath dobara load karo
-        return;
-      }
     }
+    // NOTE: location.reload hata diya — reload loop se "kabhi show kabhi ghaib" hota tha. Ab seedha view refresh hota hai.
 
     // 2) This device -> cloud (only keys the cloud doesn't have yet)
     for(let i = 0; i < localStorage.length; i++){
@@ -3415,6 +3415,37 @@ try{refreshAddButtons();}catch(e){}
       try{ if(!window.__cloudispReady) return; if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
     }, 2000);
   }
+
+  // Single-version: cloud se purani _v2 rows delete karo (kabhi wapas na aayein)
+  window.__cloudispDeleteKeys = async function(keys){
+    try{
+      if(!keys || !keys.length) return;
+      const { error } = await sb.from(TABLE).delete().in('key', keys);
+      if(error) console.log('v2 cloud delete:', error.message);
+      else console.log('v2 cloud delete done:', keys.join(','));
+    }catch(e){ console.log('v2 cloud delete err', e); }
+  };
+
+  // Cloud me agar _v2 keys hon to unhe ignore karo + delete queue me dalo (single version)
+  window.__cloudispPurgeV2Cloud = async function(remoteKeys){
+    try{
+      const v2 = (remoteKeys||[]).filter(function(k){ return k.slice(-3) === '_v2' || k.indexOf('_v2') >= 0; });
+      if(v2.length) await window.__cloudispDeleteKeys(v2);
+    }catch(e){}
+  };
+
+  // OFFLINE -> ONLINE: net wapas aate hi pending data cloud me bhejo + taaza data lao
+  window.addEventListener('online', function(){
+    try{ badge('🌐 Online — sync ho raha...', true); }catch(e){}
+    try{ if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
+    // localStorage hook ne pending me daal diya hoga, flush karo
+    try{ schedule(300); }catch(e){}
+    // 1.5s baad cloud se taaza data bhi le aao (doosre mobile ka data)
+    setTimeout(function(){ try{ hydrate(); }catch(e){} }, 1500);
+  });
+  window.addEventListener('offline', function(){
+    try{ badge('⚠️ Offline — data phone me save rahega'); }catch(e){}
+  });
 
   hydrate();
 })();
@@ -3839,6 +3870,46 @@ function cleanupSeeds(){
   }catch(e){ console.log('cleanup',e); }
 }
 
+/* ---------------- SINGLE VERSION: purani _v2 duplicate keys hamesha ke liye khatam ----------------
+   Sirf ek hi version rakho: cloudisp_isps, cloudisp_subs, cloudisp_payments ...
+   Agar main key khaali hai aur _v2 me data hai to pehle copy karo, phir _v2 delete karo.
+   Is se "kabhi show kabhi ghaib" wala masla khatam. */
+function purgeV2Keys(){
+  var map = {
+    'cloudisp_subs_v2': 'cloudisp_subs',
+    'cloudisp_isps_v2': 'cloudisp_isps',
+    'cloudisp_pay_v2': 'cloudisp_payments',
+    'cloudisp_pkg_v2': 'cloudisp_pkgs',
+    'cloudisp_comp_v2': 'cloudisp_complaints',
+    'cloudisp_users_v2': 'cloudisp_users',
+    'cloudisp_area_v2': 'cloudisp_areas',
+    'cloudisp_ledger_v2': 'cloudisp_staffledger',
+    'cloudisp_settings_v2': 'cloudisp_appsettings'
+  };
+  var deleted = [];
+  try{
+    Object.keys(map).forEach(function(v2){
+      var main = map[v2];
+      var v2raw = null, mainRaw = null;
+      try{ v2raw = localStorage.getItem(v2); }catch(e){}
+      try{ mainRaw = localStorage.getItem(main); }catch(e){}
+      if(v2raw !== null && v2raw !== '' && (mainRaw === null || mainRaw === '' || mainRaw === '[]' || mainRaw === '{}')){
+        // main khaali hai -> v2 ka data bacha lo
+        try{ localStorage.setItem(main, v2raw); }catch(e){}
+      }
+      if(v2raw !== null){ try{ localStorage.removeItem(v2); deleted.push(v2); }catch(e){} }
+    });
+    // cloud (Supabase) se bhi _v2 rows delete karne ke liye nishan chhoro
+    if(deleted.length){
+      try{ localStorage.setItem('cloudisp_cleanup_v2purge', JSON.stringify({at: new Date().toISOString(), keys: deleted})); }catch(e){}
+      if(typeof window.__cloudispDeleteKeys === 'function'){ try{ window.__cloudispDeleteKeys(deleted); }catch(e){} }
+      try{ if(typeof loadOffline === 'function') loadOffline(); }catch(e){}
+      try{ if(typeof saveOffline === 'function' && window.__cloudispReady) saveOffline(); }catch(e){}
+      console.log('Single-version purge done:', deleted.join(','));
+    }
+  }catch(e){ console.log('purgeV2', e); }
+}
+
 /* ---------------- Re-load data (cloud / other tab) without page reload ---------------- */
 function refreshViews(){
   if(!currentUser) return;
@@ -3862,8 +3933,10 @@ window.addEventListener('storage', function(e){
   if(e.storageArea!==localStorage || !e.key || e.key.indexOf('cloudisp_')!==0) return;
   clearTimeout(syncT); syncT=setTimeout(window.cloudispApplyRemote, 300);
 });
-window.addEventListener('cloudisp-ready', function(){ cleanupSeeds(); });
-if(window.__cloudispReady) setTimeout(cleanupSeeds, 0);
+window.addEventListener('cloudisp-ready', function(){ try{ purgeV2Keys(); }catch(e){} cleanupSeeds(); });
+if(window.__cloudispReady) setTimeout(function(){ try{ purgeV2Keys(); }catch(e){} cleanupSeeds(); }, 0);
+// Page khulte hi turant purani duplicate keys saaf karo (single version)
+try{ purgeV2Keys(); }catch(e){}
 
 /* ---------------- Sign out: screen saaf karo ---------------- */
 const _signOutV2=signOut;
@@ -4673,11 +4746,56 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 })();
 </script>
 <script>
+  // PWA: mobile app install + offline support (phone me app ki tarah chalega)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("/sw.js");
+      navigator.serviceWorker.register("sw.js", { scope: "./" }).then(function(reg){
+        // naya version aate hi turant activate karo
+        if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        reg.addEventListener("updatefound", function(){
+          var nw = reg.installing;
+          if (nw) nw.addEventListener("statechange", function(){
+            if (nw.state === "installed" && navigator.serviceWorker.controller) {
+              console.log("Naya version ready — refresh par apply hoga");
+            }
+          });
+        });
+      }).catch(function(e){ console.log("SW register fail:", e); });
     });
+    // naya SW aaye to page reload karke naya version lao (loop se bachne ke liye 1 dafa)
+    (function(){
+      var reloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function(){
+        if (reloaded) return; reloaded = true;
+        try{ sessionStorage.setItem("cloudisp_sw_updated", String(Date.now())); }catch(e){}
+        window.location.reload();
+      });
+    })();
   }
+  // Install prompt: Android Chrome me "App Install karo" banner
+  (function(){
+    var deferred = null;
+    window.addEventListener("beforeinstallprompt", function(e){
+      e.preventDefault(); deferred = e;
+      try{
+        var bar = document.getElementById("offlineBar");
+        if (bar && !document.getElementById("pwaInstallBtn")) {
+          var b = document.createElement("button");
+          b.id = "pwaInstallBtn";
+          b.textContent = "📲 App Install karo";
+          b.style.cssText = "margin-left:10px;background:#fff;color:#d97706;border:none;border-radius:6px;padding:4px 10px;font-weight:bold;cursor:pointer;";
+          b.onclick = function(){
+            if (deferred) { deferred.prompt(); deferred.userChoice.then(function(){ deferred = null; try{ b.remove(); }catch(e){} }); }
+          };
+          bar.appendChild(b);
+          bar.classList.add("show");
+          bar.firstChild.textContent = "📲 CloudISP ko mobile app ki tarah install karo — offline bhi chalega ";
+          setTimeout(function(){ try{ if(document.getElementById("pwaInstallBtn")) bar.classList.remove("show"); }catch(e){} }, 12000);
+        }
+      }catch(e){}
+    });
+    window.addEventListener("appinstalled", function(){ deferred = null; try{ var x=document.getElementById("pwaInstallBtn"); if(x) x.remove(); }catch(e){} console.log("PWA installed"); });
+  })();
 </script>
-</body>
+<script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
