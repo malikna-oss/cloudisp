@@ -1,5 +1,5 @@
 /* CloudISP Service Worker - Mobile App (v2) */
-const CACHE_NAME = "cloudisp-cache-v2";
+const CACHE_NAME = "cloudisp-cache-v3";
 
 const FILES_TO_CACHE = [
   "/",
