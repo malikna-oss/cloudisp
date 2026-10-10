@@ -6,15 +6,9 @@
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
     <title>CloudISP -   Billing & Management System</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="CloudISP">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="CloudISP Billing & Management System - mobile app">
+    <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         * {
             margin: 0;
@@ -1833,19 +1827,8 @@
                 localStorage.setItem('cloudisp_appsettings', JSON.stringify(appSettings));
             }catch(e){}
         }
-        function normalizeISPs(){
-            try{
-              if(!Array.isArray(ispsList)) ispsList=[];
-              ispsList.forEach(function(isp){
-                if(!isp.name && isp.company) isp.name=isp.company;
-                if(!isp.company && isp.name) isp.company=isp.name;
-                if(!isp.status) isp.status='Paid';
-              });
-            }catch(e){}
-        }
         function loadOffline(){
             try{
-                normalizeISPs();
                 const s=localStorage.getItem('cloudisp_subs'); if(s) subscribersList=JSON.parse(s);
                 const p=localStorage.getItem('cloudisp_payments'); if(p) paymentsList=JSON.parse(p);
                 const ii=localStorage.getItem('cloudisp_isps'); if(ii) ispsList=JSON.parse(ii);
@@ -1854,7 +1837,6 @@
                 const co=localStorage.getItem('cloudisp_complaints'); if(co) complaintsList=JSON.parse(co);
                 const sl=localStorage.getItem('cloudisp_staffledger'); if(sl) staffList=JSON.parse(sl);
                 const as=localStorage.getItem('cloudisp_appsettings'); if(as) appSettings=Object.assign(appSettings, JSON.parse(as));
-                normalizeISPs();
             }catch(e){}
         }
 
@@ -2128,40 +2110,7 @@
         };
         toggleIspPass = function(i,pass){ const el=document.getElementById('ispPass'+i); if(!el) return; const h=el.innerText.trim(); if(h==='••••••'||h==='......'){ el.innerText=pass||'-'; el.classList.remove('hidden-pass'); } else { el.innerText='••••••'; el.classList.add('hidden-pass'); } };
         copyIspLogin = function(i){ const isp=ispsList[i]; const txt='ISP: '+isp.name+' | Login: '+isp.mobile+' | Password: '+isp.pass; try{navigator.clipboard.writeText(txt); alert('Login copy ho gaya:\\n'+txt);}catch(e){ prompt('Copy kar lein:',txt); } };
-deleteISP = function(i){
-  if(!isOwner()) return;
-
-  const isp = ispsList[i];
-  if(!isp) return;
-
-  if(!confirm('ISP, us ka login aur us ke staff accounts delete karen?')){
-    return;
-  }
-
-  const ispName = isp.name;
-
-  // ISP panel/list se delete
-  ispsList.splice(i, 1);
-
-  // ISP login aur us ISP ke staff login delete
-  systemUsers = systemUsers.filter(function(user){
-    return !(
-      (user.role === 'isp' &&
-       (user.isp === ispName || user.company === ispName)) ||
-      (user.role === 'staff' && user.isp === ispName)
-    );
-  });
-
-  // Browser aur Supabase cloud dono mein save
-  saveUsers();
-  saveOffline();
-
-  renderISPs();
-  renderAllStaff();
-
-  alert('ISP, us ka login aur assigned staff delete ho gaye.');
-};
-
+        deleteISP = function(i){ if(!isOwner()) return; if(!confirm('ISP delete karen? Us ke users nahi delete honge.'))return; const nm=ispsList[i].name; ispsList.splice(i,1); systemUsers=systemUsers.filter(u=>!(u.role==='isp'&&u.isp===nm)); saveUsers(); saveOffline(); renderISPs(); };
 
         // ---- Excel: Template + CSV + XLSX (SheetJS) ----
         function refreshExcelIspSelect(){
@@ -3400,12 +3349,11 @@ try{refreshAddButtons();}catch(e){}
     if(lastRaw[k] === v) return;
     lastRaw[k] = v;
     try{ pending[k] = JSON.parse(v); }catch(e){ pending[k] = v; }
-    try{ origSet.call(localStorage, 'cisp_meta_'+k, String(Date.now())); }catch(e){}
     schedule(500);
   };
 
   async function hydrate(){
-    const { data, error } = await sb.from(TABLE).select('key,value,updated_at');
+    const { data, error } = await sb.from(TABLE).select('key,value');
     if(error){
       console.error('Cloud load error:', error.message);
       badge('☁️ Cloud se connect nahi hua: ' + error.message);
@@ -3414,90 +3362,44 @@ try{refreshAddButtons();}catch(e){}
     }
     badge('☁️ Cloud connected', true);
     const remote = {};
-    const remoteTsMap = {};
-    data.forEach(r => { remote[r.key] = r.value; if(r.updated_at) remoteTsMap[r.key] = r.updated_at; });
-// v2 data migration
-const v2Migrations = {
-  cloudisp_subs_v2: 'cloudisp_subs',
-  cloudisp_pay_v2: 'cloudisp_payments',
-  cloudisp_isps_v2: 'cloudisp_isps',
-  cloudisp_pkg_v2: 'cloudisp_pkgs',
-  cloudisp_area_v2: 'cloudisp_areas',
-  cloudisp_comp_v2: 'cloudisp_complaints',
-  cloudisp_ledger_v2: 'cloudisp_staffledger',
-};
+    data.forEach(r => { remote[r.key] = r.value; });
+    // Single-version: _v2 wali cloud rows ko apply hi na karo, delete kardo
+    try{
+      const v2keys = Object.keys(remote).filter(function(k){ return /_v2$/.test(k); });
+      v2keys.forEach(function(k){ delete remote[k]; });
+      if(v2keys.length && typeof window.__cloudispDeleteKeys === 'function'){ window.__cloudispDeleteKeys(v2keys); }
+    }catch(e){}
 
-Object.keys(v2Migrations).forEach(function(oldKey) {
-  const newKey = v2Migrations[oldKey];
-  const oldValue = remote[oldKey];
-  const currentValue = remote[newKey];
-
-  const oldHasData =
-    oldValue !== undefined &&
-    oldValue !== null &&
-    (!Array.isArray(oldValue) || oldValue.length > 0);
-
-  const currentIsEmpty =
-    currentValue === undefined ||
-    currentValue === null ||
-    (Array.isArray(currentValue) && currentValue.length === 0);
-
-  if (oldHasData && currentIsEmpty) {
-    remote[newKey] = oldValue;
-  }
-});
-    // 1) FIX: last-write-wins (pehle cloud-wins tha -> naya data mit jata tha, deleted wapas aa jata tha)
+    // 1) Cloud -> this device (cloud wins)
     let changed = false;
     hydrating = true;
-    function localTs(k){ try{ return +(localStorage.getItem('cisp_meta_'+k)||'0'); }catch(e){ return 0; } }
     Object.keys(remote).forEach(k => {
       if(k.indexOf(PREFIX) !== 0) return;
-      if(k in pending){ try{ lastRaw[k] = localStorage.getItem(k); }catch(e){} return; }
-      let localV = null; let localRaw = null;
-      try{ localRaw = localStorage.getItem(k); if(localRaw !== null) localV = JSON.parse(localRaw); }catch(e){}
-      if(localV === null){
+      let localV = null;
+      try{ const s = localStorage.getItem(k); if(s !== null) localV = JSON.parse(s); }catch(e){}
+      if(localV === null || canon(localV) !== canon(remote[k])){
         const s = JSON.stringify(remote[k]);
         origSet.call(localStorage, k, s);
         lastRaw[k] = s;
-        try{ origSet.call(localStorage, 'cisp_meta_'+k, String(Date.now())); }catch(e){}
         changed = true;
-      } else if(canon(localV) !== canon(remote[k])){
-        let remoteTs = 0;
-        try{ if(remoteTsMap && remoteTsMap[k]) remoteTs = Date.parse(remoteTsMap[k]); }catch(e){}
-        const lts = localTs(k);
-        if(remoteTs && lts && lts > remoteTs){
-          try{ pending[k] = localV; }catch(e){}
-          lastRaw[k] = localRaw;
-        } else if(k in pending){
-          lastRaw[k] = localRaw;
-        } else {
-          const s = JSON.stringify(remote[k]);
-          origSet.call(localStorage, k, s);
-          lastRaw[k] = s;
-          changed = true;
-        }
       } else {
         lastRaw[k] = localStorage.getItem(k);
       }
     });
     hydrating = false;
-    // NOTE: pending ko yahan delete NAHI karte (pehle yahi line naya add mitati thi)
+    try{
+      Object.keys(remote).forEach(function(k){ if(k in pending) delete pending[k]; });
+    }catch(e){}
 
     if(changed && typeof window.cloudispApplyRemote === 'function'){
       try{ window.cloudispApplyRemote(); }catch(e){ console.log(e); }
-    } else if(changed){
-      const last = +sessionStorage.getItem('cloudisp_reload_ts') || 0;
-      if(Date.now() - last > 5000){
-        sessionStorage.setItem('cloudisp_reload_ts', String(Date.now()));
-        location.reload();   // app ko cloud wale data ke saath dobara load karo
-        return;
-      }
     }
+    // NOTE: location.reload hata diya — reload loop se "kabhi show kabhi ghaib" hota tha. Ab seedha view refresh hota hai.
 
-    // 2) This device -> cloud (missing keys, taake naya add/delete cloud jaye)
+    // 2) This device -> cloud (only keys the cloud doesn't have yet)
     for(let i = 0; i < localStorage.length; i++){
       const k = localStorage.key(i);
-      if(k && k.indexOf(PREFIX) === 0 && !(k in remote) && !(k in pending)){
+      if(k && k.indexOf(PREFIX) === 0 && !(k in remote)){
         const raw = localStorage.getItem(k);
         try{ pending[k] = JSON.parse(raw); lastRaw[k] = raw; }catch(e){}
       }
@@ -3514,6 +3416,37 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
     }, 2000);
   }
 
+  // Single-version: cloud se purani _v2 rows delete karo (kabhi wapas na aayein)
+  window.__cloudispDeleteKeys = async function(keys){
+    try{
+      if(!keys || !keys.length) return;
+      const { error } = await sb.from(TABLE).delete().in('key', keys);
+      if(error) console.log('v2 cloud delete:', error.message);
+      else console.log('v2 cloud delete done:', keys.join(','));
+    }catch(e){ console.log('v2 cloud delete err', e); }
+  };
+
+  // Cloud me agar _v2 keys hon to unhe ignore karo + delete queue me dalo (single version)
+  window.__cloudispPurgeV2Cloud = async function(remoteKeys){
+    try{
+      const v2 = (remoteKeys||[]).filter(function(k){ return k.slice(-3) === '_v2' || k.indexOf('_v2') >= 0; });
+      if(v2.length) await window.__cloudispDeleteKeys(v2);
+    }catch(e){}
+  };
+
+  // OFFLINE -> ONLINE: net wapas aate hi pending data cloud me bhejo + taaza data lao
+  window.addEventListener('online', function(){
+    try{ badge('🌐 Online — sync ho raha...', true); }catch(e){}
+    try{ if(typeof saveOffline === 'function') saveOffline(); }catch(e){}
+    // localStorage hook ne pending me daal diya hoga, flush karo
+    try{ schedule(300); }catch(e){}
+    // 1.5s baad cloud se taaza data bhi le aao (doosre mobile ka data)
+    setTimeout(function(){ try{ hydrate(); }catch(e){} }, 1500);
+  });
+  window.addEventListener('offline', function(){
+    try{ badge('⚠️ Offline — data phone me save rahega'); }catch(e){}
+  });
+
   hydrate();
 })();
 </script>
@@ -3524,12 +3457,12 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
   'use strict';
   const SESSION_KEY = 'cisp_session';   // (cloudisp_ se shuru nahi => cloud par sync nahi hota, har device ka apna session)
   const TAB_KEY     = 'cisp_tab';
-  const TTL         = 30 * 60 * 1000;   // 15 minute
+  const TTL         = 30 * 60 * 1000;   // 30 minute
   let restored = false;
   // Session ab har TAB ka alag hai (sessionStorage): naya tab = login page, refresh = wahi page
   try{ localStorage.removeItem(SESSION_KEY); localStorage.removeItem(TAB_KEY); }catch(e){}
 
-  // ---------- Session (15 min, activity par barhta hai) ----------
+  // ---------- Session (30 min, activity par barhta hai) ----------
   function saveSession(){
     if(!currentUser) return;
     try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({ mobile: currentUser.mobile, expiry: Date.now() + TTL })); }catch(e){}
@@ -3641,7 +3574,7 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
   window.addEventListener('cloudisp-ready', restoreSession);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restoreSession); else setTimeout(restoreSession, 0);
 
-  // activity => 15 min dobara shuru
+  // activity => 30 min dobara shuru
   let lastTouch = 0;
   function activity(){
     if(!currentUser) return;
@@ -3666,7 +3599,7 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
     const sess = readSession();
     if(!sess || Date.now() > sess.expiry){
       signOut();
-      alert('15 minute ka session khatam ho gaya. Dobara login karein.');
+      alert('30 minute ka session khatam ho gaya. Dobara login karein.');
     }
   }, 15000);
   // doosre tab me logout ho to yahan bhi
@@ -3685,7 +3618,7 @@ Object.keys(v2Migrations).forEach(function(oldKey) {
   const PRESETS = {
     'Collector':     { p:{view:1,collect:1,whatsapp:1}, f:['f_name','f_package','f_fee','f_balance','f_mobile','f_duedate','f_area','f_gps','f_address'] },
     'Technician':    { p:{view:1,add:1,edit:1,complaints:1}, fx:['f_fee','f_balance','f_install'] },
-    'helper': { p:{view:1,add:1,edit:1,collect:1,whatsapp:1,complaints:1} },
+    'Billing Clerk': { p:{view:1,add:1,edit:1,collect:1,whatsapp:1,complaints:1} },
     'Support':       { p:{view:1,whatsapp:1,complaints:1}, f:['f_name','f_mobile','f_package','f_area','f_address','f_gps'] },
     'Manager':       { p:{view:1,add:1,edit:1,collect:1,del:1,whatsapp:1,complaints:1} }
   };
@@ -3937,6 +3870,46 @@ function cleanupSeeds(){
   }catch(e){ console.log('cleanup',e); }
 }
 
+/* ---------------- SINGLE VERSION: purani _v2 duplicate keys hamesha ke liye khatam ----------------
+   Sirf ek hi version rakho: cloudisp_isps, cloudisp_subs, cloudisp_payments ...
+   Agar main key khaali hai aur _v2 me data hai to pehle copy karo, phir _v2 delete karo.
+   Is se "kabhi show kabhi ghaib" wala masla khatam. */
+function purgeV2Keys(){
+  var map = {
+    'cloudisp_subs_v2': 'cloudisp_subs',
+    'cloudisp_isps_v2': 'cloudisp_isps',
+    'cloudisp_pay_v2': 'cloudisp_payments',
+    'cloudisp_pkg_v2': 'cloudisp_pkgs',
+    'cloudisp_comp_v2': 'cloudisp_complaints',
+    'cloudisp_users_v2': 'cloudisp_users',
+    'cloudisp_area_v2': 'cloudisp_areas',
+    'cloudisp_ledger_v2': 'cloudisp_staffledger',
+    'cloudisp_settings_v2': 'cloudisp_appsettings'
+  };
+  var deleted = [];
+  try{
+    Object.keys(map).forEach(function(v2){
+      var main = map[v2];
+      var v2raw = null, mainRaw = null;
+      try{ v2raw = localStorage.getItem(v2); }catch(e){}
+      try{ mainRaw = localStorage.getItem(main); }catch(e){}
+      if(v2raw !== null && v2raw !== '' && (mainRaw === null || mainRaw === '' || mainRaw === '[]' || mainRaw === '{}')){
+        // main khaali hai -> v2 ka data bacha lo
+        try{ localStorage.setItem(main, v2raw); }catch(e){}
+      }
+      if(v2raw !== null){ try{ localStorage.removeItem(v2); deleted.push(v2); }catch(e){} }
+    });
+    // cloud (Supabase) se bhi _v2 rows delete karne ke liye nishan chhoro
+    if(deleted.length){
+      try{ localStorage.setItem('cloudisp_cleanup_v2purge', JSON.stringify({at: new Date().toISOString(), keys: deleted})); }catch(e){}
+      if(typeof window.__cloudispDeleteKeys === 'function'){ try{ window.__cloudispDeleteKeys(deleted); }catch(e){} }
+      try{ if(typeof loadOffline === 'function') loadOffline(); }catch(e){}
+      try{ if(typeof saveOffline === 'function' && window.__cloudispReady) saveOffline(); }catch(e){}
+      console.log('Single-version purge done:', deleted.join(','));
+    }
+  }catch(e){ console.log('purgeV2', e); }
+}
+
 /* ---------------- Re-load data (cloud / other tab) without page reload ---------------- */
 function refreshViews(){
   if(!currentUser) return;
@@ -3960,8 +3933,10 @@ window.addEventListener('storage', function(e){
   if(e.storageArea!==localStorage || !e.key || e.key.indexOf('cloudisp_')!==0) return;
   clearTimeout(syncT); syncT=setTimeout(window.cloudispApplyRemote, 300);
 });
-window.addEventListener('cloudisp-ready', function(){ cleanupSeeds(); });
-if(window.__cloudispReady) setTimeout(cleanupSeeds, 0);
+window.addEventListener('cloudisp-ready', function(){ try{ purgeV2Keys(); }catch(e){} cleanupSeeds(); });
+if(window.__cloudispReady) setTimeout(function(){ try{ purgeV2Keys(); }catch(e){} cleanupSeeds(); }, 0);
+// Page khulte hi turant purani duplicate keys saaf karo (single version)
+try{ purgeV2Keys(); }catch(e){}
 
 /* ---------------- Sign out: screen saaf karo ---------------- */
 const _signOutV2=signOut;
@@ -4481,336 +4456,7 @@ window.printSlip=function(){
   const html=document.getElementById('v3Slip').innerHTML;
   const w=window.open('','_blank','width=420,height=680');
   if(!w){ window.print(); return; }
-  w.document.write('<html><head><title>Fee Slip</title></head><body style="font-family:Arial,sans-serif;padding:16px;color:#333;">'+html+'<!-- V9 UPDATES: 9 user points -->
-<div id="ispEditModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>✏️ Edit ISP</h3><button class="close-btn" onclick="document.getElementById('ispEditModal').classList.remove('active')">&times;</button></div><input type="hidden" id="editIspIndex"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="editIspCompany"></div><div class="form-group"><label>Owner Name *</label><input id="editIspOwner"></div><div class="form-group"><label>Login Mobile Number *</label><input id="editIspMobile"></div><div class="form-group"><label>Password *</label><input id="editIspPass"></div><div class="form-group"><label>City</label><input id="editIspCity"></div><div class="form-group"><label>Address</label><input id="editIspAddr"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEditISP()">💾 Save Changes</button></div></div>
-<div id="handoverModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🤝 Cash Handover</h3><button class="close-btn" onclick="document.getElementById('handoverModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff *</label><select id="hoStaff"></select></div><div class="form-group"><label>Amount (Rs) *</label><input type="number" id="hoAmount" placeholder="e.g. 15000"></div><div class="form-group"><label>Method *</label><select id="hoMethod"><option>Hand Cash</option><option>JazzCash</option><option>Easypaisa</option><option>Bank Transfer</option></select></div><div class="form-group"><label>Jama Karwaya (Kis ko / Kahan) *</label><input id="hoTo" placeholder="e.g. Owner / 0300... / Bank Acct"></div></div><div class="form-group"><label>Remarks</label><input id="hoRemarks" placeholder="optional"></div><p id="hoBakaya" style="font-size:13px;margin-bottom:10px;"></p><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveHandover()">✅ Handover Save + WhatsApp</button></div></div>
-<div id="recoveryModal" class="modal-overlay"><div class="modal-box" style="width:650px;"><div class="modal-header"><h3 id="recoveryTitle">💰 Recovery Report</h3><button class="close-btn" onclick="document.getElementById('recoveryModal').classList.remove('active')">&times;</button></div><div id="recoveryContent" style="max-height:450px;overflow-y:auto;"></div></div></div>
-<script>
-(function(){
-'use strict';
-console.log('V9 updates loaded');
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function num(v){ const n=parseFloat(v); return isNaN(n)?0:n; }
-function fmt(n){ return 'Rs '+Math.round(num(n)).toLocaleString(); }
-function thisMonth(){ return new Date().toISOString().slice(0,7); }
-function monthLabel(m){ if(!m) return '-'; const a=m.split('-'); if(a.length<2) return m; const mn=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return (mn[+a[1]]||'')+' '+a[0]; }
-function safe(fn){ try{ return fn(); }catch(e){ return null; } }
-
-/* ========== 1. SUPERADMIN PASSWORD CHANGE ========== */
-function injectSuperPw(){
-  const sec=document.getElementById('superadmin'); if(!sec||document.getElementById('superPwCard')) return;
-  const card=document.createElement('div'); card.className='card'; card.id='superPwCard';
-  card.innerHTML='<h3 style="color:#fbbf24;margin-bottom:10px;">🔑 Superadmin — Password Change</h3>'
-  +'<p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Login Number: <b id="superLoginShow" style="color:#fff;"></b> (ye number login ke liye use hota hai)</p>'
-  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">'
-  +'<div class="form-group"><label>Purana Password *</label><input type="password" id="superCur"></div>'
-  +'<div class="form-group"><label>Naya Password * (min 4)</label><input type="password" id="superNew"></div>'
-  +'<div class="form-group"><label>Naya dobara *</label><input type="password" id="superNew2"></div></div>'
-  +'<button class="btn-primary" onclick="changeSuperadminPassword()">🔑 Change Password</button>';
-  sec.insertBefore(card, sec.children[1]||null);
-  safe(()=>{ const u=(systemUsers||[]).find(x=>x.role==='owner'); const el=document.getElementById('superLoginShow'); if(el&&u) el.textContent=u.mobile||''; });
-}
-window.changeSuperadminPassword=function(){
-  if(typeof isOwner==='function' && !isOwner()){ alert('Sirf Superadmin password change kar sakta hai!'); return; }
-  const cur=(document.getElementById('superCur').value||'').trim();
-  const n1=(document.getElementById('superNew').value||'').trim();
-  const n2=(document.getElementById('superNew2').value||'').trim();
-  if(!cur||!n1||!n2){ alert('Teeno khane bharein!'); return; }
-  const owner=(systemUsers||[]).find(x=>x.role==='owner');
-  if(!owner){ alert('Superadmin account nahi mila!'); return; }
-  const curPass=(currentUser&&currentUser.role==='owner')?currentUser.pass:owner.pass;
-  if(cur!==curPass){ alert('Purana password galat hai!'); return; }
-  if(n1.length<4){ alert('Naya password kam az kam 4 harf ka ho!'); return; }
-  if(n1!==n2){ alert('Naya password dono jagah same nahi!'); return; }
-  owner.pass=n1;
-  if(currentUser&&currentUser.role==='owner') currentUser.pass=n1;
-  safe(()=>{ if(typeof saveUsers==='function') saveUsers(); });
-  ['superCur','superNew','superNew2'].forEach(id=>{document.getElementById(id).value='';});
-  alert('Superadmin password change ho gaya ✅\nAgli dafa naye password se login karein.');
-};
-
-/* ========== 2. ISP EDIT ========== */
-window.openEditISP=function(i){
-  const isp=ispsList[i]; if(!isp){ alert('ISP nahi mila!'); return; }
-  document.getElementById('editIspIndex').value=i;
-  document.getElementById('editIspCompany').value=isp.name||'';
-  document.getElementById('editIspOwner').value=isp.owner||'';
-  document.getElementById('editIspMobile').value=isp.mobile||'';
-  document.getElementById('editIspPass').value=isp.pass||'';
-  document.getElementById('editIspCity').value=isp.city||'';
-  document.getElementById('editIspAddr').value=isp.address||'';
-  document.getElementById('ispEditModal').classList.add('active');
-};
-window.saveEditISP=function(){
-  const i=parseInt(document.getElementById('editIspIndex').value,10);
-  const isp=ispsList[i]; if(!isp) return;
-  const oldName=isp.name, oldMobile=isp.mobile;
-  const comp=document.getElementById('editIspCompany').value.trim();
-  const owner=document.getElementById('editIspOwner').value.trim();
-  const mob=document.getElementById('editIspMobile').value.trim();
-  const ps=document.getElementById('editIspPass').value.trim();
-  const city=document.getElementById('editIspCity').value.trim();
-  const addr=document.getElementById('editIspAddr').value.trim();
-  if(!comp||!owner||!mob){ alert('Company + Owner + Number zaroori!'); return; }
-  const dup=systemUsers.find(x=>x.mobile===mob && !(x.role==='isp'&&(x.isp===oldName||x.mobile===oldMobile)));
-  if(dup){ alert('Ye number pehle se kisi aur ke paas hai!'); return; }
-  isp.name=comp; isp.owner=owner; isp.mobile=mob; if(ps) isp.pass=ps; isp.city=city; isp.address=addr;
-  // update login
-  let login=systemUsers.find(x=>x.role==='isp'&&(x.isp===oldName||x.mobile===oldMobile));
-  if(login){ login.isp=comp; login.company=comp; login.name=owner; login.mobile=mob; if(ps) login.pass=ps; login.address=addr; }
-  // update subs + staff + payments isp tag if name changed
-  if(oldName!==comp){
-    subscribersList.forEach(s=>{ if((s.isp||'')===oldName) s.isp=comp; });
-    systemUsers.forEach(u=>{ if(u.role==='staff'&&u.isp===oldName) u.isp=comp; });
-    paymentsList.forEach(p=>{ if((p.isp||'')===oldName) p.isp=comp; });
-  }
-  safe(()=>saveUsers()); safe(()=>saveOffline());
-  safe(()=>renderISPs()); safe(()=>renderAllStaff()); safe(()=>{ if(typeof calculateLedger==='function') calculateLedger(); });
-  document.getElementById('ispEditModal').classList.remove('active');
-  alert('ISP update ho gaya ✅');
-};
-// renderISPs me Edit button inject (original ko wrap karke)
-function patchIspTable(){
-  const tb=document.getElementById('ispsTableBody'); if(!tb) return;
-  const rows=tb.querySelectorAll('tr');
-  rows.forEach((tr,idx)=>{
-    const actions=tr.querySelector('.action-btns'); if(!actions) return;
-    if(actions.querySelector('[data-editisp]')) return;
-    const b=document.createElement('button');
-    b.className='btn-primary btn-sm'; b.style.background='#2563eb'; b.setAttribute('data-editisp','1');
-    b.textContent='✏️ Edit'; b.onclick=(function(i){ return function(){ openEditISP(i); }; })(idx);
-    actions.insertBefore(b, actions.firstChild);
-  });
-}
-const _renderISPsV9 = window.renderISPs;
-if(typeof _renderISPsV9==='function'){
-  window.renderISPs=function(){ const r=_renderISPsV9.apply(this,arguments); try{patchIspTable();}catch(e){} return r; };
-}
-
-/* ========== 3. STAFF PERMS — sirf kaam ki, Fields hatao ========== */
-const ACTIONS_V9=[['add','➕ Add New Subscriber'],['edit','✏️ Edit Subscriber'],['view','👀 View Profile'],['collect','💰 Collect Fee / Recovery'],['del','🗑️ Delete Subscriber'],['whatsapp','💬 WhatsApp Bill'],['complaints','🛠️ Complaints']];
-window.injectFieldPermsUI=function(){ const el=document.getElementById('fieldPermsBox'); if(el) el.remove(); };
-window.injectFieldPermsIntoEditModal=function(){};
-setInterval(()=>{ const el=document.getElementById('fieldPermsBox'); if(el) el.remove(); },2000);
-window.editStaffPerms=function(mob){
-  if(typeof isStaff==='function' && isStaff()) return;
-  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s){ alert('Staff nahi mila!'); return; }
-  if(typeof isISP==='function' && isISP() && typeof myISP==='function' && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
-  const p=s.perms||{};
-  const cb=(id,on,label)=>'<label style="display:flex;align-items:center;gap:8px;padding:8px;background:#111827;border:1px solid #1f2937;border-radius:8px;cursor:pointer;font-size:13px;color:#fff;"><input type="checkbox" class="v9perm" id="'+id+'"'+(on?' checked':'')+' style="width:auto;"> '+label+'</label>';
-  let h='<div class="modal-header"><h3>⚙️ Staff Permissions</h3><button class="close-btn" onclick="document.getElementById(\'v3PermModal\').classList.remove(\'active\')">&times;</button></div>'
-    +'<p style="font-size:13px;color:#9ca3af;margin-bottom:12px;"><b style="color:#fff;">'+esc(s.name)+'</b> • '+esc(s.mobile)+' • '+esc(s.isp)+'<br>Tik = ON, khali = OFF. Sab se upar <b>Add New Subscriber</b> wali permission hai.</p>'
-    +'<div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn-primary btn-sm btn-success" onclick="document.querySelectorAll(\'.v9perm\').forEach(c=>c.checked=true)">✅ Sab ON</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="document.querySelectorAll(\'.v9perm\').forEach(c=>c.checked=false)">❌ Sab OFF</button></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+ACTIONS_V9.map(a=>cb('v9p_'+a[0], a[0]==='view'?(p.view!==false):!!p[a[0]], a[1])).join('')+'</div>'
-    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:12px;" onclick="saveStaffPermsV9(\''+esc(s.mobile)+'\')">💾 Save Permissions</button>';
-  let m=document.getElementById('v3PermModal');
-  if(!m){ m=document.createElement('div'); m.id='v3PermModal'; m.className='modal-overlay'; document.body.appendChild(m); }
-  m.innerHTML='<div class="modal-box" style="max-width:620px;">'+h+'</div>';
-  m.classList.add('active');
-};
-window.saveStaffPermsV9=function(mob){
-  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s) return;
-  const g=id=>{ const e=document.getElementById(id); return e?e.checked:false; };
-  s.perms={add:g('v9p_add'),edit:g('v9p_edit'),view:g('v9p_view'),collect:g('v9p_collect'),del:g('v9p_del'),whatsapp:g('v9p_whatsapp'),complaints:g('v9p_complaints'),excel:false,areas:false,packages:false};
-  safe(()=>saveUsers()); safe(()=>{ if(typeof renderAllStaff==='function') renderAllStaff(); if(typeof renderIspLoginStaff==='function') renderIspLoginStaff(); });
-  document.getElementById('v3PermModal').classList.remove('active');
-  alert('Permissions save ho gayi ✅');
-};
-// purane perm modal ke field checkboxes bhi hatao
-window.saveStaffPermsV3=window.saveStaffPermsV9;
-window.savePermEdits=function(){
-  const mob=(document.getElementById('permEditMob')||{}).value; if(!mob) return;
-  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
-  const g=id=>{const e=document.getElementById(id); return e?e.checked:false;};
-  s.perms={add:g('e_permAdd'),edit:g('e_permEdit'),view:g('e_permView'),collect:g('e_permCollect'),del:g('e_permDel'),whatsapp:g('e_permWhatsapp'),complaints:g('e_permComplaints'),excel:false,areas:false,packages:false};
-  safe(()=>saveUsers()); safe(()=>{ if(typeof renderAllStaff==='function') renderAllStaff(); });
-  const m=document.getElementById('permEditModal'); if(m) m.classList.remove('active');
-  alert('Permissions update ho gayi ✅');
-};
-
-/* ========== 4+6. MONTHLY REVENUE = total income + click = Recovery Report ========== */
-function revenueTotals(){
-  const m=thisMonth();
-  let pool=paymentsList||[];
-  let scope='ALL';
-  if(typeof isISP==='function'&&(isISP()||(typeof isStaff==='function'&&isStaff())) && typeof myISP==='function'){
-    const my=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===my); scope=my;
-  }
-  const monthPool=pool.filter(p=>(p.month||'').slice(0,7)===m || (p.date||'').slice(0,7)===m);
-  const totalMonth=monthPool.reduce((a,c)=>a+num(c.amount),0);
-  const totalAll=pool.reduce((a,c)=>a+num(c.amount),0);
-  return {totalMonth,totalAll,countMonth:monthPool.length,scope,month:m};
-}
-function patchRevenueCard(){
-  const el=document.getElementById('valRevenue'); if(!el) return;
-  const t=revenueTotals();
-  el.innerText='Rs '+Math.round(t.totalMonth).toLocaleString();
-  el.title='Is mahine: '+t.countMonth+' payments • Total sab: Rs '+Math.round(t.totalAll).toLocaleString();
-  const box=el.closest('.stat-box'); if(box){
-    box.onclick=function(){ openRecoveryReport(); };
-    const tt=box.querySelector('.stat-title'); if(tt && !tt.innerHTML.includes('Recovery')) tt.innerHTML='Monthly Revenue (Is Mahine) <span style="font-size:9px;color:#60a5fa;float:right;">(Recovery 🔍)</span>';
-  }
-}
-const _openCardV9 = window.openCardModal;
-window.openCardModal=function(type){
-  if(type==='revenue'){ openRecoveryReport(); return; }
-  if(typeof _openCardV9==='function') return _openCardV9.apply(this,arguments);
-};
-window.openRecoveryReport=function(){
-  const t=revenueTotals();
-  const pool=(paymentsList||[]).filter(p=>{
-    if(t.scope!=='ALL' && (p.isp||'Ali Net')!==t.scope) return false;
-    return ((p.month||'').slice(0,7)===t.month || (p.date||'').slice(0,7)===t.month);
-  });
-  const byCol={}, byVia={};
-  pool.forEach(p=>{ const k=p.collector||'Unknown'; byCol[k]=(byCol[k]||0)+num(p.amount); const v=p.via||'Cash'; byVia[v]=(byVia[v]||0)+num(p.amount); });
-  let r1=Object.keys(byCol).map(k=>'<tr><td><strong>'+esc(k)+'</strong></td><td>'+pool.filter(p=>(p.collector||'Unknown')===k).length+'</td><td style="color:#34d399;font-weight:bold;">'+fmt(byCol[k])+'</td></tr>').join('');
-  if(!r1) r1='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Is mahine koi recovery nahi.</td></tr>';
-  let r2=Object.keys(byVia).map(k=>'<tr><td>'+esc(k)+'</td><td style="color:#60a5fa;font-weight:bold;">'+fmt(byVia[k])+'</td></tr>').join('');
-  if(!r2) r2='<tr><td colspan=2 style="text-align:center;color:#9ca3af;">—</td></tr>';
-  document.getElementById('recoveryTitle').innerText='💰 Recovery Report — '+monthLabel(t.month)+' ('+esc(t.scope)+')';
-  document.getElementById('recoveryContent').innerHTML='<p style="font-size:13px;color:#9ca3af;margin-bottom:10px;">Is mahine total: <b style="color:#34d399;">'+fmt(t.totalMonth)+'</b> ('+pool.length+' payments) • Sab income total: <b style="color:#60a5fa;">'+fmt(t.totalAll)+'</b></p>'
-  +'<h4 style="color:#34d399;margin:10px 0 6px;">👷 Kis ne kitni recovery ki</h4><table><thead><tr><th>Collected By</th><th>Count</th><th>Amount</th></tr></thead><tbody>'+r1+'</tbody></table>'
-  +'<h4 style="color:#60a5fa;margin:12px 0 6px;">💳 Via (Cash / JazzCash / Easypaisa / Bank)</h4><table><thead><tr><th>Via</th><th>Amount</th></tr></thead><tbody>'+r2+'</tbody></table>';
-  document.getElementById('recoveryModal').classList.add('active');
-};
-
-/* ========== 5+9. PARTIAL + ADVANCE — slip par bakaya, auto-cut, WhatsApp ========== */
-function toWa(ph){ return String(ph||'').replace(/\D/g,'').replace(/^0/,'92'); }
-const _confirmV9 = window.confirmCollectV3;
-window.confirmCollectV3=function(id){
-  const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
-  const r=_confirmV9.apply(this,arguments);
-  setTimeout(()=>{
-    try{
-      const pays=paymentsList.filter(p=>p.subId===sub.id).sort((a,b)=>(a.ts||0)-(b.ts||0));
-      const last=pays[pays.length-1]; if(!last) return;
-      const rem=num(last.remaining);
-      const upd=subscribersList.find(s=>s.id===id);
-      if(upd){ upd.balance=rem; upd.status=rem<=0?'Paid':'Unpaid'; upd.type=upd.status==='Paid'?'active':'unpaid'; safe(()=>saveOffline()); safe(()=>{ if(typeof refreshViews==='function') refreshViews(); if(typeof calculateLedger==='function') calculateLedger(); if(typeof renderSubscribersTable==='function') renderSubscribersTable(); if(typeof renderPayments==='function') renderPayments(); }); }
-      patchRevenueCard();
-      let msg='';
-      if(rem>0) msg='Baqaya '+fmt(rem)+' slip par lag gaya. User Unpaid list me rahega jab tak poora clear na ho — slip par dekhein.';
-      else if(rem<0) msg='Advance '+fmt(-rem)+' agle mahine me auto-cut ho jayega. WhatsApp par bhejein taake customer ko pata chale.';
-      else msg='Poori fee wasool ✅ User Paid list me chala gaya.';
-      // advance / bakaya WhatsApp auto
-      if(sub.phone){
-        const st={company:(upd&&upd.isp)||''};
-        const txt='Assalam-o-Alaikum '+sub.name+'!\n'+(st.company||'')+' — Fee Received: '+fmt(last.amount)+'\nMahina: '+monthLabel(last.month)+'\nTotal Bill: '+fmt(last.due)+'\nBaqi Bakaya: '+fmt(Math.max(0,rem))+(rem<0?'\nAdvance (agle mahine minus): '+fmt(-rem):'')+'\nShukriya!';
-        try{ window.open('https://wa.me/'+toWa(sub.phone)+'?text='+encodeURIComponent(txt),'_blank'); }catch(e){}
-      }
-      alert(msg);
-    }catch(e){ console.log(e); }
-  },300);
-  return r;
-};
-
-/* ========== 7. CASH HANDOVER ========== */
-let handovers=[];
-try{ handovers=JSON.parse(localStorage.getItem('cloudisp_handovers_v1')||'[]'); }catch(e){ handovers=[]; }
-function saveHandovers(){ try{ localStorage.setItem('cloudisp_handovers_v1',JSON.stringify(handovers)); }catch(e){} }
-function staffRecoveryTotal(staffKey){
-  let pool=paymentsList||[];
-  if(typeof myISP==='function' && (typeof isISP==='function'&&(isISP()||isStaff()))) { const my=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===my); }
-  return pool.filter(p=>(p.collector||'')===staffKey).reduce((a,c)=>a+num(c.amount),0);
-}
-function handedTotal(staffKey){
-  return handovers.filter(h=>h.staffKey===staffKey).reduce((a,c)=>a+num(c.amount),0);
-}
-window.openHandoverModal=function(){
-  const sel=document.getElementById('hoStaff'); sel.innerHTML='';
-  let staff=systemUsers.filter(u=>u.role==='staff');
-  if(typeof isISP==='function'&&isISP()&&typeof myISP==='function') staff=staff.filter(s=>s.isp===myISP());
-  if(!staff.length){ alert('Koi staff nahi mila!'); return; }
-  staff.forEach(s=>{ const o=document.createElement('option'); const key=s.name+' ('+s.mobile+')'; o.value=key; o.textContent=key+' — hath me: Rs '+(staffRecoveryTotal(key)-handedTotal(key)).toLocaleString(); sel.appendChild(o); });
-  document.getElementById('hoAmount').value=''; document.getElementById('hoTo').value=''; document.getElementById('hoRemarks').value='';
-  updHoBakaya();
-  document.getElementById('handoverModal').classList.add('active');
-};
-window.updHoBakaya=function(){
-  const k=document.getElementById('hoStaff').value;
-  const inHand=staffRecoveryTotal(k)-handedTotal(k);
-  document.getElementById('hoBakaya').innerHTML='Staff ke hath me abhi: <b style="color:'+(inHand>0?'#f87171':'#34d399')+';">'+fmt(Math.max(0,inHand))+'</b> (total recovery '+fmt(staffRecoveryTotal(k))+' − handover '+fmt(handedTotal(k))+')';
-};
-window.saveHandover=function(){
-  const staffKey=document.getElementById('hoStaff').value;
-  const amount=num(document.getElementById('hoAmount').value);
-  const method=document.getElementById('hoMethod').value;
-  const to=(document.getElementById('hoTo').value||'').trim();
-  const remarks=(document.getElementById('hoRemarks').value||'').trim();
-  if(!staffKey||amount<=0||!to){ alert('Staff + Amount + Jama Karwaya zaroori!'); return; }
-  const inHand=staffRecoveryTotal(staffKey)-handedTotal(staffKey);
-  const rec={id:'h'+Date.now(),date:new Date().toISOString().slice(0,10),isp:(typeof myISP==='function'?(myISP()||'ALL'):'ALL'),staffKey,amount,method,to,remarks,by:currentUser?(currentUser.name+' ('+currentUser.mobile+')'):'ADMIN'};
-  handovers.unshift(rec); saveHandovers();
-  const left=inHand-amount;
-  document.getElementById('handoverModal').classList.remove('active');
-  renderHandoverTable();
-  const txt='🤝 Cash Handover\nStaff: '+staffKey+'\nAmount: '+fmt(amount)+'\nMethod: '+method+'\nJama: '+to+'\nDate: '+rec.date+'\nBaad me hath me baqaya: '+fmt(Math.max(0,left))+(remarks?'\nRemarks: '+remarks:'');
-  let waNum='';
-  try{
-    if(typeof isISP==='function'&&isISP()){ const u=systemUsers.find(x=>x.role==='isp'&&x.isp===myISP()); waNum=u?u.mobile:''; }
-    else { const n=document.getElementById('waNumber'); waNum=n?n.value:''; }
-  }catch(e){}
-  if(waNum){ try{ window.open('https://wa.me/'+toWa(waNum)+'?text='+encodeURIComponent(txt),'_blank'); }catch(e){} }
-  alert('Handover save ho gaya ✅\nBaqaya hath me: '+fmt(Math.max(0,left))+'\nWhatsApp msg bhi khol diya.');
-};
-function renderHandoverTable(){
-  let card=document.getElementById('handoverCard');
-  if(!card){
-    const pay=document.getElementById('payments'); if(!pay) return;
-    card=document.createElement('div'); card.className='card'; card.id='handoverCard';
-    card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;"><h3 style="color:#34d399;">🤝 Cash Handover — Staff ne kitni jama karwayi</h3><button class="btn-primary btn-sm btn-success" onclick="openHandoverModal()">+ Handover</button></div><table><thead><tr><th>Date</th><th>Staff</th><th>Amount / Method</th><th>Jama / Baqaya</th></tr></thead><tbody id="handoverBody"></tbody></table>';
-    pay.appendChild(card);
-  }
-  const tb=document.getElementById('handoverBody'); if(!tb) return;
-  let list=handovers;
-  if(typeof isISP==='function'&&(isISP()||isStaff())&&typeof myISP==='function'){ const my=myISP(); list=list.filter(h=>h.isp===my||h.isp==='ALL'); }
-  if(!list.length){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#9ca3af;">Koi handover nahi — + Handover dabayein.</td></tr>'; return; }
-  tb.innerHTML=list.slice(0,50).map(h=>{
-    const left=staffRecoveryTotal(h.staffKey)-handedTotal(h.staffKey);
-    return '<tr><td>'+esc(h.date)+'</td><td><strong>'+esc(h.staffKey)+'</strong><br><span style="font-size:11px;color:#9ca3af;">'+esc(h.by||'')+'</span></td><td style="color:#34d399;font-weight:bold;">'+fmt(h.amount)+'<br><span style="font-size:11px;color:#60a5fa;">'+esc(h.method)+'</span></td><td>'+esc(h.to)+'<br><span style="font-size:11px;color:'+(left>0?'#f87171':'#34d399')+';">Hath me baqaya: '+fmt(Math.max(0,left))+'</span></td></tr>';
-  }).join('');
-}
-
-/* ========== 8. ISP PANEL EXCEL (Import + Export) ========== */
-window.exportISPExcel=function(){
-  let list=subscribersList;
-  if(typeof myISP==='function'&&(typeof isISP==='function'&&(isISP()||isStaff()))) { const my=myISP(); list=list.filter(s=>(s.isp||'Ali Net')===my); }
-  if(!list.length){ alert('Export ke liye koi user nahi!'); return; }
-  const rows=[['name','username','package','fee','phone','area','address','status','balance']];
-  list.forEach(s=>rows.push([s.name,s.username,s.package,s.fee,s.phone,s.area,s.address,s.status,s.balance||0]));
-  const csv=rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='isp_users_export.csv'; a.click();
-};
-function patchIspExcelBar(){
-  const bar=document.getElementById('ispExcelBar'); if(!bar) return;
-  if(!document.getElementById('ispExportBtn')){
-    const b=document.createElement('button'); b.className='btn-primary btn-sm'; b.id='ispExportBtn'; b.textContent='📥 Excel Export'; b.onclick=function(){ exportISPExcel(); };
-    bar.appendChild(b);
-  }
-  if(typeof isISP==='function'&&isISP()) bar.style.display='flex';
-}
-
-/* ========== INIT ========== */
-function initV9(){
-  injectSuperPw();
-  patchIspTable();
-  patchRevenueCard();
-  renderHandoverTable();
-  patchIspExcelBar();
-  const hs=document.getElementById('hoStaff'); if(hs) hs.onchange=updHoBakaya;
-  const ha=document.getElementById('hoAmount'); if(ha) ha.oninput=updHoBakaya;
-}
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(initV9,800));
-else setTimeout(initV9,800);
-setInterval(()=>{ try{patchRevenueCard();}catch(e){} try{patchIspTable();}catch(e){} },3000);
-const _calcV9 = window.calculateLedger;
-if(typeof _calcV9==='function'){ window.calculateLedger=function(){ const r=_calcV9.apply(this,arguments); try{patchRevenueCard(); renderHandoverTable(); patchIspExcelBar();}catch(e){} return r; }; }
-})();
-</script>
-
-</body></html>');
+  w.document.write('<html><head><title>Fee Slip</title></head><body style="font-family:Arial,sans-serif;padding:16px;color:#333;">'+html+'</body></html>');
   w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
 };
 window.sendSlipWa=function(id,payId){
@@ -5100,340 +4746,56 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 })();
 </script>
 <script>
+  // PWA: mobile app install + offline support (phone me app ki tarah chalega)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("/sw.js").then(function(r){console.log("SW ok", r.scope);}).catch(function(e){console.warn("SW fail", e);});
+      navigator.serviceWorker.register("sw.js", { scope: "./" }).then(function(reg){
+        // naya version aate hi turant activate karo
+        if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        reg.addEventListener("updatefound", function(){
+          var nw = reg.installing;
+          if (nw) nw.addEventListener("statechange", function(){
+            if (nw.state === "installed" && navigator.serviceWorker.controller) {
+              console.log("Naya version ready — refresh par apply hoga");
+            }
+          });
+        });
+      }).catch(function(e){ console.log("SW register fail:", e); });
     });
+    // naya SW aaye to page reload karke naya version lao (loop se bachne ke liye 1 dafa)
+    (function(){
+      var reloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function(){
+        if (reloaded) return; reloaded = true;
+        try{ sessionStorage.setItem("cloudisp_sw_updated", String(Date.now())); }catch(e){}
+        window.location.reload();
+      });
+    })();
   }
+  // Install prompt: Android Chrome me "App Install karo" banner
+  (function(){
+    var deferred = null;
+    window.addEventListener("beforeinstallprompt", function(e){
+      e.preventDefault(); deferred = e;
+      try{
+        var bar = document.getElementById("offlineBar");
+        if (bar && !document.getElementById("pwaInstallBtn")) {
+          var b = document.createElement("button");
+          b.id = "pwaInstallBtn";
+          b.textContent = "📲 App Install karo";
+          b.style.cssText = "margin-left:10px;background:#fff;color:#d97706;border:none;border-radius:6px;padding:4px 10px;font-weight:bold;cursor:pointer;";
+          b.onclick = function(){
+            if (deferred) { deferred.prompt(); deferred.userChoice.then(function(){ deferred = null; try{ b.remove(); }catch(e){} }); }
+          };
+          bar.appendChild(b);
+          bar.classList.add("show");
+          bar.firstChild.textContent = "📲 CloudISP ko mobile app ki tarah install karo — offline bhi chalega ";
+          setTimeout(function(){ try{ if(document.getElementById("pwaInstallBtn")) bar.classList.remove("show"); }catch(e){} }, 12000);
+        }
+      }catch(e){}
+    });
+    window.addEventListener("appinstalled", function(){ deferred = null; try{ var x=document.getElementById("pwaInstallBtn"); if(x) x.remove(); }catch(e){} console.log("PWA installed"); });
+  })();
 </script>
-<script>window.__CF$cv$params={r:'a480a783def6581a',t:'MTc5MTU4MzE4Ng==',u:'01a122adf2b176df946e8a29ad20ec2c',ut:'DYUdOF5Em_I3kRbRHo9DIDw5H3xuNLVi7SoKPSf_uaQ-1791583187-1.2.1.1-TSxX5YliyWODaHZ2I.p6Vfd3_Ra.bwgzj26cdFac3Ez91S27CMftHdBfrvahjePFWvxYLhwZ9u7K.6B1Ue3Xa13H.JDTSE62FQJF7BA19UE',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><!-- V9 UPDATES: 9 user points -->
-<div id="ispEditModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>✏️ Edit ISP</h3><button class="close-btn" onclick="document.getElementById('ispEditModal').classList.remove('active')">&times;</button></div><input type="hidden" id="editIspIndex"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="editIspCompany"></div><div class="form-group"><label>Owner Name *</label><input id="editIspOwner"></div><div class="form-group"><label>Login Mobile Number *</label><input id="editIspMobile"></div><div class="form-group"><label>Password *</label><input id="editIspPass"></div><div class="form-group"><label>City</label><input id="editIspCity"></div><div class="form-group"><label>Address</label><input id="editIspAddr"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEditISP()">💾 Save Changes</button></div></div>
-<div id="handoverModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🤝 Cash Handover</h3><button class="close-btn" onclick="document.getElementById('handoverModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff *</label><select id="hoStaff"></select></div><div class="form-group"><label>Amount (Rs) *</label><input type="number" id="hoAmount" placeholder="e.g. 15000"></div><div class="form-group"><label>Method *</label><select id="hoMethod"><option>Hand Cash</option><option>JazzCash</option><option>Easypaisa</option><option>Bank Transfer</option></select></div><div class="form-group"><label>Jama Karwaya (Kis ko / Kahan) *</label><input id="hoTo" placeholder="e.g. Owner / 0300... / Bank Acct"></div></div><div class="form-group"><label>Remarks</label><input id="hoRemarks" placeholder="optional"></div><p id="hoBakaya" style="font-size:13px;margin-bottom:10px;"></p><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveHandover()">✅ Handover Save + WhatsApp</button></div></div>
-<div id="recoveryModal" class="modal-overlay"><div class="modal-box" style="width:650px;"><div class="modal-header"><h3 id="recoveryTitle">💰 Recovery Report</h3><button class="close-btn" onclick="document.getElementById('recoveryModal').classList.remove('active')">&times;</button></div><div id="recoveryContent" style="max-height:450px;overflow-y:auto;"></div></div></div>
-<script>
-(function(){
-'use strict';
-console.log('V9 updates loaded');
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function num(v){ const n=parseFloat(v); return isNaN(n)?0:n; }
-function fmt(n){ return 'Rs '+Math.round(num(n)).toLocaleString(); }
-function thisMonth(){ return new Date().toISOString().slice(0,7); }
-function monthLabel(m){ if(!m) return '-'; const a=m.split('-'); if(a.length<2) return m; const mn=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return (mn[+a[1]]||'')+' '+a[0]; }
-function safe(fn){ try{ return fn(); }catch(e){ return null; } }
-
-/* ========== 1. SUPERADMIN PASSWORD CHANGE ========== */
-function injectSuperPw(){
-  const sec=document.getElementById('superadmin'); if(!sec||document.getElementById('superPwCard')) return;
-  const card=document.createElement('div'); card.className='card'; card.id='superPwCard';
-  card.innerHTML='<h3 style="color:#fbbf24;margin-bottom:10px;">🔑 Superadmin — Password Change</h3>'
-  +'<p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Login Number: <b id="superLoginShow" style="color:#fff;"></b> (ye number login ke liye use hota hai)</p>'
-  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">'
-  +'<div class="form-group"><label>Purana Password *</label><input type="password" id="superCur"></div>'
-  +'<div class="form-group"><label>Naya Password * (min 4)</label><input type="password" id="superNew"></div>'
-  +'<div class="form-group"><label>Naya dobara *</label><input type="password" id="superNew2"></div></div>'
-  +'<button class="btn-primary" onclick="changeSuperadminPassword()">🔑 Change Password</button>';
-  sec.insertBefore(card, sec.children[1]||null);
-  safe(()=>{ const u=(systemUsers||[]).find(x=>x.role==='owner'); const el=document.getElementById('superLoginShow'); if(el&&u) el.textContent=u.mobile||''; });
-}
-window.changeSuperadminPassword=function(){
-  if(typeof isOwner==='function' && !isOwner()){ alert('Sirf Superadmin password change kar sakta hai!'); return; }
-  const cur=(document.getElementById('superCur').value||'').trim();
-  const n1=(document.getElementById('superNew').value||'').trim();
-  const n2=(document.getElementById('superNew2').value||'').trim();
-  if(!cur||!n1||!n2){ alert('Teeno khane bharein!'); return; }
-  const owner=(systemUsers||[]).find(x=>x.role==='owner');
-  if(!owner){ alert('Superadmin account nahi mila!'); return; }
-  const curPass=(currentUser&&currentUser.role==='owner')?currentUser.pass:owner.pass;
-  if(cur!==curPass){ alert('Purana password galat hai!'); return; }
-  if(n1.length<4){ alert('Naya password kam az kam 4 harf ka ho!'); return; }
-  if(n1!==n2){ alert('Naya password dono jagah same nahi!'); return; }
-  owner.pass=n1;
-  if(currentUser&&currentUser.role==='owner') currentUser.pass=n1;
-  safe(()=>{ if(typeof saveUsers==='function') saveUsers(); });
-  ['superCur','superNew','superNew2'].forEach(id=>{document.getElementById(id).value='';});
-  alert('Superadmin password change ho gaya ✅\nAgli dafa naye password se login karein.');
-};
-
-/* ========== 2. ISP EDIT ========== */
-window.openEditISP=function(i){
-  const isp=ispsList[i]; if(!isp){ alert('ISP nahi mila!'); return; }
-  document.getElementById('editIspIndex').value=i;
-  document.getElementById('editIspCompany').value=isp.name||'';
-  document.getElementById('editIspOwner').value=isp.owner||'';
-  document.getElementById('editIspMobile').value=isp.mobile||'';
-  document.getElementById('editIspPass').value=isp.pass||'';
-  document.getElementById('editIspCity').value=isp.city||'';
-  document.getElementById('editIspAddr').value=isp.address||'';
-  document.getElementById('ispEditModal').classList.add('active');
-};
-window.saveEditISP=function(){
-  const i=parseInt(document.getElementById('editIspIndex').value,10);
-  const isp=ispsList[i]; if(!isp) return;
-  const oldName=isp.name, oldMobile=isp.mobile;
-  const comp=document.getElementById('editIspCompany').value.trim();
-  const owner=document.getElementById('editIspOwner').value.trim();
-  const mob=document.getElementById('editIspMobile').value.trim();
-  const ps=document.getElementById('editIspPass').value.trim();
-  const city=document.getElementById('editIspCity').value.trim();
-  const addr=document.getElementById('editIspAddr').value.trim();
-  if(!comp||!owner||!mob){ alert('Company + Owner + Number zaroori!'); return; }
-  const dup=systemUsers.find(x=>x.mobile===mob && !(x.role==='isp'&&(x.isp===oldName||x.mobile===oldMobile)));
-  if(dup){ alert('Ye number pehle se kisi aur ke paas hai!'); return; }
-  isp.name=comp; isp.owner=owner; isp.mobile=mob; if(ps) isp.pass=ps; isp.city=city; isp.address=addr;
-  // update login
-  let login=systemUsers.find(x=>x.role==='isp'&&(x.isp===oldName||x.mobile===oldMobile));
-  if(login){ login.isp=comp; login.company=comp; login.name=owner; login.mobile=mob; if(ps) login.pass=ps; login.address=addr; }
-  // update subs + staff + payments isp tag if name changed
-  if(oldName!==comp){
-    subscribersList.forEach(s=>{ if((s.isp||'')===oldName) s.isp=comp; });
-    systemUsers.forEach(u=>{ if(u.role==='staff'&&u.isp===oldName) u.isp=comp; });
-    paymentsList.forEach(p=>{ if((p.isp||'')===oldName) p.isp=comp; });
-  }
-  safe(()=>saveUsers()); safe(()=>saveOffline());
-  safe(()=>renderISPs()); safe(()=>renderAllStaff()); safe(()=>{ if(typeof calculateLedger==='function') calculateLedger(); });
-  document.getElementById('ispEditModal').classList.remove('active');
-  alert('ISP update ho gaya ✅');
-};
-// renderISPs me Edit button inject (original ko wrap karke)
-function patchIspTable(){
-  const tb=document.getElementById('ispsTableBody'); if(!tb) return;
-  const rows=tb.querySelectorAll('tr');
-  rows.forEach((tr,idx)=>{
-    const actions=tr.querySelector('.action-btns'); if(!actions) return;
-    if(actions.querySelector('[data-editisp]')) return;
-    const b=document.createElement('button');
-    b.className='btn-primary btn-sm'; b.style.background='#2563eb'; b.setAttribute('data-editisp','1');
-    b.textContent='✏️ Edit'; b.onclick=(function(i){ return function(){ openEditISP(i); }; })(idx);
-    actions.insertBefore(b, actions.firstChild);
-  });
-}
-const _renderISPsV9 = window.renderISPs;
-if(typeof _renderISPsV9==='function'){
-  window.renderISPs=function(){ const r=_renderISPsV9.apply(this,arguments); try{patchIspTable();}catch(e){} return r; };
-}
-
-/* ========== 3. STAFF PERMS — sirf kaam ki, Fields hatao ========== */
-const ACTIONS_V9=[['add','➕ Add New Subscriber'],['edit','✏️ Edit Subscriber'],['view','👀 View Profile'],['collect','💰 Collect Fee / Recovery'],['del','🗑️ Delete Subscriber'],['whatsapp','💬 WhatsApp Bill'],['complaints','🛠️ Complaints']];
-window.injectFieldPermsUI=function(){ const el=document.getElementById('fieldPermsBox'); if(el) el.remove(); };
-window.injectFieldPermsIntoEditModal=function(){};
-setInterval(()=>{ const el=document.getElementById('fieldPermsBox'); if(el) el.remove(); },2000);
-window.editStaffPerms=function(mob){
-  if(typeof isStaff==='function' && isStaff()) return;
-  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s){ alert('Staff nahi mila!'); return; }
-  if(typeof isISP==='function' && isISP() && typeof myISP==='function' && s.isp!==myISP()){ alert('Ye staff aap ke ISP ka nahi hai!'); return; }
-  const p=s.perms||{};
-  const cb=(id,on,label)=>'<label style="display:flex;align-items:center;gap:8px;padding:8px;background:#111827;border:1px solid #1f2937;border-radius:8px;cursor:pointer;font-size:13px;color:#fff;"><input type="checkbox" class="v9perm" id="'+id+'"'+(on?' checked':'')+' style="width:auto;"> '+label+'</label>';
-  let h='<div class="modal-header"><h3>⚙️ Staff Permissions</h3><button class="close-btn" onclick="document.getElementById(\'v3PermModal\').classList.remove(\'active\')">&times;</button></div>'
-    +'<p style="font-size:13px;color:#9ca3af;margin-bottom:12px;"><b style="color:#fff;">'+esc(s.name)+'</b> • '+esc(s.mobile)+' • '+esc(s.isp)+'<br>Tik = ON, khali = OFF. Sab se upar <b>Add New Subscriber</b> wali permission hai.</p>'
-    +'<div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn-primary btn-sm btn-success" onclick="document.querySelectorAll(\'.v9perm\').forEach(c=>c.checked=true)">✅ Sab ON</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="document.querySelectorAll(\'.v9perm\').forEach(c=>c.checked=false)">❌ Sab OFF</button></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+ACTIONS_V9.map(a=>cb('v9p_'+a[0], a[0]==='view'?(p.view!==false):!!p[a[0]], a[1])).join('')+'</div>'
-    +'<button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:12px;" onclick="saveStaffPermsV9(\''+esc(s.mobile)+'\')">💾 Save Permissions</button>';
-  let m=document.getElementById('v3PermModal');
-  if(!m){ m=document.createElement('div'); m.id='v3PermModal'; m.className='modal-overlay'; document.body.appendChild(m); }
-  m.innerHTML='<div class="modal-box" style="max-width:620px;">'+h+'</div>';
-  m.classList.add('active');
-};
-window.saveStaffPermsV9=function(mob){
-  const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s) return;
-  const g=id=>{ const e=document.getElementById(id); return e?e.checked:false; };
-  s.perms={add:g('v9p_add'),edit:g('v9p_edit'),view:g('v9p_view'),collect:g('v9p_collect'),del:g('v9p_del'),whatsapp:g('v9p_whatsapp'),complaints:g('v9p_complaints'),excel:false,areas:false,packages:false};
-  safe(()=>saveUsers()); safe(()=>{ if(typeof renderAllStaff==='function') renderAllStaff(); if(typeof renderIspLoginStaff==='function') renderIspLoginStaff(); });
-  document.getElementById('v3PermModal').classList.remove('active');
-  alert('Permissions save ho gayi ✅');
-};
-// purane perm modal ke field checkboxes bhi hatao
-window.saveStaffPermsV3=window.saveStaffPermsV9;
-window.savePermEdits=function(){
-  const mob=(document.getElementById('permEditMob')||{}).value; if(!mob) return;
-  const s=systemUsers.find(x=>x.mobile===mob); if(!s) return;
-  const g=id=>{const e=document.getElementById(id); return e?e.checked:false;};
-  s.perms={add:g('e_permAdd'),edit:g('e_permEdit'),view:g('e_permView'),collect:g('e_permCollect'),del:g('e_permDel'),whatsapp:g('e_permWhatsapp'),complaints:g('e_permComplaints'),excel:false,areas:false,packages:false};
-  safe(()=>saveUsers()); safe(()=>{ if(typeof renderAllStaff==='function') renderAllStaff(); });
-  const m=document.getElementById('permEditModal'); if(m) m.classList.remove('active');
-  alert('Permissions update ho gayi ✅');
-};
-
-/* ========== 4+6. MONTHLY REVENUE = total income + click = Recovery Report ========== */
-function revenueTotals(){
-  const m=thisMonth();
-  let pool=paymentsList||[];
-  let scope='ALL';
-  if(typeof isISP==='function'&&(isISP()||(typeof isStaff==='function'&&isStaff())) && typeof myISP==='function'){
-    const my=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===my); scope=my;
-  }
-  const monthPool=pool.filter(p=>(p.month||'').slice(0,7)===m || (p.date||'').slice(0,7)===m);
-  const totalMonth=monthPool.reduce((a,c)=>a+num(c.amount),0);
-  const totalAll=pool.reduce((a,c)=>a+num(c.amount),0);
-  return {totalMonth,totalAll,countMonth:monthPool.length,scope,month:m};
-}
-function patchRevenueCard(){
-  const el=document.getElementById('valRevenue'); if(!el) return;
-  const t=revenueTotals();
-  el.innerText='Rs '+Math.round(t.totalMonth).toLocaleString();
-  el.title='Is mahine: '+t.countMonth+' payments • Total sab: Rs '+Math.round(t.totalAll).toLocaleString();
-  const box=el.closest('.stat-box'); if(box){
-    box.onclick=function(){ openRecoveryReport(); };
-    const tt=box.querySelector('.stat-title'); if(tt && !tt.innerHTML.includes('Recovery')) tt.innerHTML='Monthly Revenue (Is Mahine) <span style="font-size:9px;color:#60a5fa;float:right;">(Recovery 🔍)</span>';
-  }
-}
-const _openCardV9 = window.openCardModal;
-window.openCardModal=function(type){
-  if(type==='revenue'){ openRecoveryReport(); return; }
-  if(typeof _openCardV9==='function') return _openCardV9.apply(this,arguments);
-};
-window.openRecoveryReport=function(){
-  const t=revenueTotals();
-  const pool=(paymentsList||[]).filter(p=>{
-    if(t.scope!=='ALL' && (p.isp||'Ali Net')!==t.scope) return false;
-    return ((p.month||'').slice(0,7)===t.month || (p.date||'').slice(0,7)===t.month);
-  });
-  const byCol={}, byVia={};
-  pool.forEach(p=>{ const k=p.collector||'Unknown'; byCol[k]=(byCol[k]||0)+num(p.amount); const v=p.via||'Cash'; byVia[v]=(byVia[v]||0)+num(p.amount); });
-  let r1=Object.keys(byCol).map(k=>'<tr><td><strong>'+esc(k)+'</strong></td><td>'+pool.filter(p=>(p.collector||'Unknown')===k).length+'</td><td style="color:#34d399;font-weight:bold;">'+fmt(byCol[k])+'</td></tr>').join('');
-  if(!r1) r1='<tr><td colspan=3 style="text-align:center;color:#9ca3af;">Is mahine koi recovery nahi.</td></tr>';
-  let r2=Object.keys(byVia).map(k=>'<tr><td>'+esc(k)+'</td><td style="color:#60a5fa;font-weight:bold;">'+fmt(byVia[k])+'</td></tr>').join('');
-  if(!r2) r2='<tr><td colspan=2 style="text-align:center;color:#9ca3af;">—</td></tr>';
-  document.getElementById('recoveryTitle').innerText='💰 Recovery Report — '+monthLabel(t.month)+' ('+esc(t.scope)+')';
-  document.getElementById('recoveryContent').innerHTML='<p style="font-size:13px;color:#9ca3af;margin-bottom:10px;">Is mahine total: <b style="color:#34d399;">'+fmt(t.totalMonth)+'</b> ('+pool.length+' payments) • Sab income total: <b style="color:#60a5fa;">'+fmt(t.totalAll)+'</b></p>'
-  +'<h4 style="color:#34d399;margin:10px 0 6px;">👷 Kis ne kitni recovery ki</h4><table><thead><tr><th>Collected By</th><th>Count</th><th>Amount</th></tr></thead><tbody>'+r1+'</tbody></table>'
-  +'<h4 style="color:#60a5fa;margin:12px 0 6px;">💳 Via (Cash / JazzCash / Easypaisa / Bank)</h4><table><thead><tr><th>Via</th><th>Amount</th></tr></thead><tbody>'+r2+'</tbody></table>';
-  document.getElementById('recoveryModal').classList.add('active');
-};
-
-/* ========== 5+9. PARTIAL + ADVANCE — slip par bakaya, auto-cut, WhatsApp ========== */
-function toWa(ph){ return String(ph||'').replace(/\D/g,'').replace(/^0/,'92'); }
-const _confirmV9 = window.confirmCollectV3;
-window.confirmCollectV3=function(id){
-  const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
-  const r=_confirmV9.apply(this,arguments);
-  setTimeout(()=>{
-    try{
-      const pays=paymentsList.filter(p=>p.subId===sub.id).sort((a,b)=>(a.ts||0)-(b.ts||0));
-      const last=pays[pays.length-1]; if(!last) return;
-      const rem=num(last.remaining);
-      const upd=subscribersList.find(s=>s.id===id);
-      if(upd){ upd.balance=rem; upd.status=rem<=0?'Paid':'Unpaid'; upd.type=upd.status==='Paid'?'active':'unpaid'; safe(()=>saveOffline()); safe(()=>{ if(typeof refreshViews==='function') refreshViews(); if(typeof calculateLedger==='function') calculateLedger(); if(typeof renderSubscribersTable==='function') renderSubscribersTable(); if(typeof renderPayments==='function') renderPayments(); }); }
-      patchRevenueCard();
-      let msg='';
-      if(rem>0) msg='Baqaya '+fmt(rem)+' slip par lag gaya. User Unpaid list me rahega jab tak poora clear na ho — slip par dekhein.';
-      else if(rem<0) msg='Advance '+fmt(-rem)+' agle mahine me auto-cut ho jayega. WhatsApp par bhejein taake customer ko pata chale.';
-      else msg='Poori fee wasool ✅ User Paid list me chala gaya.';
-      // advance / bakaya WhatsApp auto
-      if(sub.phone){
-        const st={company:(upd&&upd.isp)||''};
-        const txt='Assalam-o-Alaikum '+sub.name+'!\n'+(st.company||'')+' — Fee Received: '+fmt(last.amount)+'\nMahina: '+monthLabel(last.month)+'\nTotal Bill: '+fmt(last.due)+'\nBaqi Bakaya: '+fmt(Math.max(0,rem))+(rem<0?'\nAdvance (agle mahine minus): '+fmt(-rem):'')+'\nShukriya!';
-        try{ window.open('https://wa.me/'+toWa(sub.phone)+'?text='+encodeURIComponent(txt),'_blank'); }catch(e){}
-      }
-      alert(msg);
-    }catch(e){ console.log(e); }
-  },300);
-  return r;
-};
-
-/* ========== 7. CASH HANDOVER ========== */
-let handovers=[];
-try{ handovers=JSON.parse(localStorage.getItem('cloudisp_handovers_v1')||'[]'); }catch(e){ handovers=[]; }
-function saveHandovers(){ try{ localStorage.setItem('cloudisp_handovers_v1',JSON.stringify(handovers)); }catch(e){} }
-function staffRecoveryTotal(staffKey){
-  let pool=paymentsList||[];
-  if(typeof myISP==='function' && (typeof isISP==='function'&&(isISP()||isStaff()))) { const my=myISP(); pool=pool.filter(p=>(p.isp||'Ali Net')===my); }
-  return pool.filter(p=>(p.collector||'')===staffKey).reduce((a,c)=>a+num(c.amount),0);
-}
-function handedTotal(staffKey){
-  return handovers.filter(h=>h.staffKey===staffKey).reduce((a,c)=>a+num(c.amount),0);
-}
-window.openHandoverModal=function(){
-  const sel=document.getElementById('hoStaff'); sel.innerHTML='';
-  let staff=systemUsers.filter(u=>u.role==='staff');
-  if(typeof isISP==='function'&&isISP()&&typeof myISP==='function') staff=staff.filter(s=>s.isp===myISP());
-  if(!staff.length){ alert('Koi staff nahi mila!'); return; }
-  staff.forEach(s=>{ const o=document.createElement('option'); const key=s.name+' ('+s.mobile+')'; o.value=key; o.textContent=key+' — hath me: Rs '+(staffRecoveryTotal(key)-handedTotal(key)).toLocaleString(); sel.appendChild(o); });
-  document.getElementById('hoAmount').value=''; document.getElementById('hoTo').value=''; document.getElementById('hoRemarks').value='';
-  updHoBakaya();
-  document.getElementById('handoverModal').classList.add('active');
-};
-window.updHoBakaya=function(){
-  const k=document.getElementById('hoStaff').value;
-  const inHand=staffRecoveryTotal(k)-handedTotal(k);
-  document.getElementById('hoBakaya').innerHTML='Staff ke hath me abhi: <b style="color:'+(inHand>0?'#f87171':'#34d399')+';">'+fmt(Math.max(0,inHand))+'</b> (total recovery '+fmt(staffRecoveryTotal(k))+' − handover '+fmt(handedTotal(k))+')';
-};
-window.saveHandover=function(){
-  const staffKey=document.getElementById('hoStaff').value;
-  const amount=num(document.getElementById('hoAmount').value);
-  const method=document.getElementById('hoMethod').value;
-  const to=(document.getElementById('hoTo').value||'').trim();
-  const remarks=(document.getElementById('hoRemarks').value||'').trim();
-  if(!staffKey||amount<=0||!to){ alert('Staff + Amount + Jama Karwaya zaroori!'); return; }
-  const inHand=staffRecoveryTotal(staffKey)-handedTotal(staffKey);
-  const rec={id:'h'+Date.now(),date:new Date().toISOString().slice(0,10),isp:(typeof myISP==='function'?(myISP()||'ALL'):'ALL'),staffKey,amount,method,to,remarks,by:currentUser?(currentUser.name+' ('+currentUser.mobile+')'):'ADMIN'};
-  handovers.unshift(rec); saveHandovers();
-  const left=inHand-amount;
-  document.getElementById('handoverModal').classList.remove('active');
-  renderHandoverTable();
-  const txt='🤝 Cash Handover\nStaff: '+staffKey+'\nAmount: '+fmt(amount)+'\nMethod: '+method+'\nJama: '+to+'\nDate: '+rec.date+'\nBaad me hath me baqaya: '+fmt(Math.max(0,left))+(remarks?'\nRemarks: '+remarks:'');
-  let waNum='';
-  try{
-    if(typeof isISP==='function'&&isISP()){ const u=systemUsers.find(x=>x.role==='isp'&&x.isp===myISP()); waNum=u?u.mobile:''; }
-    else { const n=document.getElementById('waNumber'); waNum=n?n.value:''; }
-  }catch(e){}
-  if(waNum){ try{ window.open('https://wa.me/'+toWa(waNum)+'?text='+encodeURIComponent(txt),'_blank'); }catch(e){} }
-  alert('Handover save ho gaya ✅\nBaqaya hath me: '+fmt(Math.max(0,left))+'\nWhatsApp msg bhi khol diya.');
-};
-function renderHandoverTable(){
-  let card=document.getElementById('handoverCard');
-  if(!card){
-    const pay=document.getElementById('payments'); if(!pay) return;
-    card=document.createElement('div'); card.className='card'; card.id='handoverCard';
-    card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;"><h3 style="color:#34d399;">🤝 Cash Handover — Staff ne kitni jama karwayi</h3><button class="btn-primary btn-sm btn-success" onclick="openHandoverModal()">+ Handover</button></div><table><thead><tr><th>Date</th><th>Staff</th><th>Amount / Method</th><th>Jama / Baqaya</th></tr></thead><tbody id="handoverBody"></tbody></table>';
-    pay.appendChild(card);
-  }
-  const tb=document.getElementById('handoverBody'); if(!tb) return;
-  let list=handovers;
-  if(typeof isISP==='function'&&(isISP()||isStaff())&&typeof myISP==='function'){ const my=myISP(); list=list.filter(h=>h.isp===my||h.isp==='ALL'); }
-  if(!list.length){ tb.innerHTML='<tr><td colspan=4 style="text-align:center;color:#9ca3af;">Koi handover nahi — + Handover dabayein.</td></tr>'; return; }
-  tb.innerHTML=list.slice(0,50).map(h=>{
-    const left=staffRecoveryTotal(h.staffKey)-handedTotal(h.staffKey);
-    return '<tr><td>'+esc(h.date)+'</td><td><strong>'+esc(h.staffKey)+'</strong><br><span style="font-size:11px;color:#9ca3af;">'+esc(h.by||'')+'</span></td><td style="color:#34d399;font-weight:bold;">'+fmt(h.amount)+'<br><span style="font-size:11px;color:#60a5fa;">'+esc(h.method)+'</span></td><td>'+esc(h.to)+'<br><span style="font-size:11px;color:'+(left>0?'#f87171':'#34d399')+';">Hath me baqaya: '+fmt(Math.max(0,left))+'</span></td></tr>';
-  }).join('');
-}
-
-/* ========== 8. ISP PANEL EXCEL (Import + Export) ========== */
-window.exportISPExcel=function(){
-  let list=subscribersList;
-  if(typeof myISP==='function'&&(typeof isISP==='function'&&(isISP()||isStaff()))) { const my=myISP(); list=list.filter(s=>(s.isp||'Ali Net')===my); }
-  if(!list.length){ alert('Export ke liye koi user nahi!'); return; }
-  const rows=[['name','username','package','fee','phone','area','address','status','balance']];
-  list.forEach(s=>rows.push([s.name,s.username,s.package,s.fee,s.phone,s.area,s.address,s.status,s.balance||0]));
-  const csv=rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='isp_users_export.csv'; a.click();
-};
-function patchIspExcelBar(){
-  const bar=document.getElementById('ispExcelBar'); if(!bar) return;
-  if(!document.getElementById('ispExportBtn')){
-    const b=document.createElement('button'); b.className='btn-primary btn-sm'; b.id='ispExportBtn'; b.textContent='📥 Excel Export'; b.onclick=function(){ exportISPExcel(); };
-    bar.appendChild(b);
-  }
-  if(typeof isISP==='function'&&isISP()) bar.style.display='flex';
-}
-
-/* ========== INIT ========== */
-function initV9(){
-  injectSuperPw();
-  patchIspTable();
-  patchRevenueCard();
-  renderHandoverTable();
-  patchIspExcelBar();
-  const hs=document.getElementById('hoStaff'); if(hs) hs.onchange=updHoBakaya;
-  const ha=document.getElementById('hoAmount'); if(ha) ha.oninput=updHoBakaya;
-}
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(initV9,800));
-else setTimeout(initV9,800);
-setInterval(()=>{ try{patchRevenueCard();}catch(e){} try{patchIspTable();}catch(e){} },3000);
-const _calcV9 = window.calculateLedger;
-if(typeof _calcV9==='function'){ window.calculateLedger=function(){ const r=_calcV9.apply(this,arguments); try{patchRevenueCard(); renderHandoverTable(); patchIspExcelBar();}catch(e){} return r; }; }
-})();
-</script>
-
-</body>
+<script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
