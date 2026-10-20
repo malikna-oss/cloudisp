@@ -5101,5 +5101,7 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
     window.addEventListener("appinstalled", function(){ deferred = null; try{ var x=document.getElementById("pwaInstallBtn"); if(x) x.remove(); }catch(e){} console.log("PWA installed"); });
   })();
 </script>
-<script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+<script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>
+setInterval(function(){try{var u=JSON.parse(localStorage.getItem('cloudisp_users')||'[]').filter(x=>x.role==='isp');var c=JSON.parse(localStorage.getItem('cloudisp_isps')||'[]');if((!c||c.length===0)&&u.length>0){ispsList=u.map(x=>({name:x.company,city:'',users:0,status:'Paid',owner:x.name,mobile:x.mobile,pass:x.pass,address:x.address||''}));saveOffline();renderISPs();}}catch(e){}},3000);
+</script></body>
 </html>
