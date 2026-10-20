@@ -4977,55 +4977,7 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
     .login-shell{margin-top:4vh;}
     #loginScreen .modal-box{padding:26px 20px 20px !important; border-radius:18px !important;}
   }
-/* ===== MOBILE APP LOOK ===== */
-@media (max-width: 768px){
-  body{overflow-x:hidden}
-  .sidebar{display:none !important}
-  .main, .content, .container, .dashboard, .main-content{
-    width:100% !important; max-width:100% !important;
-    padding:10px !important; margin:0 !important}
-  .stats-grid, .stat-grid, .cards-grid, .grid{
-    display:grid !important;
-    grid-template-columns:1fr 1fr !important;
-    gap:10px !important}
-  .card, .stat-card{
-    width:auto !important; min-width:0 !important;
-    padding:12px !important; border-radius:14px !important;
-    box-sizing:border-box}
-  .card h2, .card h3{font-size:14px !important}
-  .card .value, .stat-card .value{font-size:20px !important}
-  .table-wrap, table{width:100% !important; max-width:100% !important}
-  table{font-size:12px !important; display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
-  input, select, textarea{font-size:16px !important; width:100% !important; box-sizing:border-box}
-  .modal-box{width:94% !important; max-height:88vh !important; overflow-y:auto !important}
-}  .sidebar{
-    display:block !important;
-    position:fixed !important;
-    top:0; left:-280px; bottom:0;
-    width:260px !important;
-    z-index:9999 !important;
-    transition:left .25s ease;
-    overflow-y:auto;
-    box-shadow:2px 0 16px rgba(0,0,0,.25);
-  }
-  .sidebar.mobile-open{left:0 !important}
-  #mobileMenuBtn{
-    display:flex !important;
-    position:fixed; top:10px; left:10px;
-    z-index:10000;
-    width:44px; height:44px;
-    align-items:center; justify-content:center;
-    background:#0b5ed7; color:#fff;
-    border:none; border-radius:12px;
-    font-size:22px; cursor:pointer;
-    box-shadow:0 2px 10px rgba(0,0,0,.25);
-  }
-  #mobileOverlay{
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,.45); z-index:9998;
-  }
-  #mobileOverlay.show{display:block}
-  body{padding-top:58px}</style>
+</style>
 <script>
 (function(){
 'use strict';
@@ -5151,31 +5103,5 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 </script>
 <script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>
 setInterval(function(){try{var u=JSON.parse(localStorage.getItem('cloudisp_users')||'[]').filter(x=>x.role==='isp');var c=JSON.parse(localStorage.getItem('cloudisp_isps')||'[]');if((!c||c.length===0)&&u.length>0){ispsList=u.map(x=>({name:x.company,city:'',users:0,status:'Paid',owner:x.name,mobile:x.mobile,pass:x.pass,address:x.address||''}));saveOffline();renderISPs();}}catch(e){}},3000);
-</script><button id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
-<div id="mobileOverlay" onclick="toggleMobileMenu()"></div>
-<script>
-function toggleMobileMenu(){
-  var s=document.querySelector('.sidebar');
-  var o=document.getElementById('mobileOverlay');
-  if(!s) return;
-  var open=s.classList.toggle('mobile-open');
-  if(o) o.classList.toggle('show', open);
-}
-document.addEventListener('click', function(e){
-  var s=document.querySelector('.sidebar');
-  if(s && s.classList.contains('mobile-open')){
-    if(e.target.closest('.sidebar a, .sidebar button, .sidebar [onclick]')){
-      setTimeout(toggleMobileMenu, 120);
-    }
-  }
-});
-window.addEventListener('resize', function(){
-  if(window.innerWidth>768){
-    var s=document.querySelector('.sidebar');
-    var o=document.getElementById('mobileOverlay');
-    if(s) s.classList.remove('mobile-open');
-    if(o) o.classList.remove('show');
-  }
-});
 </script></body>
 </html>
