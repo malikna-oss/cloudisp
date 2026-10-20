@@ -3294,7 +3294,7 @@ try{refreshAddButtons();}catch(e){}
     try{ new Headers(opts.headers || {}).forEach(function(v, k){ h[k] = v; }); }catch(e){}
     return fetch(url, Object.assign({}, opts, { headers: h }));
   }
-  const sb = window.supabase.createClient(SB_URL, SB_KEY, { global: { fetch: safeFetch } });
+  const sb = window.supabase.createClient(SB_URL, SB_KEY, { global: { fetch: safeFetch } }); window.sb = sb;
 
   const origSet = Storage.prototype.setItem;
   let ready = false, hydrating = false, timer = null;
