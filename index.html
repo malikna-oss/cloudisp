@@ -4977,7 +4977,28 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
     .login-shell{margin-top:4vh;}
     #loginScreen .modal-box{padding:26px 20px 20px !important; border-radius:18px !important;}
   }
-</style>
+/* ===== MOBILE APP LOOK ===== */
+@media (max-width: 768px){
+  body{overflow-x:hidden}
+  .sidebar{display:none !important}
+  .main, .content, .container, .dashboard, .main-content{
+    width:100% !important; max-width:100% !important;
+    padding:10px !important; margin:0 !important}
+  .stats-grid, .stat-grid, .cards-grid, .grid{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:10px !important}
+  .card, .stat-card{
+    width:auto !important; min-width:0 !important;
+    padding:12px !important; border-radius:14px !important;
+    box-sizing:border-box}
+  .card h2, .card h3{font-size:14px !important}
+  .card .value, .stat-card .value{font-size:20px !important}
+  .table-wrap, table{width:100% !important; max-width:100% !important}
+  table{font-size:12px !important; display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  input, select, textarea{font-size:16px !important; width:100% !important; box-sizing:border-box}
+  .modal-box{width:94% !important; max-height:88vh !important; overflow-y:auto !important}
+}</style>
 <script>
 (function(){
 'use strict';
