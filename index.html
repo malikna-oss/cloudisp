@@ -5151,5 +5151,31 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 </script>
 <script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>
 setInterval(function(){try{var u=JSON.parse(localStorage.getItem('cloudisp_users')||'[]').filter(x=>x.role==='isp');var c=JSON.parse(localStorage.getItem('cloudisp_isps')||'[]');if((!c||c.length===0)&&u.length>0){ispsList=u.map(x=>({name:x.company,city:'',users:0,status:'Paid',owner:x.name,mobile:x.mobile,pass:x.pass,address:x.address||''}));saveOffline();renderISPs();}}catch(e){}},3000);
+</script><button id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
+<div id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+<script>
+function toggleMobileMenu(){
+  var s=document.querySelector('.sidebar');
+  var o=document.getElementById('mobileOverlay');
+  if(!s) return;
+  var open=s.classList.toggle('mobile-open');
+  if(o) o.classList.toggle('show', open);
+}
+document.addEventListener('click', function(e){
+  var s=document.querySelector('.sidebar');
+  if(s && s.classList.contains('mobile-open')){
+    if(e.target.closest('.sidebar a, .sidebar button, .sidebar [onclick]')){
+      setTimeout(toggleMobileMenu, 120);
+    }
+  }
+});
+window.addEventListener('resize', function(){
+  if(window.innerWidth>768){
+    var s=document.querySelector('.sidebar');
+    var o=document.getElementById('mobileOverlay');
+    if(s) s.classList.remove('mobile-open');
+    if(o) o.classList.remove('show');
+  }
+});
 </script></body>
 </html>
