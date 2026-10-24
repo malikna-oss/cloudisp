@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>CloudISP -   Billing & Management System</title>
+    <title>CloudISP -  Billing & Management System</title>
     <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,7 +38,7 @@
             justify-content: space-between;
         }
 
-        .sidebar-top {
+    <button id="hamburger-btn" onclick="toggleMobileSidebar()">☰</button>
             display: flex;
             flex-direction: column;
         }
@@ -4979,8 +4979,46 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
     .login-shell{margin-top:4vh;}
     #loginScreen .modal-box{padding:26px 20px 20px !important; border-radius:18px !important;}
   }
+    /* --- Mobile View & Sidebar Fix --- */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -280px !important;
+    height: 100% !important;
+    z-index: 2000 !important;
+    transition: 0.3s ease-in-out !important;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.5) !important;
+  }
+  .sidebar.mobile-open {
+    left: 0 !important;
+  }
+  .card, .stat-box {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+#hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+@media (max-width: 900px) {
+  #hamburger-btn {
+    display: block !important;
+  }
+}
 </style>
 <script>
+    function toggleMobileSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('mobile-open');
+}
 (function(){
 'use strict';
 /* ---------- Role class (CSS isi se staff-add buttons chhupata hai) ---------- */
