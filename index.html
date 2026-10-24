@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.json">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>CloudISP -  Billing & Management System</title>
+    <title>CloudISP -   Billing & Management System</title>
     <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,7 +36,7 @@
             justify-content: space-between;
         }
 
-    
+        .sidebar-top {
             display: flex;
             flex-direction: column;
         }
@@ -4979,46 +4977,29 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
     .login-shell{margin-top:4vh;}
     #loginScreen .modal-box{padding:26px 20px 20px !important; border-radius:18px !important;}
   }
-    /* --- Mobile View & Sidebar Fix --- */
-@media (max-width: 900px) {
-  .sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    left: -280px !important;
-    height: 100% !important;
-    z-index: 2000 !important;
-    transition: 0.3s ease-in-out !important;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.5) !important;
-  }
-  .sidebar.mobile-open {
-    left: 0 !important;
-  }
-  .card, .stat-box {
-    padding: 12px !important;
-    margin-bottom: 12px !important;
-  }
-}
-
-#hamburger-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px 10px;
-}
-@media (max-width: 900px) {
-  #hamburger-btn {
-    display: block !important;
-  }
-}
-</style>
+/* ===== MOBILE APP LOOK ===== */
+@media (max-width: 768px){
+  body{overflow-x:hidden}
+  .sidebar{display:none !important}
+  .main, .content, .container, .dashboard, .main-content{
+    width:100% !important; max-width:100% !important;
+    padding:10px !important; margin:0 !important}
+  .stats-grid, .stat-grid, .cards-grid, .grid{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:10px !important}
+  .card, .stat-card{
+    width:auto !important; min-width:0 !important;
+    padding:12px !important; border-radius:14px !important;
+    box-sizing:border-box}
+  .card h2, .card h3{font-size:14px !important}
+  .card .value, .stat-card .value{font-size:20px !important}
+  .table-wrap, table{width:100% !important; max-width:100% !important}
+  table{font-size:12px !important; display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  input, select, textarea{font-size:16px !important; width:100% !important; box-sizing:border-box}
+  .modal-box{width:94% !important; max-height:88vh !important; overflow-y:auto !important}
+}</style>
 <script>
-    function toggleMobileSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.classList.toggle('mobile-open');
-}
 (function(){
 'use strict';
 /* ---------- Role class (CSS isi se staff-add buttons chhupata hai) ---------- */
