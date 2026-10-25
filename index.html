@@ -460,12 +460,42 @@
     (function(){ try{ var s=JSON.parse(sessionStorage.getItem('cisp_session')||'null'); if(s && Date.now()<=s.expiry) document.documentElement.classList.add('cisp-restoring'); }catch(e){} })();
     </script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+    /* ===== FIX PACK: PWA compact cards + hamburger sidebar + cleanups ===== */
+    #menuBtn{display:none;background:#111827;border:1px solid #1f2937;color:#fff;font-size:20px;line-height:1;padding:8px 12px;border-radius:10px;cursor:pointer;}
+    #sideOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;}
+    #sideOverlay.show{display:block;}
+    @media (max-width: 900px){
+      #menuBtn{display:block;}
+      /* PWA: chote compact cards - 2 columns hamesha */
+      .grid-6{grid-template-columns:1fr 1fr !important;gap:10px !important;margin-bottom:15px;}
+      .stat-box{padding:12px !important;border-radius:12px !important;}
+      .stat-box .stat-title{font-size:10px !important;margin-bottom:6px !important;letter-spacing:0 !important;}
+      .stat-box .stat-value{font-size:19px !important;}
+      /* Hamburger drawer sidebar - top-bar ki jaga */
+      .sidebar{position:fixed !important;left:0;top:0;bottom:0;width:255px !important;flex-direction:column !important;align-items:stretch !important;padding:20px 16px !important;border-right:1px solid #1f2937 !important;border-bottom:none !important;transform:translateX(-105%);transition:transform .25s ease;z-index:1000;background-color:#0b0f19 !important;height:100vh !important;height:100dvh !important;}
+      .sidebar.open{transform:none !important;}
+      .sidebar-top{flex-direction:column !important;align-items:stretch !important;width:100% !important;}
+      .nav-links{flex-direction:column !important;overflow-y:auto !important;margin-left:0 !important;margin-top:10px;max-height:calc(100vh - 180px);}
+      .nav-links li a{white-space:normal !important;}
+      .sidebar > div:last-child{display:block !important;margin-top:12px;}
+      .top-global-header{left:0 !important;gap:8px;}
+    }
+    @media (max-width: 560px){
+      .grid-6{grid-template-columns:1fr 1fr !important;}
+      .main-content{padding:12px !important;}
+      .header-banner{padding:14px !important;}
+    }
+    /* Paused / Arzi-band badge */
+    .badge-paused{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.35);}
+    </style>
 </head>
 <body>
     <div id="offlineBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d97706;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;">⚠️ Offline Mode — Fees & Bill phone me save honge, net aate hi sync ho jayenge</div>
 
+    <div id="sideOverlay" onclick="toggleSidebar(false)"></div>
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="mainSidebar">
         <div class="sidebar-top">
             <div class="logo-container">
                 <div class="logo-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 4px 14px rgba(37,99,235,.45);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div>
@@ -514,8 +544,9 @@
         </div>
     </div>
 
-    <!-- Top Global Header Bar with Add Subscriber Button on Top -->
+    <!-- Top Global Header Bar with Hamburger --> 
     <div class="top-global-header">
+        <button id="menuBtn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
         <span id="whoChip" class="who-chip"></span>
         <button class="btn-primary btn-success" onclick="openAddSubscriberModal()">+ Add Subscriber</button>
         <button class="btn-logout" id="topLogoutBtn" onclick="signOut()">🚪 Logout</button>
@@ -576,7 +607,7 @@
             </div>
             <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
                 <input type="text" id="subSearch" placeholder="🔍 Search name / mobile / package..." onkeyup="renderSubscribersTable()" style="flex:2;min-width:200px;">
-                <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select>
+                <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option><option value="Paused">Paused / Arzi Band</option></select>
                 <select id="subFilterArea" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Areas</option></select>
             </div>
             <h3 style="margin-bottom: 15px; color: #fbbf24;">📋 Subscribers Directory</h3>
@@ -687,15 +718,16 @@
     <div id="whatsapp-billing" class="main-content">
         <div class="header-banner">
             <div>
-                <h1>💬 WhatsApp Billing — Link + Scan</h1>
-                <p>ISP apna WhatsApp link karein, QR scan karein, bill bhejein</p>
+                <h1>💬 WhatsApp Billing — Official</h1>
+                <p>Apne business number se customer ko bill aur reminder bhejein</p>
             </div>
             <span id="waStatusBadge" class="badge badge-isp">Not Connected</span>
         </div>
         <div class="grid-6" style="grid-template-columns:1fr 1fr;">
             <div class="card wa-box">
-                <h3 style="color:#25D366;margin-bottom:10px;">🔗 WhatsApp Link Setup</h3>
-                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Apna WhatsApp number likhen (92 se shuru). Yehi number bill / reminder bhejne ke liye use hoga.</p>
+                <h3 style="color:#25D366;margin-bottom:10px;">🔗 Official Sender Number</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Yehi number bill bhejne ke liye use hoga. Staff ke bill bhi isi number se jayenge.</p>
+                <div style="font-size:12px;color:#9ca3af;background:#111827;border:1px solid #1f2937;border-radius:8px;padding:10px;margin-bottom:10px;">Step 1: Number likhen & Save karein<br>Step 2: Test message bhej kar verify karein<br>Step 3: Neeche list se 1-click bill bhejein</div>
                 <div class="form-group"><label>ISP WhatsApp Number *</label><input id="waNumber" placeholder="e.g. 923001112233"></div>
                 <div class="form-group"><label>Default Bill Message</label><textarea id="waDefaultMsg" style="height:70px;">Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}</textarea></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -706,15 +738,15 @@
                 <p style="font-size:12px;color:#9ca3af;margin-top:10px;">Link: <span id="waLinkText" style="color:#60a5fa;word-break:break-all;">—</span></p>
             </div>
             <div class="card wa-box" style="text-align:center;">
-                <h3 style="color:#fbbf24;margin-bottom:10px;">📷 Scan QR — Connect WhatsApp</h3>
-                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Neeche QR ko mobile WhatsApp &gt; Linked Devices &gt; Link a Device se scan karein (demo connect).</p>
+                <h3 style="color:#fbbf24;margin-bottom:10px;">📷 Verify & Connect</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">QR aapke official number ka hai — customer scan karke aap se chat start kar sakta hai.</p>
                 <div class="qr-box"><img id="waQR" src="" alt="QR" style="width:200px;height:200px;display:none;"><div id="waQRPh" style="color:#333;font-size:12px;padding:60px 20px;">Number save karein<br>QR ban jayega</div></div>
                 <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
-                    <button class="btn-primary btn-sm btn-success" onclick="markWaConnected()">✅ Scan Ho Gaya — Connected</button>
+                    <button class="btn-primary btn-sm btn-success" onclick="markWaConnected()">✅ Verify — Connected</button>
                     <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="markWaDisconnected()">❌ Disconnect</button>
-                    <button class="btn-primary btn-sm" onclick="sendWaTest()">💬 Test Bill Bhejein</button>
+                    <button class="btn-primary btn-sm" onclick="sendWaTest()">💬 Test Message Bhejein</button>
                 </div>
-                <p style="font-size:11px;color:#9ca3af;margin-top:8px;">Status browser me save rehta hai (har ISP ka alag).</p>
+                <p style="font-size:11px;color:#9ca3af;margin-top:8px;">🔒 Har ISP ka number alag aur mehfooz rehta hai.</p>
             </div>
         </div>
         <div class="card">
@@ -869,6 +901,7 @@
                     <select id="editSubStatus">
                         <option value="Paid" style="background:#1f2937;">Paid / Active</option>
                         <option value="Unpaid" style="background:#1f2937;">Unpaid / Expired</option>
+                        <option value="Paused" style="background:#1f2937;">Paused / Arzi Band</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -2391,7 +2424,9 @@ renderSubscribersTable=function(){
   const canEdit=canDo('edit');
   list.forEach(sub=>{
     const tr=document.createElement('tr');
-    tr.innerHTML='<td><strong>'+sub.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">@'+sub.username+' - '+(sub.isp||'')+'</span></td><td>'+sub.package+'<br><span style="color:#60a5fa;font-size:11px;">Rs '+sub.fee+'</span></td><td>'+sub.phone+'</td><td><span style="color:'+(sub.status==='Paid'?'#34d399':'#f87171')+';font-weight:bold;">'+sub.status+'</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal('+sub.id+')">View Profile</button>'+(canEdit?'<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal('+sub.id+')">Edit</button>':'')+'</div></td>';
+    var stCol=(sub.status==='Paid'?'#34d399':(sub.status==='Paused'?'#fbbf24':'#f87171'));
+    var pauseBtn='<button class="btn-primary btn-sm" style="background:'+(sub.status==='Paused'?'#059669':'#d97706')+';" onclick="togglePauseSub('+sub.id+')">'+(sub.status==='Paused'?'▶ Bahal':'⏸ Arzi Band')+'</button>';
+    tr.innerHTML='<td><strong>'+sub.name+'</strong><br><span style="color:#9ca3af;font-size:11px;">@'+sub.username+' - '+(sub.isp||'')+'</span></td><td>'+sub.package+'<br><span style="color:#60a5fa;font-size:11px;">Rs '+sub.fee+'</span></td><td>'+sub.phone+'</td><td><span style="color:'+stCol+';font-weight:bold;">'+sub.status+'</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal('+sub.id+')">View Profile</button>'+(canEdit?'<button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal('+sub.id+')">Edit</button>':'')+pauseBtn+'</div></td>';
     tbody.appendChild(tr);
   });
 };
@@ -2533,11 +2568,12 @@ function injectExtraPerms(){
   if(document.getElementById('permView')) return;
   box.innerHTML += '<label><input type="checkbox" id="permView" checked style="width:auto;"> 👀 View Profile</label>'
     + '<label><input type="checkbox" id="permWhatsapp" checked style="width:auto;"> 💬 WhatsApp Bill</label>'
-    + '<label><input type="checkbox" id="permComplaints" checked style="width:auto;"> 🛠️ Complaints</label>';
+    + '<label><input type="checkbox" id="permComplaints" checked style="width:auto;"> 🛠️ Complaints</label>'
+    + '<label><input type="checkbox" id="permPause" checked style="width:auto;"> ⏸️ Arzi Band / Bahal</label>';
   // note about Add/Edit fields
   const note = document.createElement('p');
   note.style.cssText='font-size:11px;color:#9ca3af;margin-top:8px;';
-  note.innerHTML='ℹ️ <b>Add User</b> me ye sab shamil hai: Name, Username, Package, Fee, Installation, Balance, Mobile, CNIC, Connection Type, Due Date, Area, GPS, Address, Remarks.<br>ℹ️ <b>Edit User</b> me ye sab + Status, Sub-Area, Connection Date shamil hai.';
+  note.innerHTML='ℹ️ Tik = ON, khali = OFF';
   box.parentElement.appendChild(note);
 }
 
@@ -2554,7 +2590,7 @@ saveNewStaff = function(){
   if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
   if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
   const g=id=>{const el=document.getElementById(id); return el?el.checked:false;};
-  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints')};
+  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints'),pause:g('permPause')};
   // Excel + Areas + Packages staff ke liye hamesha OFF (sirf ISP/Superadmin)
   perms.excel=false; perms.areas=false; perms.packages=false;
   systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
@@ -2571,14 +2607,14 @@ function ensurePermModal(){
   +'<input type="hidden" id="permEditMob">'
   +'<p id="permEditName" style="font-size:13px;color:#9ca3af;margin-bottom:10px;"></p>'
   +'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;background:#0b0f19;padding:12px;border-radius:8px;">'
-  +'<label><input type="checkbox" id="e_permAdd" style="width:auto;"> ➕ Add New Subscriber (Name, Username, Package, Fee, Install, Balance, Mobile, CNIC, Type, Due Date, Area, GPS, Address, Remarks)</label>'
-  +'<label><input type="checkbox" id="e_permEdit" style="width:auto;"> ✏️ Edit Subscriber Profile (upar wali sab fields + Status, Sub-Area, Connection Date)</label>'
+  +'<label><input type="checkbox" id="e_permAdd" style="width:auto;"> ➕ Add New Subscriber</label>'
+  +'<label><input type="checkbox" id="e_permEdit" style="width:auto;"> ✏️ Edit Subscriber</label>'
   +'<label><input type="checkbox" id="e_permView" style="width:auto;"> 👀 View Profile</label>'
-  +'<label><input type="checkbox" id="e_permCollect" style="width:auto;"> 💰 Collect Fee / Recovery</label>'
+  +'<label><input type="checkbox" id="e_permCollect" style="width:auto;"> 💰 Collect Fee</label>'
   +'<label><input type="checkbox" id="e_permDel" style="width:auto;"> 🗑️ Delete User</label>'
-  +'<label><input type="checkbox" id="e_permWhatsapp" style="width:auto;"> 💬 WhatsApp Bill bhejna</label>'
-  +'<label><input type="checkbox" id="e_permComplaints" style="width:auto;"> 🛠️ Complaints (dekhna / resolve)</label>'
-  +'<p style="font-size:11px;color:#f87171;">❌ Areas/Zones, Packages Management, Excel Import — ye sirf ISP / Superadmin ke paas honge, staff ko nahi milenge.</p>'
+  +'<label><input type="checkbox" id="e_permWhatsapp" style="width:auto;"> 💬 WhatsApp Bill</label>'
+  +'<label><input type="checkbox" id="e_permComplaints" style="width:auto;"> 🛠️ Complaints</label>'
+  +'<label><input type="checkbox" id="e_permPause" style="width:auto;"> ⏸️ Arzi Band / Bahal</label>'
   +'</div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:12px;" onclick="savePermEdits()">💾 Save Permissions</button></div>';
   document.body.appendChild(d);
 }
@@ -2597,6 +2633,7 @@ editStaffPerms = function(mob){
   document.getElementById('e_permDel').checked=!!p.del;
   document.getElementById('e_permWhatsapp').checked=!!p.whatsapp;
   document.getElementById('e_permComplaints').checked=!!p.complaints;
+  document.getElementById('e_permPause').checked=(p.pause!==false);
   document.getElementById('permEditModal').classList.add('active');
 };
 savePermEdits = function(){
@@ -2610,6 +2647,7 @@ savePermEdits = function(){
     del:document.getElementById('e_permDel').checked,
     whatsapp:document.getElementById('e_permWhatsapp').checked,
     complaints:document.getElementById('e_permComplaints').checked,
+    pause:document.getElementById('e_permPause').checked,
     excel:false, areas:false, packages:false
   };
   saveUsers(); renderAllStaff();
@@ -2695,8 +2733,7 @@ function ensureIspStaffSection(){
     if(!ledger) return;
     sec=document.createElement('div');
     sec.id='ispLoginStaffCard'; sec.className='card';
-    sec.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;"><h3 style="color:#60a5fa;">👷 Login Staff & Permissions (ISP apne staff yahan add karein)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Login Staff</button></div>'
-    +'<p style="font-size:11px;color:#9ca3af;margin-bottom:10px;">Superadmin bhi yahan se kisi bhi ISP me staff add kar sakta hai. ISP sirf apne ISP me add karega. Har permission tik = ON, untick = OFF.</p>'
+    sec.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;"><h3 style="color:#60a5fa;">👷 Login Staff & Permissions</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Login Staff</button></div>'
     +'<table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="ispLoginStaffBody"></tbody></table>';
     ledger.appendChild(sec);
   }
@@ -2963,7 +3000,7 @@ switchTab = function(tabId, el){
   if(tabId==='superadmin' && !isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
   if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
   if(tabId==='complaints' && isStaff() && !canDo('complaints')){ alert('Complaints ki permission nahi hai!'); return; }
-  if(tabId==='whatsapp-billing' && isStaff() && !canDo('whatsapp')){ alert('WhatsApp Billing ki permission nahi hai!'); return; }
+  if(tabId==='whatsapp-billing' && isStaff()){ alert('WhatsApp Billing sirf ISP ke panel me hai — staff ke bill ISP wale number se jayenge!'); return; }
   try{
     if(!el||!el.parentElement){
       document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
@@ -3093,7 +3130,7 @@ saveNewStaff = function(){
   if(!n||!m||!ps){alert('Name + Number + Password zaroori');return;}
   if(systemUsers.find(x=>x.mobile===m)){alert('Ye number pehle se hai!');return;}
   const g=id=>{const el=document.getElementById(id); return el?el.checked:false;};
-  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints')};
+  const perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints'),pause:g('permPause')};
   FIELD_DEFS.forEach(f=>{ perms[f.key]=g('perm_'+f.key); });
   perms.excel=false; perms.areas=false; perms.packages=false;
   systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
@@ -3132,7 +3169,7 @@ editStaffPerms = function(mob){
   const set=(id,v)=>{const e=document.getElementById(id); if(e) e.checked=!!v;};
   set('e_permAdd',p.add); set('e_permEdit',p.edit); set('e_permView',(p.view!==false));
   set('e_permCollect',p.collect); set('e_permDel',p.del);
-  set('e_permWhatsapp',p.whatsapp); set('e_permComplaints',p.complaints);
+  set('e_permWhatsapp',p.whatsapp); set('e_permComplaints',p.complaints); set('e_permPause',(p.pause!==false));
   FIELD_DEFS.forEach(f=>{ set('e_perm_'+f.key, (p[f.key]!==false)); });
   document.getElementById('permEditModal').classList.add('active');
 };
@@ -3143,7 +3180,7 @@ savePermEdits = function(){
   s.perms={
     add:g('e_permAdd'), edit:g('e_permEdit'), view:g('e_permView'),
     collect:g('e_permCollect'), del:g('e_permDel'),
-    whatsapp:g('e_permWhatsapp'), complaints:g('e_permComplaints'),
+    whatsapp:g('e_permWhatsapp'), complaints:g('e_permComplaints'), pause:g('e_permPause'),
     excel:false, areas:false, packages:false
   };
   FIELD_DEFS.forEach(f=>{ s.perms[f.key]=g('e_perm_'+f.key); });
@@ -3643,7 +3680,7 @@ try{refreshAddButtons();}catch(e){}
     'Support':       { p:{view:1,whatsapp:1,complaints:1}, f:['f_name','f_mobile','f_package','f_area','f_address','f_gps'] },
     'Manager':       { p:{view:1,add:1,edit:1,collect:1,del:1,whatsapp:1,complaints:1} }
   };
-  const PERM_IDS = { add:'permAdd', edit:'permEdit', collect:'permCollect', del:'permDelete', view:'permView', whatsapp:'permWhatsapp', complaints:'permComplaints' };
+  const PERM_IDS = { add:'permAdd', edit:'permEdit', collect:'permCollect', del:'permDelete', view:'permView', whatsapp:'permWhatsapp', complaints:'permComplaints', pause:'permPause' };
   window.applyStaffPreset = function(cat){
     const pr = PRESETS[cat]; if(!pr) return;
     Object.keys(PERM_IDS).forEach(function(k){
@@ -4272,7 +4309,7 @@ calculateLedger=function(){
 };
 
 /* ---------------- Staff Permissions popup (button ab kaam karta hai) ---------------- */
-const ACTIONS=[['add','➕ Add New Subscriber'],['edit','✏️ Edit Subscriber'],['view','👀 View Profile'],['collect','💰 Collect Fee / Recovery'],['del','🗑️ Delete Subscriber'],['whatsapp','💬 WhatsApp Bill'],['complaints','🛠️ Complaints']];
+const ACTIONS=[['add','➕ Add New Subscriber'],['edit','✏️ Edit Subscriber'],['view','👀 View Profile'],['collect','💰 Collect Fee / Recovery'],['del','🗑️ Delete Subscriber'],['whatsapp','💬 WhatsApp Bill'],['complaints','🛠️ Complaints'],['pause','⏸️ Arzi Band / Bahal']];
 editStaffPerms=function(mob){
   if(!(isOwner()||isISP())) return;
   const s=systemUsers.find(x=>x.mobile===mob && x.role==='staff'); if(!s){ alert('Staff nahi mila!'); return; }
@@ -4369,7 +4406,7 @@ function payParts(sub, month){
   const fee=already?0:num(sub.fee), prev=num(sub.balance);
   return {fee, prev, due:fee+prev, already};
 }
-function owed(sub){ if(!sub) return 0; if(sub.status==='Paid') return Math.max(0,num(sub.balance)); return Math.max(0,payParts(sub,thisMonth()).due); }
+function owed(sub){ if(!sub) return 0; if(sub.status==='Paused') return 0; if(sub.status==='Paid') return Math.max(0,num(sub.balance)); return Math.max(0,payParts(sub,thisMonth()).due); }
 function ispSettings(isp){
   let d={}; try{ d=JSON.parse(localStorage.getItem('cloudisp_ispsettings_'+isp)||'{}'); }catch(e){}
   const u=systemUsers.find(x=>x.role==='isp'&&x.isp===isp);
@@ -5124,5 +5161,108 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 </script>
 <script>window.__CF$cv$params={r:'a47f02cebede581a',t:'MTc5MTU2NTk1NA==',u:'01a121a701a073a5abad6a375d50cc2a',ut:'PrYwrTf2m3j3wkiEsKz611L.PxZxyMfDToVbGoTnZIE-1791565955-1.2.1.1-TkRku3lsrdCoq_.HSDYO6CcU_yeH.yvq7nsn3ziCiimvRMtMIwJsP5iPEz_3YYUaJqkHSaRc2sZ9reK7R7agUrc.NiorZjrYH6H3umnWBVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>
 setInterval(function(){try{var u=JSON.parse(localStorage.getItem('cloudisp_users')||'[]').filter(x=>x.role==='isp');var c=JSON.parse(localStorage.getItem('cloudisp_isps')||'[]');if((!c||c.length===0)&&u.length>0){ispsList=u.map(x=>({name:x.company,city:'',users:0,status:'Paid',owner:x.name,mobile:x.mobile,pass:x.pass,address:x.address||''}));saveOffline();renderISPs();}}catch(e){}},3000);
-</script></body>
+</script>
+<script>
+/* ===== FIX PACK v2: hamburger + staff hides + WhatsApp shared + pause + cleanup ===== */
+function toggleSidebar(force){var s=document.getElementById('mainSidebar');var o=document.getElementById('sideOverlay');var open=(typeof force==='boolean')?force:!(s&&s.classList.contains('open'));if(s) s.classList.toggle('open',open);if(o) o.classList.toggle('show',open);}
+function closeSidebar(){toggleSidebar(false);}
+// nav click par drawer band (mobile)
+document.addEventListener('click',function(e){var li=e.target&&e.target.closest?e.target.closest('.nav-links li'):null;if(li&&window.innerWidth<=900){closeSidebar();}});
+// Staff: Staff-Members card hide + WhatsApp nav hide + ISP number share
+(function(){
+  var _applyDash=window.applyDashboardVisibility;
+  window.applyDashboardVisibility=function(){try{if(typeof _applyDash==='function')_applyDash();}catch(e){}
+    try{
+      var isSt=(typeof isStaff==='function')?isStaff(): (window.currentUser&&window.currentUser.role==='staff');
+      if(isSt){var boxes=document.querySelectorAll('#dashboard .stat-box');if(boxes&&boxes.length>=6){boxes[2].style.display='none';boxes[5].style.display='none';}}
+    }catch(e){}
+  };
+  var _applyRole=window.applyRole;
+  window.applyRole=function(){try{if(typeof _applyRole==='function')_applyRole();}catch(e){}
+    try{
+      var isSt=(typeof isStaff==='function')?isStaff(): (window.currentUser&&window.currentUser.role==='staff');
+      if(isSt){document.querySelectorAll('.nav-links li').forEach(function(li){var t=li.innerText||'';if(t.indexOf('WhatsApp Billing')!==-1){li.style.display='none';}});}
+    }catch(e){}
+    try{if(typeof applyDashboardVisibility==='function')applyDashboardVisibility();}catch(e){}
+  };
+  // staff ke liye ISP wala WhatsApp number use karo (shared)
+  if(typeof window.waKey==='function'){try{window._waKeyOrig=window.waKey;}catch(e){}}
+})();
+// waKey override: staff hamesha apne ISP ka key use kare
+try{
+  var _waKeyFn = window.waKey;
+} catch(e){}
+setTimeout(function(){
+  try{
+    if(typeof waKey==='function'&&!waKey.__sharedPatched){
+      var _origWaKey=waKey;
+      waKey=function(){try{if(typeof isStaff==='function'&&isStaff()&&typeof myISP==='function'&&myISP()){return 'cloudisp_wa_'+myISP();}}catch(e){} return _origWaKey();};
+      waKey.__sharedPatched=true;
+    }
+  }catch(e){}
+},500);
+// Arzi band / bahal (Pause) - status toggle + fee pause
+window.togglePauseSub=function(id){
+  var s=null;try{s=subscribersList.find(function(x){return x.id===id;});}catch(e){}
+  if(!s)return;
+  try{if(typeof canDo==='function'&&!canDo('pause')){alert('Arzi band/bahal ki permission nahi hai!');return;}}catch(e){}
+  if(s.status==='Paused'){s.status=s.prevStatus||'Unpaid';delete s.prevStatus;s.type=(s.status==='Paid')?'active':'unpaid';}
+  else{s.prevStatus=s.status;s.status='Paused';s.type='paused';}
+  try{saveOffline();}catch(e){}
+  try{renderSubscribersTable();}catch(e){}
+  try{calculateLedger();}catch(e){}
+  try{renderWaTable();}catch(e){}
+  try{if(document.getElementById('userProfileModal').classList.contains('active'))openUserProfileModal(id);}catch(e){}
+};
+window.setSubStatusPaused=function(id,pause){
+  var s=subscribersList.find(function(x){return x.id===id;});if(!s)return;
+  if(pause){if(s.status!=='Paused'){s.prevStatus=s.status;s.status='Paused';s.type='paused';}}
+  else{s.status=s.prevStatus||'Unpaid';delete s.prevStatus;s.type=(s.status==='Paid')?'active':'unpaid';}
+  try{saveOffline();renderSubscribersTable();calculateLedger();}catch(e){}
+};
+// Extra / faltu wazahat hatana - sirf kaam ki cheez
+setTimeout(function(){
+  try{
+    document.querySelectorAll('p').forEach(function(p){
+      var t=(p.innerText||'');
+      if(t.indexOf('ISP naya staff add nahi kar sakta')!==-1){p.style.display='none';}
+      if(t.indexOf('Superadmin bhi yahan se kisi bhi ISP')!==-1){p.style.display='none';}
+      if(t.indexOf('Areas/Zones, Packages Management, Excel Import')!==-1){p.style.display='none';}
+      if(t.indexOf('Add User')!==-1&&t.indexOf('Name, Username, Package')!==-1){p.style.display='none';}
+    });
+    // staff section heading chota-saaf
+    document.querySelectorAll('h3').forEach(function(h){
+      if(h.innerText.indexOf('Login Staff & Permissions (ISP apne staff yahan add karein)')!==-1){h.innerText='\uD83D\uDC77 Login Staff & Permissions';}
+    });
+  }catch(e){}
+},800);
+// canDo: pause permission (default ON, ISP OFF kar sakta hai)
+setTimeout(function(){try{
+  if(typeof canDo==='function'&&!canDo.__pausePatched){
+    var _cd=canDo;canDo=function(w){try{if(w==='pause'){if(!window.currentUser)return true;if(currentUser.role==='owner'||currentUser.role==='isp')return true;var pr=currentUser.perms||{};return pr.pause!==false;}}catch(e){}return _cd(w);};canDo.__pausePatched=true;
+  }
+  // purane staff ko pause default ON
+  try{(systemUsers||[]).forEach(function(u){if(u.role==='staff'){u.perms=u.perms||{};if(u.perms.pause===undefined)u.perms.pause=true;if(u.perms.whatsapp===undefined)u.perms.whatsapp=true;}});saveUsers();}catch(e){}
+  // Paused par fee collect block
+  if(typeof collectFee==='function'&&!collectFee.__pausePatched){
+    var _cf=collectFee;collectFee=function(id){try{var s=subscribersList.find(function(x){return x.id===id;});if(s&&s.status==='Paused'){alert('Ye user Arzi-Band hai — pehle Bahal karein phir fee collect karein!');return;}}catch(e){}return _cf(id);};collectFee.__pausePatched=true;
+  }
+  // Profile modal me Arzi Band / Bahal button
+  if(typeof openUserProfileModal==='function'&&!openUserProfileModal.__pausePatched){
+    var _op=openUserProfileModal;openUserProfileModal=function(id){_op(id);try{
+      var s=subscribersList.find(function(x){return x.id===id;});if(!s)return;
+      var c=document.getElementById('userProfileContent');if(!c)return;
+      if(c.querySelector('[data-pause-btn]'))return;
+      var btn=document.createElement('button');btn.setAttribute('data-pause-btn','1');
+      var paused=(s.status==='Paused');
+      btn.textContent=paused?'▶ Bahal Karo':'⏸ Arzi Band Karo';
+      btn.style.cssText='flex:1;background:'+(paused?'#059669':'#d97706')+';color:white;border:none;padding:8px;border-radius:4px;font-weight:bold;cursor:pointer;font-size:11px;margin-top:6px;width:100%;';
+      btn.onclick=(function(sid){return function(){togglePauseSub(sid);};})(id);
+      try{if(!canDo('pause'))btn.style.display='none';}catch(e){}
+      c.querySelector('.user-profile-view').appendChild(btn);
+    }catch(e){}};openUserProfileModal.__pausePatched=true;
+  }
+}catch(e){}},700);
+</script>
+<script>window.__CF$cv$params={r:'a502f1db29c638c4',t:'MTc5Mjk0OTM4MA==',u:'01a1741c691573a8a38229d169e6d3dd',ut:'lYPbyh.2XklojwDnfXNNY7uPUFU6pGXgG_2rGc50nFU-1792949381-1.2.1.1-OZ8OmTFML7TE7BYULJ19k72MakSocIpsAxWGGp5WPr2ZSn2FT.ntaduxAFfSKQnu0JaNK6fOGIV5K9AmmoxnEu_sjUyrIP0M097j.LOzLTo',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
