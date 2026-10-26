@@ -462,11 +462,9 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <style>
     /* ===== FIX PACK: PWA compact cards + hamburger sidebar + cleanups ===== */
-    #menuBtn{display:none;background:#111827;border:1px solid #374151;color:#fff;font-size:22px;line-height:1;padding:9px 13px;border-radius:10px;cursor:pointer;min-width:46px;min-height:44px;}
+    #menuBtn{display:none;background:#111827;border:1px solid #1f2937;color:#fff;font-size:20px;line-height:1;padding:8px 12px;border-radius:10px;cursor:pointer;}
     #sideOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;}
     #sideOverlay.show{display:block;}
-    #drawerCloseBtn{display:none;}
-    .drawer-actions{display:none;}
     @media (max-width: 900px){
       #menuBtn{display:block;}
       /* PWA: chote compact cards - 2 columns hamesha */
@@ -482,12 +480,6 @@
       .nav-links li a{white-space:normal !important;}
       .sidebar > div:last-child{display:block !important;margin-top:12px;}
       .top-global-header{left:0 !important;gap:8px;}
-      #drawerCloseBtn{display:block !important;flex-shrink:0;}
-      .logo-container{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px;margin-bottom:0 !important;}
-      .drawer-actions{display:flex !important;}
-      .nav-links li{display:block !important;width:100% !important;}
-      .nav-links li a{display:flex !important;width:100% !important;padding:12px 12px !important;font-size:14px !important;}
-      .sign-out-btn{width:100%;}
     }
     @media (max-width: 560px){
       .grid-6{grid-template-columns:1fr 1fr !important;}
@@ -506,14 +498,11 @@
     <div class="sidebar" id="mainSidebar">
         <div class="sidebar-top">
             <div class="logo-container">
-                <div style="display:flex;align-items:center;gap:12px;flex:1;">
                 <div class="logo-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 4px 14px rgba(37,99,235,.45);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div>
                 <div class="logo-text">
                     <h2>CloudISP</h2>
                     <p>Pro Billing System</p>
                 </div>
-                </div>
-                <button id="drawerCloseBtn" onclick="toggleSidebar(false)" aria-label="Close" style="background:#111827;border:1px solid #374151;color:#fff;font-size:18px;padding:6px 11px;border-radius:9px;cursor:pointer;">✕</button>
             </div>
             <ul class="nav-links">
                 <li class="active" onclick="switchTab('dashboard', this)">
@@ -549,10 +538,6 @@
             </ul>
         </div>
         <div>
-            <div class="drawer-actions" style="flex-direction:column;gap:8px;margin-bottom:10px;">
-                <button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="closeSidebar();openAddSubscriberModal()">+ Add Subscriber</button>
-                <button class="btn-logout" style="width:100%;text-align:center;" onclick="signOut()">🚪 Logout</button>
-            </div>
             <button class="sign-out-btn" onclick="signOut()">
                 🚪 Sign out
             </button>
@@ -730,72 +715,53 @@
     </div>
 
     <!-- 4. WhatsApp Billing Section : Link + Scan for ISP -->
-   <!-- 4. WhatsApp Billing Section : Meta Official Cloud API Settings -->
-<div id="whatsapp-billing" class="main-content">
-    <div class="header-banner">
-        <div>
-            <h1>💬 WhatsApp Billing — Official API</h1>
-            <p>Meta Cloud API ke zariye customer ko automatic bill aur reminder bhejein</p>
-        </div>
-        <span id="waStatusBadge" class="badge badge-isp">API Configured</span>
-    </div>
-    <div class="grid-6" style="grid-template-columns:1fr 1fr;">
-        <div class="card wa-box">
-            <h3 style="color:#25D366;margin-bottom:10px;">🔑 Meta Official Credentials</h3>
-            <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Yahan apna Meta Developer Permanent Token aur Phone Number ID enter karein.</p>
-            
-            <div class="form-group">
-                <label>ISP WhatsApp Phone ID *</label>
-                <input id="waPhoneId" placeholder="e.g. 1069xxxxxxxxxxx">
-            </div>
-            
-            <div class="form-group">
-                <label>Meta Access Token *</label>
-                <input type="password" id="waAccessToken" placeholder="e.g. EAAxxxx...">
-            </div>
-
-            <div class="form-group">
-                <label>Default Bill Message</label>
-                <textarea id="waDefaultMsg" style="height:70px;">Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}</textarea>
-            </div>
-
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn-primary btn-success btn-sm" onclick="saveMetaApiSettings()">💾 Save Credentials</button>
-                <button class="btn-primary btn-sm" onclick="sendWaTestApi()">💬 Test Message Bhejein</button>
-            </div>
-        </div>
-
-        <div class="card wa-box" style="display:flex;flex-direction:column;justify-content:space-between;">
+    <div id="whatsapp-billing" class="main-content">
+        <div class="header-banner">
             <div>
-                <h3 style="color:#fbbf24;margin-bottom:10px;">⚡ API Status & Instructions</h3>
-                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Meta Cloud API direct Vercel par kaam karegi. Isme QR code scan karne ki zaroorat nahi parti.</p>
-                
-                <div style="background:#0b0f19;border:1px solid #374151;border-radius:8px;padding:12px;font-size:12px;color:#9ca3af;space-y:6px;">
-                    <p style="color:#34d399;margin-bottom:4px;">✔ <strong>Direct Delivery:</strong> One-click par message customer ke WhatsApp par jayega.</p>
-                    <p style="color:#60a5fa;">✔ <strong>Fallback Ready:</strong> Agar ISP ka token na ho, toh Owner ka default token use hoga.</p>
-                </div>
+                <h1>💬 WhatsApp Billing — Official</h1>
+                <p>Apne business number se customer ko bill aur reminder bhejein</p>
             </div>
-
-            <p style="font-size:11px;color:#9ca3af;margin-top:8px;text-align:center;">🔒 Har ISP ka token alag aur mehfooz rehta hai.</p>
+            <span id="waStatusBadge" class="badge badge-isp">Not Connected</span>
+        </div>
+        <div class="grid-6" style="grid-template-columns:1fr 1fr;">
+            <div class="card wa-box">
+                <h3 style="color:#25D366;margin-bottom:10px;">🔗 Official Sender Number</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Yehi number bill bhejne ke liye use hoga. Staff ke bill bhi isi number se jayenge.</p>
+                <div style="font-size:12px;color:#9ca3af;background:#111827;border:1px solid #1f2937;border-radius:8px;padding:10px;margin-bottom:10px;">Step 1: Number likhen & Save karein<br>Step 2: Test message bhej kar verify karein<br>Step 3: Neeche list se 1-click bill bhejein</div>
+                <div class="form-group"><label>ISP WhatsApp Number *</label><input id="waNumber" placeholder="e.g. 923001112233"></div>
+                <div class="form-group"><label>Default Bill Message</label><textarea id="waDefaultMsg" style="height:70px;">Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}</textarea></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-primary btn-success btn-sm" onclick="saveWhatsAppLink()">💾 Save & Generate Link</button>
+                    <button class="btn-primary btn-sm" onclick="copyWhatsAppLink()">📋 Copy Link</button>
+                    <a id="waOpenLink" href="#" target="_blank" class="btn-primary btn-sm" style="background:#25D366;text-decoration:none;">↗ Open WhatsApp</a>
+                </div>
+                <p style="font-size:12px;color:#9ca3af;margin-top:10px;">Link: <span id="waLinkText" style="color:#60a5fa;word-break:break-all;">—</span></p>
+            </div>
+            <div class="card wa-box" style="text-align:center;">
+                <h3 style="color:#fbbf24;margin-bottom:10px;">📷 Verify & Connect</h3>
+                <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">QR aapke official number ka hai — customer scan karke aap se chat start kar sakta hai.</p>
+                <div class="qr-box"><img id="waQR" src="" alt="QR" style="width:200px;height:200px;display:none;"><div id="waQRPh" style="color:#333;font-size:12px;padding:60px 20px;">Number save karein<br>QR ban jayega</div></div>
+                <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+                    <button class="btn-primary btn-sm btn-success" onclick="markWaConnected()">✅ Verify — Connected</button>
+                    <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="markWaDisconnected()">❌ Disconnect</button>
+                    <button class="btn-primary btn-sm" onclick="sendWaTest()">💬 Test Message Bhejein</button>
+                </div>
+                <p style="font-size:11px;color:#9ca3af;margin-top:8px;">🔒 Har ISP ka number alag aur mehfooz rehta hai.</p>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="color:#fbbf24;margin-bottom:10px;">📋 Customers ko WhatsApp Bill</h3>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Neeche apne ISP ke customers hain — ek click par bill bhejein.</p>
+            <table><thead><tr><th>Customer</th><th>Package / Fee</th><th>Mobile</th><th>WhatsApp Bill</th></tr></thead><tbody id="waTableBody"></tbody></table>
         </div>
     </div>
 
-    <div class="card">
-        <h3 style="color:#fbbf24;margin-bottom:10px;">📋 Customers ko WhatsApp Bill</h3>
-        <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Neeche apne ISP ke customers hain — ek click par official API se bill bhejein.</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Customer</th>
-                    <th>Package / Fee</th>
-                    <th>Mobile</th>
-                    <th>WhatsApp Bill</th>
-                </tr>
-            </thead>
-            <tbody id="waTableBody"></tbody>
-        </table>
-    </div>
-</div>
+    <!-- Interactive Card Detail & Search Modal -->
+    <div id="cardModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="cardModalTitle">📋 List Details</h3>
+                <button class="close-btn" onclick="closeCardModal()">&times;</button>
             </div>
             <div class="form-group">
                 <input type="text" id="modalSearchInput" placeholder="🔍 Search by name..." onkeyup="filterCardList()">
@@ -2295,42 +2261,8 @@
         function sendWaBill(id){
             const sub=subscribersList.find(s=>s.id===id); if(!sub) return;
             if(!sub.phone){alert('Customer ka mobile nahi hai');return;}
-            sendWaBillAuto(sub);
+            window.open('https://wa.me/'+sub.phone+'?text='+encodeURIComponent(waBillText(sub)),'_blank');
         }
-        async function sendWaBillAuto(sub){
-            var text=waBillText(sub);
-            var to=(sub.phone||'').replace(/\D/g,'');
-            // Tick check: ISP ka WhatsApp verified (Connected) hai ya nahi
-            var tick=false;
-            try{var dk=JSON.parse(localStorage.getItem(waKey())||'{}');tick=!!(dk.number&&dk.connected);}catch(e){}
-            if(!tick){
-              // Tick nahi = manual bhejna parega
-              window.open('https://wa.me/'+to+'?text='+encodeURIComponent(text),'_blank');
-              return;
-            }
-            // Tick wala = Automatic Cloud API try karo
-            try{
-              var r=await fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:to,message:text,isp:(typeof myISP==='function'?myISP():''),customer:sub.name})});
-              if(r.ok){var j=null;try{j=await r.json();}catch(e){}
-                if(j&&j.ok){alert('✅ Bill automatic bhej diya gaya — '+sub.name);try{updateWaAutoStatus(true);}catch(e){}return;}
-              }
-            }catch(e){}
-            // API fail ho to fallback: manual
-            window.open('https://wa.me/'+to+'?text='+encodeURIComponent(text),'_blank');
-        }
-        function updateWaAutoStatus(online){
-            var el=document.getElementById('waAutoStatus');if(!el)return;
-            if(online===true){el.innerHTML='<b style="color:#34d399;">● Automatic ON — bill khud jayega</b>';}
-            else if(online===false){el.innerHTML='<b style="color:#fbbf24;">○ 1-Click Mode — API abhi connect nahi</b>';}
-        }
-        // page khulne par API + Tick check karo (silent)
-        setTimeout(async function(){
-          var tick=false;try{var dk=JSON.parse(localStorage.getItem(waKey())||'{}');tick=!!(dk.number&&dk.connected);}catch(e){}
-          if(!tick){updateWaAutoStatus(false);return;}
-          try{
-          var r=await fetch('/api/send-whatsapp',{method:'GET'});
-          updateWaAutoStatus(r.ok);
-        }catch(e){updateWaAutoStatus(false);}},1200);
         function sendWaTest(){
             let d={}; try{d=JSON.parse(localStorage.getItem(waKey())||'{}');}catch(e){}
             if(!d.number){alert('Pehle apna WhatsApp number save karein');return;}
@@ -5331,86 +5263,6 @@ setTimeout(function(){try{
     }catch(e){}};openUserProfileModal.__pausePatched=true;
   }
 }catch(e){}},700);
-// Meta Official API Settings Save karne ka function
-function saveMetaApiSettings() {
-    const phoneId = document.getElementById('waPhoneId').value.trim();
-    const accessToken = document.getElementById('waAccessToken').value.trim();
-    const defaultMsg = document.getElementById('waDefaultMsg').value.trim();
-
-    if(!phoneId || !accessToken) {
-        alert('Baraye meharbani Phone ID aur Access Token dono enter karein!');
-        return;
-    }
-
-    // LocalStorage ya backend mein save karne ke liye
-    localStorage.setItem('cisp_wa_phone_id', phoneId);
-    localStorage.setItem('cisp_wa_token', accessToken);
-    localStorage.setItem('cisp_wa_msg', defaultMsg);
-
-    alert('Meta Official API Credentials successfully save ho gayi hain!');
-}
-
-// Test Message Bhejne ka function
-async function sendWaTestApi() {
-    const phoneId = document.getElementById('waPhoneId').value.trim();
-    const accessToken = document.getElementById('waAccessToken').value.trim();
-
-    if(!phoneId || !accessToken) {
-        alert('Pehle apni credentials enter karke Save karein!');
-        return;
-    }
-
-    const testNumber = prompt('Jis number par test message bhejna hai woh enter karein (misal ke tor par 923001234567):');
-    if(!testNumber) return;
-
-    alert('Test message request generate ho gayi hai! (Official API endpoint connect kiya ja raha hai...)');
-
-    // Yahan Meta Cloud API ka official endpoint call hota hai
-    // const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
-    // Baad mein aap isay backend API (/api/send-whatsapp) ke sath link kar sakte hain.
-}
-
-// Customers ki table load karne ka function (WhatsApp Billing Tab ke liye)
-function renderWaTable() {
-    const tbody = document.getElementById('waTableBody');
-    if(!tbody) return;
-    tbody.innerHTML = '';
-
-    if(subscribersList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">Koi subscriber mojood nahi hai.</td></tr>`;
-        return;
-    }
-
-    subscribersList.forEach(sub => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${sub.name}</strong><br><span style="color:#9ca3af; font-size:11px;">@${sub.username}</span></td>
-            <td>${sub.package}<br><span style="color:#60a5fa; font-size:11px;">Rs ${sub.fee}</span></td>
-            <td>${sub.phone}</td>
-            <td>
-                <button class="btn-primary btn-sm btn-success" onclick="sendOfficialBill('${sub.phone}', '${sub.name}', '${sub.package}', ${sub.fee})">
-                    💬 Bill Bhejein
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function sendOfficialBill(phone, name, pkg, fee) {
-    const token = localStorage.getItem('cisp_wa_token');
-    const phoneId = localStorage.getItem('cisp_wa_phone_id');
-
-    if(!token || !phoneId) {
-        alert('Pehle upar Meta API Credentials save karein!');
-        return;
-    }
-
-    const company = appSettings.company || 'CloudISP';
-    const message = `Assalam-o-Alaikum ${name}! Aap ka ${pkg} ka bill Rs ${fee} due hai. — ${company}`;
-    
-    // Direct WhatsApp Web fallback ya Meta API dispatch
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-}</script>
-<script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+</script>
+<script>window.__CF$cv$params={r:'a502f1db29c638c4',t:'MTc5Mjk0OTM4MA==',u:'01a1741c691573a8a38229d169e6d3dd',ut:'lYPbyh.2XklojwDnfXNNY7uPUFU6pGXgG_2rGc50nFU-1792949381-1.2.1.1-OZ8OmTFML7TE7BYULJ19k72MakSocIpsAxWGGp5WPr2ZSn2FT.ntaduxAFfSKQnu0JaNK6fOGIV5K9AmmoxnEu_sjUyrIP0M097j.LOzLTo',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
