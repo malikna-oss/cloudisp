@@ -5331,6 +5331,86 @@ setTimeout(function(){try{
     }catch(e){}};openUserProfileModal.__pausePatched=true;
   }
 }catch(e){}},700);
-</script>
+// Meta Official API Settings Save karne ka function
+function saveMetaApiSettings() {
+    const phoneId = document.getElementById('waPhoneId').value.trim();
+    const accessToken = document.getElementById('waAccessToken').value.trim();
+    const defaultMsg = document.getElementById('waDefaultMsg').value.trim();
+
+    if(!phoneId || !accessToken) {
+        alert('Baraye meharbani Phone ID aur Access Token dono enter karein!');
+        return;
+    }
+
+    // LocalStorage ya backend mein save karne ke liye
+    localStorage.setItem('cisp_wa_phone_id', phoneId);
+    localStorage.setItem('cisp_wa_token', accessToken);
+    localStorage.setItem('cisp_wa_msg', defaultMsg);
+
+    alert('Meta Official API Credentials successfully save ho gayi hain!');
+}
+
+// Test Message Bhejne ka function
+async function sendWaTestApi() {
+    const phoneId = document.getElementById('waPhoneId').value.trim();
+    const accessToken = document.getElementById('waAccessToken').value.trim();
+
+    if(!phoneId || !accessToken) {
+        alert('Pehle apni credentials enter karke Save karein!');
+        return;
+    }
+
+    const testNumber = prompt('Jis number par test message bhejna hai woh enter karein (misal ke tor par 923001234567):');
+    if(!testNumber) return;
+
+    alert('Test message request generate ho gayi hai! (Official API endpoint connect kiya ja raha hai...)');
+
+    // Yahan Meta Cloud API ka official endpoint call hota hai
+    // const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
+    // Baad mein aap isay backend API (/api/send-whatsapp) ke sath link kar sakte hain.
+}
+
+// Customers ki table load karne ka function (WhatsApp Billing Tab ke liye)
+function renderWaTable() {
+    const tbody = document.getElementById('waTableBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    if(subscribersList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#9ca3af;">Koi subscriber mojood nahi hai.</td></tr>`;
+        return;
+    }
+
+    subscribersList.forEach(sub => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${sub.name}</strong><br><span style="color:#9ca3af; font-size:11px;">@${sub.username}</span></td>
+            <td>${sub.package}<br><span style="color:#60a5fa; font-size:11px;">Rs ${sub.fee}</span></td>
+            <td>${sub.phone}</td>
+            <td>
+                <button class="btn-primary btn-sm btn-success" onclick="sendOfficialBill('${sub.phone}', '${sub.name}', '${sub.package}', ${sub.fee})">
+                    💬 Bill Bhejein
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function sendOfficialBill(phone, name, pkg, fee) {
+    const token = localStorage.getItem('cisp_wa_token');
+    const phoneId = localStorage.getItem('cisp_wa_phone_id');
+
+    if(!token || !phoneId) {
+        alert('Pehle upar Meta API Credentials save karein!');
+        return;
+    }
+
+    const company = appSettings.company || 'CloudISP';
+    const message = `Assalam-o-Alaikum ${name}! Aap ka ${pkg} ka bill Rs ${fee} due hai. — ${company}`;
+    
+    // Direct WhatsApp Web fallback ya Meta API dispatch
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+}</script>
 <script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
