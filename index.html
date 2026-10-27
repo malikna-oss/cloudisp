@@ -1931,7 +1931,7 @@
             items.forEach(li=>{
                 const t=li.innerText;
                 if(t.includes('Super Admin')){ li.style.display = isOwner()?'':'none'; }
-                else if(t.includes('Staff Ledger')){ li.style.display = isOwner()?'':(isStaff()?'none':''); }
+                else if(t.includes('Staff Ledger')){ li.style.display = (isISP())?'': 'none'; }
                 else { li.style.display = ''; }
                 // staff with no permissions still sees tabs but buttons locked
             });
@@ -2340,7 +2340,8 @@
         const _origSwitch = switchTab;
         switchTab = function(tabId, el){
             if(tabId==='superadmin' && !isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
-            if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+            if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf ISP dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger' && isOwner()){ alert('Staff Ledger Superadmin panel se hata diya gaya hai — sirf ISP ke panel me hai!'); return; }
             try{
               if(!el || !el.parentElement){
                 // fallback without crashing original parentElement logic
@@ -2389,8 +2390,8 @@ applyRole = function(){
   items.forEach(li=>{
     const t=li.innerText;
     if(isOwner()){
-      // Owner: Dashboard, Subscribers (ISP list), Payments (ISP-wise), Staff Ledger (add), Super Admin, Settings. Hide: Packages, Complaints, Areas, WhatsApp
-      if(t.includes('Super Admin')||t.includes('Dashboard')||t.includes('Subscribers')||t.includes('Payments')||t.includes('Staff Ledger')||t.includes('Settings')) li.style.display='';
+      // Owner: Superadmin panel se Staff Ledger hata diya — sirf ISP dekhega
+      if(t.includes('Super Admin')||t.includes('Dashboard')||t.includes('Subscribers')||t.includes('Payments')||t.includes('Settings')) li.style.display='';
       else li.style.display='none';
     } else if(isISP()){
       if(t.includes('Super Admin')) li.style.display='none'; else li.style.display='';
@@ -2428,7 +2429,8 @@ const _origSwitch2=switchTab;
 switchTab=function(tabId,el){
   if(isOwner()&&(tabId==='packages'||tabId==='complaints'||tabId==='areas'||tabId==='whatsapp-billing')){ alert('Ye option sirf ISP ke panel me hai!'); return; }
   if(tabId==='superadmin'&&!isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
-  if(tabId==='staff-ledger'&&isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger'&&isStaff()){ alert('Staff ledger sirf ISP dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger'&&isOwner()){ alert('Staff Ledger Superadmin panel se hata diya gaya hai — sirf ISP ke panel me hai!'); return; }
   try{
     if(!el||!el.parentElement){
       document.querySelectorAll('.main-content').forEach(c=>c.classList.remove('active'));
@@ -2759,7 +2761,7 @@ applyRole = function(){
       if(t.includes('Super Admin')||t.includes('Dashboard')||t.includes('Subscribers')||t.includes('Payments')||t.includes('Settings')) li.style.display='';
       else li.style.display='none';
     } else if(isISP()){
-      if(t.includes('Super Admin')) li.style.display='none'; else if(t.includes('Staff Ledger')) li.style.display='none'; else li.style.display='';
+      if(t.includes('Super Admin')) li.style.display='none'; else li.style.display='';
       if(t.includes('Packages')) li.style.display='none';
     } else {
       // staff: Super Admin, Staff Ledger, Settings, Areas, Packages hidden + complaints/payments perm check
@@ -3067,7 +3069,8 @@ switchTab = function(tabId, el){
   if(tabId==='packages'){ alert('Packages Management hata diya gaya hai — Add New Subscriber me direct package + fee likhen!'); return; }
   if(tabId==='areas' && isStaff()){ alert('Areas/Zones sirf ISP ke panel me hai!'); return; }
   if(tabId==='superadmin' && !isOwner()){ alert('Sirf Superadmin dekh sakta hai!'); return; }
-  if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf Superadmin/ISP dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger' && isStaff()){ alert('Staff ledger sirf ISP dekh sakta hai!'); return; }
+  if(tabId==='staff-ledger' && isOwner()){ alert('Staff Ledger Superadmin panel se hata diya gaya hai — sirf ISP ke panel me hai!'); return; }
   if(tabId==='complaints' && isStaff() && !canDo('complaints')){ alert('Complaints ki permission nahi hai!'); return; }
   if(tabId==='whatsapp-billing' && isStaff()){ alert('WhatsApp Billing sirf ISP ke panel me hai — staff ke bill ISP wale number se jayenge!'); return; }
   try{
@@ -5335,5 +5338,5 @@ setTimeout(function(){try{
   }
 }catch(e){}},700);
 </script>
-<script>window.__CF$cv$params={r:'a5141ac96d5938c4',t:'MTc5MzEyOTMxNA==',u:'01a17ed5ff7a777aae2b14d37af2a639',ut:'QrDk6LWXr0mlE9aJVjw32HrC7ZT8i9zFQak9cx.oI80-1793129316-1.2.1.1-yFPVWn9m1sMXRwui54siZPpG5QKaVlSVZFL1QRXE.APFrCy_B6KeLdi_nvcqrND8umMMjqOgAv3V1FfVro433O4p6pva6OqMzrWJ4FfJaY4',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+<script>window.__CF$cv$params={r:'a5142c319b1638c4',t:'MTc5MzEzMDAyNw==',u:'01a17ee0e39770fab922c8e718308baa',ut:'8eCTB4rV5pnCXz3Ti9B0tJapN1ftfKl1EyDYI3Op7s0-1793130029-1.2.1.1-RCcDzyhBgpnazVSy98DVt6O6Yco6XSNDS.XuycEbjuDvxMmQl0qoz0j9EIzH1CPbLz0atkpFS8jDjWZYszycl.Xfp43292CL2iGBFu3XCVU',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
 </html>
