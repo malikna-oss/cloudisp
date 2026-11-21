@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>CloudISP -   Billing & Management System</title>
+    <title>CloudISP -   Billing &amp; Management System</title>
     <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -497,32 +496,32 @@
     /* Paused / Arzi-band badge */
     .badge-paused{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.35);}
     </style>
-</head>
-<body>
-    <div id="offlineBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d97706;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;">⚠️ Offline Mode — Fees & Bill phone me save honge, net aate hi sync ho jayenge</div>
+<style id="v4css">#recoveryReportBox{display:none !important;} #fieldPermsBox{display:none !important;} .v4-stat{background:#0b0f19;border:1px solid #374151;border-radius:10px;padding:12px;} .v4-stat small{display:block;color:#9ca3af;font-size:11px;margin-bottom:4px;} .v4-stat b{font-size:18px;}</style><script src="/cdn-cgi/challenge-platform/scripts/precursor/main.js"></script><script src="/cdn-cgi/challenge-platform/scripts/precursor/main.js"></script><script src="https://cloudisp-app.vercel.app/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0cab10cc19080"></script></head>
+<body class="cisp-isp">
+    <div id="offlineBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d97706;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;">⚠️ Offline Mode — Fees &amp; Bill phone me save honge, net aate hi sync ho jayenge</div>
 
-    <div id="sideOverlay" onclick="toggleSidebar(false)"></div>
+    <div id="sideOverlay" onclick="toggleSidebar(false)" class=""></div>
     <!-- Sidebar -->
     <div class="sidebar" id="mainSidebar">
         <div class="sidebar-top">
             <div class="logo-container">
                 <div style="display:flex;align-items:center;gap:12px;flex:1;">
-                <div class="logo-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 4px 14px rgba(37,99,235,.45);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div>
+                <div class="logo-icon" style="background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 4px 14px rgba(37,99,235,.45);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"></path><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"></path><path d="M8.6 16a6 6 0 0 1 6.8 0"></path><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"></circle></svg></div>
                 <div class="logo-text">
                     <h2>CloudISP</h2>
                     <p>Pro Billing System</p>
                 </div>
                 </div>
-                <button id="drawerCloseBtn" onclick="toggleSidebar(false)" aria-label="Close" style="background:#111827;border:1px solid #374151;color:#fff;font-size:18px;padding:6px 11px;border-radius:9px;cursor:pointer;">✕</button>
+                <button id="drawerCloseBtn" onclick="toggleSidebar(false)" aria-label="Close" style="background:#111827;border:1px solid #374151;color:#fff;font-size:18px;padding:6px 11px;border-radius:9px;cursor:pointer;" fdprocessedid="huiqmo">✕</button>
             </div>
-            <ul class="nav-links">
-                <li class="active" onclick="switchTab('dashboard', this)">
+            <ul class="nav-links active">
+                <li class="" onclick="switchTab('dashboard', this)">
                     <a href="#">📊 Dashboard</a>
                 </li>
                 <li onclick="switchTab('subscribers', this)">
                     <a href="#">👥 Subscribers</a>
                 </li>
-                <li onclick="switchTab('packages', this)">
+                <li onclick="switchTab('packages', this)" style="display: none;">
                     <a href="#">📦 Packages</a>
                 </li>
                 <li onclick="switchTab('payments', this)">
@@ -543,17 +542,17 @@
                 <li onclick="switchTab('settings', this)">
                     <a href="#">⚙️ Settings</a>
                 </li>
-                <li onclick="switchTab('superadmin', this)">
+                <li onclick="switchTab('superadmin', this)" style="display: none;">
                     <a href="#">👑 Super Admin</a>
                 </li>
             </ul>
         </div>
         <div>
             <div class="drawer-actions" style="flex-direction:column;gap:8px;margin-bottom:10px;">
-                <button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="closeSidebar();openAddSubscriberModal()">+ Add Subscriber</button>
-                <button class="btn-logout" style="width:100%;text-align:center;" onclick="signOut()">🚪 Logout</button>
+                <button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="closeSidebar();openAddSubscriberModal()" fdprocessedid="0dbtfo">+ Add Subscriber</button>
+                <button class="btn-logout" style="width:100%;text-align:center;" onclick="signOut()" fdprocessedid="vgmsw">🚪 Logout</button>
             </div>
-            <button class="sign-out-btn" onclick="signOut()">
+            <button class="sign-out-btn" onclick="signOut()" fdprocessedid="4t6gk9">
                 🚪 Sign out
             </button>
         </div>
@@ -561,52 +560,52 @@
 
     <!-- Top Global Header Bar with Hamburger --> 
     <div class="top-global-header">
-        <button id="menuBtn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-        <span id="whoChip" class="who-chip"></span>
-        <button class="btn-primary btn-success" onclick="openAddSubscriberModal()">+ Add Subscriber</button>
-        <button id="themeBtn" class="btn-primary btn-sm" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#0f172a;" onclick="toggleTheme()">🌙 Dark</button>
-        <button class="btn-logout" id="topLogoutBtn" onclick="signOut()">🚪 Logout</button>
+        <button id="menuBtn" onclick="toggleSidebar()" aria-label="Menu" fdprocessedid="c9tjvt">☰</button>
+        <span id="whoChip" class="who-chip">👤 Abbasi Network · ISP · Moiz Abbasi</span>
+        <button class="btn-primary btn-success" onclick="openAddSubscriberModal()" fdprocessedid="0l7a48">+ Add Subscriber</button>
+        <button id="themeBtn" class="btn-primary btn-sm" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#0f172a;" onclick="toggleTheme()" fdprocessedid="1tpq55">☀️ Light</button>
+        <button class="btn-logout" id="topLogoutBtn" onclick="signOut()" fdprocessedid="y2p6u8">🚪 Logout</button>
     </div>
 
     <!-- 1. Dashboard Section -->
-    <div id="dashboard" class="main-content active">
+    <div id="dashboard" class="main-content">
         <div class="header-banner">
             <div>
                 <h1>Advanced Subscriber Management</h1>
-                <p>Complete client details, GPS mapping & WhatsApp billing overview</p>
+                <p>Complete client details, GPS mapping &amp; WhatsApp billing overview</p>
             </div>
         </div>
         
         <div class="grid-6">
             <div class="stat-box" onclick="openCardModal('total')">
                 <div class="stat-title">Total Subscribers <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #ffffff;" id="countTotal">0</div>
+                <div class="stat-value" style="color: #ffffff;" id="countTotal">2</div>
             </div>
             <div class="stat-box" onclick="openCardModal('active')">
                 <div class="stat-title">Active Connections <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #34d399;" id="countActive">0</div>
+                <div class="stat-value" style="color: #34d399;" id="countActive">1</div>
             </div>
             <div class="stat-box" onclick="openCardModal('revenue')">
-                <div class="stat-title">Monthly Revenue <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
+                <div class="stat-title">Monthly Revenue (Is Mahine Wasooli) <span style="font-size:9px; color:#60a5fa; float:right;">(Click 🔍)</span></div>
                 <div class="stat-value" style="color: #60a5fa;" id="valRevenue">Rs 0</div>
             </div>
             <div class="stat-box" onclick="openCardModal('paid')">
                 <div class="stat-title">Paid Users <span style="font-size:9px; color:#34d399; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #34d399;" id="countPaid">0</div>
+                <div class="stat-value" style="color: #34d399;" id="countPaid">1</div>
             </div>
             <div class="stat-box" onclick="openCardModal('unpaid')">
-                <div class="stat-title">Unpaid / Expired <span style="font-size:9px; color:#f87171; float:right;">(Click 🔍)</span></div>
-                <div class="stat-value" style="color: #f87171;" id="countUnpaid">0</div>
+                <div class="stat-title">Unpaid / Bakaya <span style="font-size:9px; color:#f87171; float:right;">(Click 🔍)</span></div>
+                <div class="stat-value" style="color: #f87171;" id="countUnpaid">1 (Rs 1,000)</div>
             </div>
             <div class="stat-box" onclick="openDashboardStaffHistory()">
                 <div class="stat-title">Staff Members <span style="font-size:9px; color:#fbbf24; float:right;">(Click 📜)</span></div>
-                <div class="stat-value" style="color: #fbbf24;" id="totalStaffCount">0</div>
+                <div class="stat-value" style="color: #fbbf24;" id="totalStaffCount">1</div>
             </div>
         </div>
-    </div>
+    <div id="recoveryReportBox" class="card"><h3 style="color:#34d399;margin-bottom:10px;">💰 Recovery Report — kis ne kitni recovery ki (Moiz Abbasi)</h3><p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Total Collected: <b style="color:#34d399;">Rs 1,000</b> • 1 payments</p><table><thead><tr><th>Collected By (Staff/ISP)</th><th>Count</th><th>Amount</th></tr></thead><tbody><tr><td><strong>Abbasi Network (03067606913)</strong></td><td>1 recoveries</td><td style="color:#34d399;font-weight:bold;">Rs 1,000</td></tr></tbody></table></div></div>
 
     <!-- 2. Subscribers Section -->
-    <div id="subscribers" class="main-content">
+    <div id="subscribers" class="main-content active">
         <div class="header-banner">
             <div>
                 <h1>Subscribers Management</h1>
@@ -615,29 +614,29 @@
         </div>
 
         <div class="card">
-            <div id="ispExcelBar" style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;align-items:center;background:#0b0f19;border:1px solid #374151;border-radius:10px;padding:10px;">
+            <div id="ispExcelBar" style="gap: 8px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; background: rgb(11, 15, 25); border: 1px solid rgb(55, 65, 81); border-radius: 10px; padding: 10px;">
                 <strong style="font-size:12px;color:#fbbf24;">📤 Bulk Import (Excel/CSV) — isi ISP me add hoga:</strong>
-                <button class="btn-primary btn-sm" onclick="downloadTemplate()">📥 Template</button>
+                <button id="v4XlBtn" class="btn-primary btn-sm" style="background: rgb(124, 58, 237);" fdprocessedid="lqol6n">📊 Excel Export (Subscribers + Payments)</button><button class="btn-primary btn-sm" onclick="downloadTemplate()" fdprocessedid="tzzvji">📥 Template</button>
                 <label class="btn-primary btn-sm btn-success" style="cursor:pointer;">📤 Excel/CSV Choose<input type="file" id="excelFileISP" accept=".csv,.xlsx,.xls" style="display:none;" onchange="importExcelISP(event)"></label>
                 <span style="font-size:11px;color:#9ca3af;">Format: name,username,package,fee,phone,area,address</span>
             </div>
             <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
-                <input type="text" id="subSearch" placeholder="🔍 Search name / mobile / package..." onkeyup="renderSubscribersTable()" style="flex:2;min-width:200px;">
-                <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option><option value="Paused">Paused / Arzi Band</option></select>
-                <select id="subFilterArea" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;"><option value="">All Areas</option></select>
+                <input type="text" id="subSearch" placeholder="🔍 Search name / mobile / package..." onkeyup="renderSubscribersTable()" style="flex:2;min-width:200px;" fdprocessedid="tzwib">
+                <select id="subFilterStatus" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;" fdprocessedid="nuaat"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option><option value="Paused">Paused / Arzi Band</option></select>
+                <select id="subFilterArea" onchange="renderSubscribersTable()" style="flex:1;min-width:150px;" fdprocessedid="xqaexc"><option value="">All Areas</option><option value="Jt">Jt</option><option value="jt">jt</option></select>
             </div>
             <h3 style="margin-bottom: 15px; color: #fbbf24;">📋 Subscribers Directory</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Name & Username</th>
-                        <th>Package & Fee</th>
+                        <th>Name &amp; Username</th>
+                        <th>Package &amp; Fee</th>
                         <th>Mobile</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="subscribersTableBody"></tbody>
+                <tbody id="subscribersTableBody"><tr><td><strong>Ok</strong><br><span style="color:#9ca3af;font-size:11px;">@Ok - Moiz Abbasi</span></td><td>10Mb<br><span style="color:#60a5fa;font-size:11px;">Rs 1000</span></td><td>923008845608</td><td><span style="color:#34d399;font-weight:bold;">Paid</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal(1)" fdprocessedid="r335is">View Profile</button><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal(1)" fdprocessedid="5n6ihv">Edit</button><button class="btn-primary btn-sm" style="background:#d97706;" onclick="togglePauseSub(1)" fdprocessedid="4rp4em">⏸ Arzi Band</button></div></td></tr><tr><td><strong>ali</strong><br><span style="color:#9ca3af;font-size:11px;">@Jali - Moiz Abbasi</span></td><td>100mb<br><span style="color:#60a5fa;font-size:11px;">Rs 1000</span></td><td>0300030200</td><td><span style="color:#f87171;font-weight:bold;">Unpaid</span></td><td><div class="action-btns"><button class="btn-primary btn-sm" onclick="openUserProfileModal(2)" fdprocessedid="i1ah8b">View Profile</button><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="openEditSubscriberModal(2)" fdprocessedid="l2xuapp">Edit</button><button class="btn-primary btn-sm" style="background:#d97706;" onclick="togglePauseSub(2)" fdprocessedid="vykgg">⏸ Arzi Band</button></div></td></tr></tbody>
             </table>
         </div>
     </div>
@@ -646,18 +645,18 @@
     <div id="staff-ledger" class="main-content">
         <div class="header-banner">
             <div>
-                <h1>Staff Ledger & Salary Management</h1>
+                <h1>Staff Ledger &amp; Salary Management</h1>
                 <p>Track employee advances, date-wise leave deductions, and WhatsApp salary notifications</p>
             </div>
-            <button id="staffLedgerAddBtn" class="btn-primary" onclick="openStaffModal()">+ Add Staff</button>
+            <button id="staffLedgerAddBtn" class="btn-primary" onclick="openStaffModal()" style="">+ Add Staff (Salary)</button>
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 15px; color: #fbbf24;">📋 Current Month Salary Ledger</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;"><h3 style="margin-bottom: 0px; color: rgb(251, 191, 36);" id="ledgerTitle">📋 Salary Ledger — November 2026</h3><div style="display: flex; align-items: center; gap: 8px;"><label style="font-size:12px;color:#9ca3af;">Mahina:</label><input type="month" id="ledgerMonth" style="width:170px;" value="2026-11"></div></div><p style="font-size: 11px; color: rgb(156, 163, 175); margin-bottom: 12px;">Rule (har staff par): <b>Baqi Salary = Base Salary − Us mahine ka Advance − (Base Salary ÷ mahine ke din × Chhuttiyan)</b></p>
             <table>
                 <thead>
                     <tr>
-                        <th>Name & Role</th>
+                        <th>Name &amp; Role</th>
                         <th>Base Salary</th>
                         <th>Total Advance</th>
                         <th>Leaves</th>
@@ -665,10 +664,10 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="staffTableBody"></tbody>
+                <tbody id="staffTableBody"><tr><td><strong>ikram lurka</strong><br><span style="color:#9ca3af;font-size:11px;">Billing Clerk • 🔑 Login staff</span></td><td>Rs 40,000</td><td><span style="color:#f87171;">Rs 0</span></td><td>0 Days</td><td style="font-weight:bold;color:#34d399;">Rs 40,000</td><td><div class="action-btns" style="flex-wrap:wrap;"><button class="btn-primary btn-sm btn-success" onclick="openAdvanceModal(1)">+ Adv</button><button class="btn-primary btn-sm btn-warning" onclick="openLeaveModal(1)">Leave</button><button class="btn-primary btn-sm" style="background:#4b5563;" onclick="viewHistory(1)">History</button><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editLedgerStaff(1)">✏️ Edit</button><button class="btn-primary btn-sm" style="background:#d9534f;" onclick="deleteLedgerStaff(1)">🗑️</button></div></td></tr></tbody>
             </table>
         </div>
-    </div>
+    <div id="ispLoginStaffCard" class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;"><h3 style="color:#60a5fa;">👷 Login Staff &amp; Permissions</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Login Staff</button></div><table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="ispLoginStaffBody"><tr><td><strong>ikram lurka</strong><span class="cat-badge">Billing Clerk</span><br><span style="color:#9ca3af;font-size:11px;">03067606912</span></td><td>Moiz Abbasi</td><td><span class="hidden-pass">••••••</span></td><td style="font-size:11px;">➕Add 👀View 💰Collect 💬WA 🛠️Comp</td><td><div class="action-btns"><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editStaffPerms('03067606912')">⚙️ Perms</button></div></td></tr></tbody></table></div></div>
 
 
     <!-- Packages Section -->
@@ -679,14 +678,14 @@
 
     <!-- Payments Section -->
     <div id="payments" class="main-content">
-        <div class="header-banner"><div><h1>💰 Payments & Recovery</h1><p>Who paid, when, how much — full history</p></div></div>
-        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">💰 Payment History</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Package</th><th>Amount</th><th>Via</th></tr></thead><tbody id="paymentsTableBody"></tbody></table></div>
+        <div class="header-banner"><div><h1>💰 Payments &amp; Recovery</h1><p>Who paid, when, how much — full history</p></div><button id="v4XlPayBtn" class="btn-primary btn-sm" style="background: rgb(124, 58, 237);" fdprocessedid="n0ywni">📊 Excel Export</button></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">💰 Payment History</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Package</th><th>Amount</th><th>Via</th><th>Collected By</th></tr></thead><tbody id="paymentsTableBody"><tr><td>2026-10-21</td><td>Ok</td><td>10Mb</td><td style="color:#34d399;font-weight:bold;">Rs 1000</td><td>Cash</td><td style="font-size:11px;color:#60a5fa;">Abbasi Network (03067606913)</td></tr></tbody></table></div>
     </div>
 
     <!-- Complaints Section -->
     <div id="complaints" class="main-content">
         <div class="header-banner"><div><h1>🛠️ Complaints Management</h1><p>Customer complaints — pending / resolved</p></div><button class="btn-primary" onclick="openComplaintModal()">+ New Complaint</button></div>
-        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">🛠️ All Complaints</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Issue</th><th>Status</th><th>Actions</th></tr></thead><tbody id="complaintsTableBody"></tbody></table></div>
+        <div class="card"><h3 style="margin-bottom:15px;color:#fbbf24;">🛠️ All Complaints</h3><table><thead><tr><th>Date</th><th>Customer</th><th>Issue</th><th>Status</th><th>Actions</th></tr></thead><tbody id="complaintsTableBody"><tr><td colspan="5" style="text-align:center;color:#9ca3af;">No complaints. Zabardast!</td></tr></tbody></table></div>
     </div>
 
     <!-- Areas Section -->
@@ -698,7 +697,7 @@
     <!-- Settings Section : Superadmin basic + ISP company -->
     <div id="settings" class="main-content">
         <div class="header-banner"><div><h1>⚙️ Company Settings</h1><p>Superadmin basic + ISP company — invoice par yehi aayega</p></div></div>
-        <div class="card" style="max-width:600px;" id="setOwnerBox">
+        <div class="card" style="max-width: 600px; display: none;" id="setOwnerBox">
             <h3 style="color:#fbbf24;margin-bottom:12px;">👑 Superadmin — Basic Settings</h3>
             <div class="form-group"><label>Cloud Company Name</label><input type="text" id="setCompany" value="CloudISP"></div>
             <div class="form-group"><label>Support Number</label><input type="text" id="setPhone" value="03008845608"></div>
@@ -712,7 +711,7 @@
             <div class="form-group"><label>My Support Number</label><input type="text" id="setIspPhone" value="" placeholder="e.g. 03001112222"></div>
             <div class="form-group"><label>Collected By Name</label><input type="text" id="setIspCollector" value="ADMIN"></div>
             <button class="btn-primary btn-success" onclick="saveIspSettings()">💾 Save My Settings</button>
-        </div>
+        <div id="ispPwBox" style="border-top: 1px solid rgb(55, 65, 81); margin-top: 20px; padding-top: 16px;"><h3 style="color:#fbbf24;margin-bottom:12px;">🔑 Password Change</h3><div class="form-group"><label>Purana (Current) Password *</label><input type="password" id="ispCurPass" autocomplete="current-password"></div><div class="form-group"><label>Naya Password * (kam az kam 4 harf)</label><input type="password" id="ispNewPass" autocomplete="new-password"></div><div class="form-group"><label>Naya Password dobara likhen *</label><input type="password" id="ispNewPass2" autocomplete="new-password"></div><label style="font-size:12px;color:#9ca3af;display:flex;align-items:center;gap:6px;margin-bottom:12px;"><input type="checkbox" style="width:auto;" onchange="['ispCurPass','ispNewPass','ispNewPass2'].forEach(id=&gt;document.getElementById(id).type=this.checked?'text':'password')"> Password dikhayein</label><button class="btn-primary" onclick="changeIspPassword()">🔑 Change Password</button></div></div>
     </div>
 
     <!-- Super Admin Section -->
@@ -722,12 +721,12 @@
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
                 <h3 style="color:#fbbf24;">👑 All ISP Clients — Sirf Count (Detail Hidden)</h3>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <select id="excelIspSelect" style="min-width:150px;"></select>
+                    <select id="excelIspSelect" style="min-width:150px;"><option value="naeem net">naeem net (0)</option><option value="Moiz Abbasi">Moiz Abbasi (2)</option><option value="Multi star">Multi star (0)</option><option value="ali">ali (0)</option></select>
                     <button class="btn-primary btn-sm" onclick="downloadTemplate()">📥 Template</button>
                     <label class="btn-primary btn-sm btn-success" style="cursor:pointer;">📤 Excel/CSV Import<input type="file" id="excelFile" accept=".csv,.xlsx,.xls" style="display:none;" onchange="importExcel(event)"></label>
                 </div>
-            </div><table><thead><tr><th>ISP / Owner + Number</th><th>Address/City</th><th>Password</th><th>Rent Status</th><th>Actions</th></tr></thead><tbody id="ispsTableBody"></tbody></table></div>
-        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><h3 style="color:#fbbf24;">👷 Staff (Super Admin adds in ISP Panel)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Staff</button></div><table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="allStaffTableBody"></tbody></table></div>
+            </div><table><thead><tr><th>ISP / Owner + Number</th><th>Address/City</th><th>Password</th><th>Rent Status</th><th>Actions</th></tr></thead><tbody id="ispsTableBody"><tr><td><strong>naeem net</strong><br><span style="color:#9ca3af;font-size:11px;">MALIK NAEEM - 03001112222</span><br><span style="font-size:11px;color:#60a5fa;">Users: 0</span></td><td><br><span style="color:#9ca3af;font-size:11px;">Main Road Lahore</span></td><td style="font-size:12px;"><span class="hidden-pass" id="ispPass0">......</span><br><button class="btn-primary btn-sm" style="background:#4b5563;margin-top:4px;" onclick="toggleIspPass(0,'1234')">Show</button> <button class="btn-primary btn-sm btn-success" onclick="copyIspLogin(0)">Copy Login</button></td><td>Paid</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus(0,'Paid')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus(0,'Unpaid')">Block</button></div></td></tr><tr><td><strong>Moiz Abbasi</strong><br><span style="color:#9ca3af;font-size:11px;">Abbasi Network - 03067606913</span><br><span style="font-size:11px;color:#60a5fa;">Users: 2</span></td><td>bwp<br><span style="color:#9ca3af;font-size:11px;">khanqa  shareef</span></td><td style="font-size:12px;"><span class="hidden-pass" id="ispPass1">......</span><br><button class="btn-primary btn-sm" style="background:#4b5563;margin-top:4px;" onclick="toggleIspPass(1,'1234')">Show</button> <button class="btn-primary btn-sm btn-success" onclick="copyIspLogin(1)">Copy Login</button></td><td>Paid</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus(1,'Paid')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus(1,'Unpaid')">Block</button></div></td></tr><tr><td><strong>Multi star</strong><br><span style="color:#9ca3af;font-size:11px;">Qasim - 03247631763</span><br><span style="font-size:11px;color:#60a5fa;">Users: 0</span></td><td><br><span style="color:#9ca3af;font-size:11px;">Shekhupura </span></td><td style="font-size:12px;"><span class="hidden-pass" id="ispPass2">......</span><br><button class="btn-primary btn-sm" style="background:#4b5563;margin-top:4px;" onclick="toggleIspPass(2,'7631764')">Show</button> <button class="btn-primary btn-sm btn-success" onclick="copyIspLogin(2)">Copy Login</button></td><td>Paid</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus(2,'Paid')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus(2,'Unpaid')">Block</button></div></td></tr><tr><td><strong>ali</strong><br><span style="color:#9ca3af;font-size:11px;">ali khan - 03067606915</span><br><span style="font-size:11px;color:#60a5fa;">Users: 0</span></td><td>bwp<br><span style="color:#9ca3af;font-size:11px;">khanqa  shareef</span></td><td style="font-size:12px;"><span class="hidden-pass" id="ispPass3">......</span><br><button class="btn-primary btn-sm" style="background:#4b5563;margin-top:4px;" onclick="toggleIspPass(3,'123')">Show</button> <button class="btn-primary btn-sm btn-success" onclick="copyIspLogin(3)">Copy Login</button></td><td>Paid</td><td><div class="action-btns"><button class="btn-primary btn-sm btn-success" onclick="setIspStatus(3,'Paid')">Paid</button><button class="btn-primary btn-sm btn-warning" onclick="setIspStatus(3,'Unpaid')">Block</button></div></td></tr></tbody></table></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><h3 style="color:#fbbf24;">👷 Staff (Super Admin adds in ISP Panel)</h3><button class="btn-primary btn-sm" onclick="openStaffCreateModal()">+ Add Staff</button></div><table><thead><tr><th>Staff Name + Number</th><th>ISP</th><th>Password</th><th>Permissions</th><th>Actions</th></tr></thead><tbody id="allStaffTableBody"><tr><td><strong>ikram lurka</strong><span class="cat-badge">Billing Clerk</span><br><span style="color:#9ca3af;font-size:11px;">03067606912</span></td><td>Moiz Abbasi</td><td><span class="hidden-pass">••••••</span> <button class="btn-primary btn-sm" style="background:#4b5563;" onclick="alert('Login: 03067606912 / 123')">👁 Show</button></td><td style="font-size:11px;">➕Add 💰Collect</td><td><div class="action-btns"><button class="btn-primary btn-sm" style="background:#2563eb;" onclick="editStaffPerms('03067606912')">⚙️ Perms</button></div></td></tr></tbody></table></div>
     </div>
 
     <!-- 4. WhatsApp Billing Section : Link + Scan for ISP -->
@@ -768,7 +767,7 @@
 
         <div class="card wa-box" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
-                <h3 style="color:#fbbf24;margin-bottom:10px;">⚡ API Status & Instructions</h3>
+                <h3 style="color:#fbbf24;margin-bottom:10px;">⚡ API Status &amp; Instructions</h3>
                 <p style="font-size:12px;color:#9ca3af;margin-bottom:10px;">Meta Cloud API direct Vercel par kaam karegi. Isme QR code scan karne ki zaroorat nahi parti.</p>
                 
                 <div style="background:#0b0f19;border:1px solid #374151;border-radius:8px;padding:12px;font-size:12px;color:#9ca3af;space-y:6px;">
@@ -793,25 +792,43 @@
                     <th>WhatsApp Bill</th>
                 </tr>
             </thead>
-            <tbody id="waTableBody"></tbody>
+            <tbody id="waTableBody"><tr>
+            <td><strong>Ok</strong><br><span style="color:#9ca3af; font-size:11px;">@Ok</span></td>
+            <td>10Mb<br><span style="color:#60a5fa; font-size:11px;">Rs 1000</span></td>
+            <td>923008845608</td>
+            <td>
+                <button class="btn-primary btn-sm btn-success" onclick="sendOfficialBill('923008845608', 'Ok', '10Mb', 1000)">
+                    💬 Bill Bhejein
+                </button>
+            </td>
+        </tr><tr>
+            <td><strong>ali</strong><br><span style="color:#9ca3af; font-size:11px;">@Jali</span></td>
+            <td>100mb<br><span style="color:#60a5fa; font-size:11px;">Rs 1000</span></td>
+            <td>0300030200</td>
+            <td>
+                <button class="btn-primary btn-sm btn-success" onclick="sendOfficialBill('0300030200', 'ali', '100mb', 1000)">
+                    💬 Bill Bhejein
+                </button>
+            </td>
+        </tr></tbody>
         </table>
     </div>
 </div>
-            </div>
+            
             <div class="form-group">
-                <input type="text" id="modalSearchInput" placeholder="🔍 Search by name..." onkeyup="filterCardList()">
+                <input type="text" id="modalSearchInput" placeholder="🔍 Search by name..." onkeyup="filterCardList()" fdprocessedid="cerhv">
             </div>
             <ul id="cardModalList" class="search-modal-list">
                 <!-- Dynamic List items -->
             </ul>
-        </div>
-    </div>
+        
+    
 
     <!-- User Detail Profile Modal with Location Button -->
     <div id="userProfileModal" class="modal-overlay">
         <div class="modal-box" style="width: 480px; padding: 15px;">
             <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
-                <button class="close-btn" onclick="closeUserProfileModal()">&times;</button>
+                <button class="close-btn" onclick="closeUserProfileModal()">×</button>
             </div>
             <div id="userProfileContent"></div>
         </div>
@@ -821,7 +838,7 @@
     <div id="invoiceModal" class="modal-overlay">
         <div class="modal-box" style="width: 480px; padding: 15px;">
             <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
-                <button class="close-btn" onclick="closeInvoiceModal()">&times;</button>
+                <button class="close-btn" onclick="closeInvoiceModal()">×</button>
             </div>
             <div id="invoiceContent"></div>
         </div>
@@ -832,7 +849,7 @@
         <div class="modal-box" style="width: 750px; max-width: 95%;">
             <div class="modal-header">
                 <h3>➕ Add New Subscriber</h3>
-                <button class="close-btn" onclick="closeAddSubscriberModal()">&times;</button>
+                <button class="close-btn" onclick="closeAddSubscriberModal()">×</button>
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -911,7 +928,7 @@
         <div class="modal-box" style="width: 750px; max-width: 95%;">
             <div class="modal-header">
                 <h3>✏️ Edit Subscriber Profile</h3>
-                <button class="close-btn" onclick="closeEditSubscriberModal()">&times;</button>
+                <button class="close-btn" onclick="closeEditSubscriberModal()">×</button>
             </div>
             <input type="hidden" id="editSubId">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -998,26 +1015,26 @@
 
 
     <!-- SuperAdmin: Add ISP Modal (Name+Number+Address+Password) -->
-    <div id="ispCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👑 Add ISP (Owner Panel)</h3><button class="close-btn" onclick="document.getElementById('ispCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="newIspCompany" placeholder="e.g. Ali Net"></div><div class="form-group"><label>Owner Name *</label><input id="newIspOwner" placeholder="e.g. Ali Ahmed"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newIspMobile" placeholder="e.g. 03001112222"></div><div class="form-group"><label>Password Bana Kar Den *</label><input id="newIspPass" placeholder="e.g. isp123"></div><div class="form-group"><label>City</label><input id="newIspCity" placeholder="Lahore"></div><div class="form-group"><label>Address</label><input id="newIspAddr" placeholder="Shop #, Road"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveNewISP()">Save ISP</button></div></div>
+    <div id="ispCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👑 Add ISP (Owner Panel)</h3><button class="close-btn" onclick="document.getElementById('ispCreateModal').classList.remove('active')">×</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>ISP Company Name *</label><input id="newIspCompany" placeholder="e.g. Ali Net"></div><div class="form-group"><label>Owner Name *</label><input id="newIspOwner" placeholder="e.g. Ali Ahmed"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newIspMobile" placeholder="e.g. 03001112222"></div><div class="form-group"><label>Password Bana Kar Den *</label><input id="newIspPass" placeholder="e.g. isp123"></div><div class="form-group"><label>City</label><input id="newIspCity" placeholder="Lahore"></div><div class="form-group"><label>Address</label><input id="newIspAddr" placeholder="Shop #, Road"></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveNewISP()">Save ISP</button></div></div>
 
     <!-- SuperAdmin/ISP: Add Staff Modal with Permissions -->
-    <div id="staffCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👷 Add Staff + Permissions</h3><button class="close-btn" onclick="document.getElementById('staffCreateModal').classList.remove('active')">&times;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff Name *</label><input id="newStaffName" placeholder="Staff name"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newStaffMobile" placeholder="e.g. 03003334444"></div><div class="form-group"><label>Password *</label><input id="newStaffPass" placeholder="e.g. staff123"></div><div class="form-group"><label>ISP Select Karen</label><select id="newStaffIsp"></select></div><div class="form-group"><label>Staff Category</label><select id="newStaffCategory" onchange="applyStaffPreset(this.value)"><option value="">Custom (manual)</option><option value="Collector">Collector</option><option value="Technician">Technician</option><option value="Billing Clerk">Billing Clerk</option><option value="Support">Support</option><option value="Manager">Manager</option></select></div></div><div class="form-group"><label>Permissions (ISP staff ko kya de sakta hai):</label><div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;background:#0b0f19;padding:10px;border-radius:8px;"><label><input type="checkbox" id="permAdd" checked style="width:auto;"> ➕ Add User</label><label><input type="checkbox" id="permEdit" checked style="width:auto;"> ✏️ Edit User</label><label><input type="checkbox" id="permCollect" checked style="width:auto;"> 💰 Collect Fee</label><label><input type="checkbox" id="permDelete" style="width:auto;"> 🗑️ Delete</label></div></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveNewStaff()">Save Staff</button></div></div>
+    <div id="staffCreateModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>👷 Add Staff + Permissions</h3><button class="close-btn" onclick="document.getElementById('staffCreateModal').classList.remove('active')">×</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div class="form-group"><label>Staff Name *</label><input id="newStaffName" placeholder="Staff name"></div><div class="form-group"><label>Login Mobile Number *</label><input id="newStaffMobile" placeholder="e.g. 03003334444"></div><div class="form-group"><label>Password *</label><input id="newStaffPass" placeholder="e.g. staff123"></div><div class="form-group"><label>ISP Select Karen</label><select id="newStaffIsp"></select></div><div class="form-group"><label>Staff Category</label><select id="newStaffCategory" onchange="applyStaffPreset(this.value)"><option value="">Custom (manual)</option><option value="Collector">Collector</option><option value="Technician">Technician</option><option value="Billing Clerk">Billing Clerk</option><option value="Support">Support</option><option value="Manager">Manager</option></select></div></div><div class="form-group"><label>Permissions (ISP staff ko kya de sakta hai):</label><div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;background:#0b0f19;padding:10px;border-radius:8px;"><label><input type="checkbox" id="permAdd" checked="" style="width:auto;"> ➕ Add User</label><label><input type="checkbox" id="permEdit" checked="" style="width:auto;"> ✏️ Edit User</label><label><input type="checkbox" id="permCollect" checked="" style="width:auto;"> 💰 Collect Fee</label><label><input type="checkbox" id="permDelete" style="width:auto;"> 🗑️ Delete</label><label><input type="checkbox" id="permView" checked="" style="width:auto;"> 👀 View Profile</label><label><input type="checkbox" id="permWhatsapp" checked="" style="width:auto;"> 💬 WhatsApp Bill</label><label><input type="checkbox" id="permComplaints" checked="" style="width:auto;"> 🛠️ Complaints</label><label><input type="checkbox" id="permPause" checked="" style="width:auto;"> ⏸️ Arzi Band / Bahal</label></div><p style="font-size: 11px; color: rgb(156, 163, 175); margin-top: 8px;">ℹ️ Tik = ON, khali = OFF</p></div><div id="fieldPermsBox" style="background: rgb(11, 15, 25); padding: 10px; border-radius: 8px; margin-top: 8px;"><label style="font-size:12px;color:#fbbf24;font-weight:bold;">📝 Add New Subscriber — har field ki alag permission (tik = ON, untick = OFF):</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px;"><label><input type="checkbox" id="perm_f_name" checked="" style="width:auto;"> Name</label><label><input type="checkbox" id="perm_f_username" checked="" style="width:auto;"> Username</label><label><input type="checkbox" id="perm_f_package" checked="" style="width:auto;"> Package</label><label><input type="checkbox" id="perm_f_fee" checked="" style="width:auto;"> Monthly Fee</label><label><input type="checkbox" id="perm_f_install" checked="" style="width:auto;"> Installation Charges</label><label><input type="checkbox" id="perm_f_balance" checked="" style="width:auto;"> Previous Balance / Balance</label><label><input type="checkbox" id="perm_f_mobile" checked="" style="width:auto;"> Mobile Number</label><label><input type="checkbox" id="perm_f_cnic" checked="" style="width:auto;"> CNIC Number</label><label><input type="checkbox" id="perm_f_type" checked="" style="width:auto;"> Connection Type</label><label><input type="checkbox" id="perm_f_duedate" checked="" style="width:auto;"> Due Date</label><label><input type="checkbox" id="perm_f_area" checked="" style="width:auto;"> Area / Sub-Area</label><label><input type="checkbox" id="perm_f_gps" checked="" style="width:auto;"> Address / GPS Link</label><label><input type="checkbox" id="perm_f_address" checked="" style="width:auto;"> Customer Complete Address</label><label><input type="checkbox" id="perm_f_remarks" checked="" style="width:auto;"> Remarks</label></div><p style="font-size:11px;color:#9ca3af;margin-top:6px;">Staff ko Add/Edit me sirf wahi fields nazar aayengi jin ki permission ON hogi.</p></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveNewStaff()">Save Staff</button></div></div>
 
     <!-- Package Modal -->
-    <div id="packageModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>📦 Add Package</h3><button class="close-btn" onclick="document.getElementById('packageModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Package Name</label><input id="pkgName" placeholder="e.g. 15 Mbps Fiber"></div><div class="form-group"><label>Speed</label><input id="pkgSpeed" placeholder="e.g. 15 Mbps"></div><div class="form-group"><label>Monthly Fee (Rs)</label><input type="number" id="pkgFee" placeholder="e.g. 2000"></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="savePackage()">Save Package</button></div></div>
+    <div id="packageModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>📦 Add Package</h3><button class="close-btn" onclick="document.getElementById('packageModal').classList.remove('active')">×</button></div><div class="form-group"><label>Package Name</label><input id="pkgName" placeholder="e.g. 15 Mbps Fiber"></div><div class="form-group"><label>Speed</label><input id="pkgSpeed" placeholder="e.g. 15 Mbps"></div><div class="form-group"><label>Monthly Fee (Rs)</label><input type="number" id="pkgFee" placeholder="e.g. 2000"></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="savePackage()">Save Package</button></div></div>
 
     <!-- Complaint Modal -->
-    <div id="complaintModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🛠️ New Complaint</h3><button class="close-btn" onclick="document.getElementById('complaintModal').classList.remove('active')">&times;</button></div><div class="form-group"><label>Customer</label><select id="compCustomer"></select></div><div class="form-group"><label>Issue</label><textarea id="compIssue" placeholder="e.g. Internet not working..."></textarea></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveComplaint()">Save Complaint</button></div></div>
+    <div id="complaintModal" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>🛠️ New Complaint</h3><button class="close-btn" onclick="document.getElementById('complaintModal').classList.remove('active')">×</button></div><div class="form-group"><label>Customer</label><select id="compCustomer"></select></div><div class="form-group"><label>Issue</label><textarea id="compIssue" placeholder="e.g. Internet not working..."></textarea></div><button class="btn-primary btn-success" style="width:100%;justify-content:center;" onclick="saveComplaint()">Save Complaint</button></div></div>
 
     <!-- Login Screen - Number se login -->
-    <div id="loginScreen" class="modal-overlay active"><div class="modal-box" style="width:400px;text-align:center;"><div style="width:56px;height:56px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,.45);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"/><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"/><path d="M8.6 16a6 6 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"/></svg></div><h2 style="margin-bottom:5px;">Welcome to the CloudISP</h2><p style="color:#9ca3af;font-size:13px;margin-bottom:5px;">Number se Login — login Superadmin se lein</p><p style="color:#9ca3af;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;">🔒 Demo login off hai<br><span style="color:#60a5fa;">Apna Number + Password likhen</span></p><p id="loginRoleBadge" style="font-size:11px;margin-bottom:10px;"></p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><input id="loginUser" placeholder="e.g. 03001112222"></div><div class="form-group" style="text-align:left;"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••"></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p></div></div>
+    <div id="loginScreen" class="modal-overlay"><div class="login-shell"><div class="login-hero"><div class="lh-logo"><div class="lh-mark"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"></path><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"></path><path d="M8.6 16a6 6 0 0 1 6.8 0"></path><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"></circle></svg></div><div class="lh-name">CloudISP<small>Billing &amp; Management</small></div></div><h1>Apna ISP business <span>ek jagah</span> se chalayein</h1><p class="lh-sub">Customers, monthly fee recovery, bakaya, staff salary aur WhatsApp bills — sab kuch tez, aasaan aur mehfooz.</p><div class="lh-feats"><div class="lh-feat"><i>💰</i><div><b>Fee Recovery &amp; Slip</b><span>Mahine ki history, bakaya aur WhatsApp slip</span></div></div><div class="lh-feat"><i>👷</i><div><b>Staff &amp; Salary Ledger</b><span>Advance, chhutti aur permissions</span></div></div><div class="lh-feat"><i>🔒</i><div><b>Har ISP ka data alag</b><span>Koi doosra ISP aap ka data nahi dekh sakta</span></div></div></div></div><div class="modal-box" style="width:400px;text-align:center;"><div style="width:56px;height:56px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,.45);"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M2.5 9a15 15 0 0 1 19 0"></path><path d="M5.5 12.5a10.5 10.5 0 0 1 13 0"></path><path d="M8.6 16a6 6 0 0 1 6.8 0"></path><circle cx="12" cy="19" r="1.6" fill="white" stroke="none"></circle></svg></div><h2 style="margin-bottom:5px;">Welcome back 👋</h2><p class="lb-sub">Apne mobile number aur password se login karein</p><p style="color:#9ca3af;font-size:11px;margin-bottom:15px;background:#0b0f19;padding:8px;border-radius:8px;" class="lb-hide">🔒 Demo login off hai<br><span style="color:#60a5fa;">Apna Number + Password likhen</span></p><p id="loginRoleBadge" style="font-size:11px;margin-bottom:10px;"></p><div class="form-group" style="text-align:left;"><label>Mobile Number *</label><div class="lb-field"><span class="lb-ico">📱</span><input id="loginUser" placeholder="03XX XXXXXXX" inputmode="numeric" autocomplete="username" fdprocessedid="c55xda"></div></div><div class="form-group" style="text-align:left;"><label>Password *</label><div class="lb-field"><span class="lb-ico">🔑</span><input type="password" id="loginPass" placeholder="Password likhen" autocomplete="current-password" fdprocessedid="egma4r"><button type="button" class="lb-eye" title="Password dikhayein" fdprocessedid="b96xc">👁</button></div></div><button class="btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()" fdprocessedid="8me0s7">Login</button><p id="loginWho" style="font-size:11px;color:#9ca3af;margin-top:10px;"></p><div class="lb-secure">🔒 Mehfooz login • har ISP ka data alag</div></div></div></div>
 
     <!-- Add Staff Modal -->
     <div id="staffModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
                 <h3>➕ Add New Staff Member</h3>
-                <button class="close-btn" onclick="closeStaffModal()">&times;</button>
+                <button class="close-btn" onclick="closeStaffModal()">×</button>
             </div>
             <div class="form-group">
                 <label>Full Name</label>
@@ -1044,7 +1061,7 @@
         <div class="modal-box">
             <div class="modal-header">
                 <h3>💵 Record Advance / Cash</h3>
-                <button class="close-btn" onclick="closeAdvanceModal()">&times;</button>
+                <button class="close-btn" onclick="closeAdvanceModal()">×</button>
             </div>
             <input type="hidden" id="advanceStaffIndex">
             <div class="form-group">
@@ -1055,7 +1072,7 @@
                 <label>Remarks / Reason</label>
                 <input type="text" id="advReason" placeholder="e.g. Emergency cash">
             </div>
-            <button class="btn-primary btn-success" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveAdvance()">Save & Send WhatsApp Alert</button>
+            <button class="btn-primary btn-success" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveAdvance()">Save &amp; Send WhatsApp Alert</button>
         </div>
     </div>
 
@@ -1064,7 +1081,7 @@
         <div class="modal-box">
             <div class="modal-header">
                 <h3>📅 Add Leave Record</h3>
-                <button class="close-btn" onclick="closeLeaveModal()">&times;</button>
+                <button class="close-btn" onclick="closeLeaveModal()">×</button>
             </div>
             <input type="hidden" id="leaveStaffIndex">
             <div class="form-group">
@@ -1075,7 +1092,7 @@
                 <label>Reason / Remarks</label>
                 <input type="text" id="leaveReason" placeholder="e.g. Personal work">
             </div>
-            <button class="btn-primary btn-warning" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveLeave()">Save & Send WhatsApp Alert</button>
+            <button class="btn-primary btn-warning" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveLeave()">Save &amp; Send WhatsApp Alert</button>
         </div>
     </div>
 
@@ -1083,12 +1100,10 @@
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box" style="width: 650px;">
             <div class="modal-header">
-                <h3 id="historyTitle">📜 Complete History Details</h3>
-                <button class="close-btn" onclick="closeHistoryModal()">&times;</button>
+                <h3 id="historyTitle">📜 Staff Members — November 2026</h3>
+                <button class="close-btn" onclick="closeHistoryModal()">×</button>
             </div>
-            <div id="historyContent" style="max-height: 400px; overflow-y: auto;">
-                <!-- Dynamic History List -->
-            </div>
+            <div id="historyContent" style="max-height: 400px; overflow-y: auto;"><div style="background:#0b0f19;padding:14px;border-radius:10px;margin-bottom:12px;border:1px solid #374151;"><h4 style="color:#34d399;margin-bottom:6px;">👤 ikram lurka (Billing Clerk)</h4><p style="font-size:12px;color:#9ca3af;">Salary Rs 40,000 • Advance Rs 0 • Leaves 0 din (−Rs 0) • <b style="color:#34d399;">Baqi Rs 40,000</b> (November 2026)</p></div></div>
         </div>
     </div>
 
@@ -5443,5 +5458,418 @@ function sendOfficialBill(phone, name, pkg, fee) {
     // Direct WhatsApp Web fallback ya Meta API dispatch
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }</script>
-<script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a5e0cab10cc19080',t:'MTc5NTI3NTYxNA==',u:'01a1fec3f1917658aae93fe5e48c7bd2',ut:'M02tTDDefqDP0cnNYiHdmjGhGoJKRXAaPkIZaTSqmCM-1795275616-1.2.1.1-vNfB.7WvCAbqHQZoC9O7zdSMPTFVvizzyQNjwhxYVwfaZbWid1q2mLNDSsUA8PzlGN0kqi2.bLqOfIv8uxzlMjk_AO2GsPtxLcen54hWcx8',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0cab10cc19080',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
-</html>
+<script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a5e0cab10cc19080',t:'MTc5NTI3NTYxNA==',u:'01a1fec3f1917658aae93fe5e48c7bd2',ut:'M02tTDDefqDP0cnNYiHdmjGhGoJKRXAaPkIZaTSqmCM-1795275616-1.2.1.1-vNfB.7WvCAbqHQZoC9O7zdSMPTFVvizzyQNjwhxYVwfaZbWid1q2mLNDSsUA8PzlGN0kqi2.bLqOfIv8uxzlMjk_AO2GsPtxLcen54hWcx8',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0cab10cc19080',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script>
+
+<audio class="audio-output" style="display: none;"></audio><div id="volume-booster-visusalizer">
+                    <div class="sound">
+                        <div class="sound-icon"></div>
+                        <div class="sound-wave sound-wave_one"></div>
+                        <div class="sound-wave sound-wave_two"></div>
+                        <div class="sound-wave sound-wave_three"></div>
+                    </div>
+                    <div class="segments-box">
+                        <div data-range="1-20" class="segment"><span></span></div>
+                        <div data-range="21-40" class="segment"><span></span></div>
+                        <div data-range="41-60" class="segment"><span></span></div>
+                        <div data-range="61-80" class="segment"><span></span></div>
+                        <div data-range="81-100" class="segment"><span></span></div>
+                    </div>
+                </div><div id="cloudSyncBadge" style="position: fixed; bottom: 12px; right: 12px; z-index: 99999; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; background: rgb(6, 95, 70); color: rgb(255, 255, 255); display: none; max-width: 70vw;">☁️ Cloud connected</div><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"><style id="cispFixToastCss">#cispToast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:999999;opacity:0;pointer-events:none;transition:all .25s ease;max-width:90vw;text-align:center;border:1px solid #334155;box-shadow:0 8px 24px rgba(0,0,0,.4)}#cispToast.show{opacity:1;transform:translateX(-50%) translateY(0)}#cispToast.ok{border-color:#059669}#cispToast.err{border-color:#dc2626}</style>
+<div id="cispToast"></div>
+<script>
+/* CloudISP FIX PACK — 2026-11-21 : falto popup khatam + real WhatsApp + SuperAdmin ON + dead buttons + ArziBand permission */
+(function(){
+'use strict';
+function toast(msg, type){
+  try{
+    var t=document.getElementById('cispToast'); if(!t) return;
+    t.textContent=msg; t.className='show '+(type||'');
+    clearTimeout(window.__cispToastTm);
+    window.__cispToastTm=setTimeout(function(){ t.className=''; }, 2600);
+  }catch(e){}
+}
+window.toast=toast;
+try{ window._origAlert=window.alert; window.alert=function(m){ toast(String(m)); }; }catch(e){}
+
+/* ---------- Real actions for fake buttons ---------- */
+window._lastProfileId=null;
+try{
+  if(typeof openUserProfileModal==='function' && !openUserProfileModal.__fixTracked){
+    var _opu=openUserProfileModal;
+    openUserProfileModal=function(id){ window._lastProfileId=id; return _opu.apply(this, arguments); };
+    openUserProfileModal.__fixTracked=true;
+  }
+}catch(e){}
+
+window.refreshUserProfile=function(){
+  try{
+    if(window._lastProfileId!=null){ openUserProfileModal(window._lastProfileId); }
+    else if(document.getElementById('userProfileModal').classList.contains('active')){ toast('Refresh ho gaya ✅','ok'); }
+    else toast('Refresh ho gaya ✅','ok');
+  }catch(e){ toast('Refresh ho gaya ✅','ok'); }
+};
+window.downloadInvoiceReal=function(){
+  try{
+    var c=document.getElementById('invoiceContent');
+    var txt=c?c.innerText:'Invoice';
+    var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='invoice-'+Date.now()+'.txt'; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+    toast('Invoice download ho gayi ✅','ok');
+  }catch(e){ try{window.print();}catch(e2){} }
+};
+window.shareInvoiceReal=function(){
+  try{
+    var c=document.getElementById('invoiceContent');
+    var txt=c?c.innerText:'CloudISP Invoice';
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); }
+    window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+    toast('Share link ready ✅','ok');
+  }catch(e){ toast('Share ready ✅','ok'); }
+};
+function patchFakeButtons(){
+  try{
+    document.querySelectorAll('button').forEach(function(b){
+      var oc=b.getAttribute('onclick')||'';
+      if(oc.indexOf("Screen Refreshed")!==-1){ b.removeAttribute('onclick'); b.onclick=window.refreshUserProfile; }
+      if(oc.indexOf("Downloading invoice")!==-1){ b.removeAttribute('onclick'); b.onclick=window.downloadInvoiceReal; }
+      if(oc.indexOf("Share link generated")!==-1){ b.removeAttribute('onclick'); b.onclick=window.shareInvoiceReal; }
+    });
+  }catch(e){}
+}
+
+/* ---------- WhatsApp ORIGINAL (Meta Cloud API) + SuperAdmin ON ---------- */
+function waScope(){
+  try{
+    if(typeof isOwner==='function'&&isOwner()) return 'ALL';
+    if(typeof myISP==='function'&&myISP()) return myISP();
+    if(typeof currentUser!=='undefined'&&currentUser&&currentUser.isp&&currentUser.isp!=='ALL') return currentUser.isp;
+  }catch(e){}
+  return 'ALL';
+}
+function waCreds(scope){
+  scope=scope||waScope();
+  var pid='', tok='', msg='';
+  try{
+    pid=localStorage.getItem('cisp_wa_phone_id_'+scope)||'';
+    tok=localStorage.getItem('cisp_wa_token_'+scope)||'';
+    msg=localStorage.getItem('cisp_wa_msg_'+scope)||'';
+    if((!pid||!tok)&&scope!=='ALL'){
+      pid=pid||localStorage.getItem('cisp_wa_phone_id_ALL')||'';
+      tok=tok||localStorage.getItem('cisp_wa_token_ALL')||'';
+      msg=msg||localStorage.getItem('cisp_wa_msg_ALL')||'';
+    }
+    if(!pid) pid=localStorage.getItem('cisp_wa_phone_id')||'';
+    if(!tok) tok=localStorage.getItem('cisp_wa_token')||'';
+    if(!msg) msg=localStorage.getItem('cisp_wa_msg')||'Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}';
+  }catch(e){}
+  return {scope:scope, phoneId:pid, token:tok, msg:msg};
+}
+function waPrefill(){
+  try{
+    var c=waCreds();
+    var p=document.getElementById('waPhoneId'), t=document.getElementById('waAccessToken'), m=document.getElementById('waDefaultMsg');
+    if(p&&!p.value) p.value=c.phoneId||'';
+    if(t&&!t.value) t.value=c.token||'';
+    if(m&&(!m.value||m.value.indexOf('{name}')===-1)) m.value=c.msg||m.value;
+    var b=document.getElementById('waStatusBadge');
+    if(b){ if(c.phoneId&&c.token){ b.textContent='API Configured ('+c.scope+')'; } else { b.textContent='API Not Configured'; } }
+  }catch(e){}
+}
+window.saveMetaApiSettings=function(){
+  try{
+    var phoneId=document.getElementById('waPhoneId').value.trim();
+    var accessToken=document.getElementById('waAccessToken').value.trim();
+    var defaultMsg=document.getElementById('waDefaultMsg').value.trim();
+    if(!phoneId||!accessToken){ toast('Phone ID aur Access Token dono zaroori hain!','err'); return; }
+    var sc=waScope();
+    localStorage.setItem('cisp_wa_phone_id_'+sc, phoneId);
+    localStorage.setItem('cisp_wa_token_'+sc, accessToken);
+    localStorage.setItem('cisp_wa_msg_'+sc, defaultMsg);
+    localStorage.setItem('cisp_wa_phone_id', phoneId);
+    localStorage.setItem('cisp_wa_token', accessToken);
+    localStorage.setItem('cisp_wa_msg', defaultMsg);
+    waPrefill();
+    toast('WhatsApp API save ho gayi ✅ ('+sc+')','ok');
+  }catch(e){ toast('Save nahi ho saki!','err'); }
+};
+window.sendWaTestApi=async function(){
+  try{
+    var phoneId=document.getElementById('waPhoneId').value.trim();
+    var accessToken=document.getElementById('waAccessToken').value.trim();
+    if(!phoneId||!accessToken){ toast('Pehle credentials Save karein!','err'); return; }
+    var testNumber=prompt('Test number likhein (92 se shuru, e.g. 923001234567):');
+    if(!testNumber) return;
+    testNumber=testNumber.replace(/[^0-9]/g,'');
+    toast('Test message bheja ja raha hai...');
+    var url='https://graph.facebook.com/v21.0/'+phoneId+'/messages';
+    var res=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:testNumber,type:'text',text:{body:'CloudISP test message ✅ API working!'}})});
+    var j=null; try{ j=await res.json(); }catch(e){}
+    if(res.ok){ toast('Test message deliver ho gaya ✅ ORIGINAL API','ok'); }
+    else{ toast('API error: '+((j&&j.error&&j.error.message)||res.status)+' — wa.me fallback khola','err'); window.open('https://wa.me/'+testNumber+'?text='+encodeURIComponent('CloudISP test message ✅'),' _blank'.trim()); }
+  }catch(e){ toast('Network error — wa.me fallback','err'); }
+};
+window.sendOfficialBill=async function(phone, name, pkg, fee){
+  try{
+    var sub=null; try{ sub=(subscribersList||[]).find(function(x){ return String(x.phone)===String(phone); }); }catch(e){}
+    var scope=(sub&&sub.isp)?sub.isp:waScope();
+    var c=waCreds(scope);
+    if(scope!=='ALL'&&(!c.phoneId||!c.token)){ var fb=waCreds('ALL'); if(fb.phoneId&&fb.token) c=fb; }
+    var company='CloudISP'; try{ company=(appSettings&&appSettings.company)||'CloudISP'; }catch(e){}
+    var tpl=c.msg||'Assalam-o-Alaikum {name}! Aap ka {package} ka bill Rs {fee} due hai. — {company}';
+    var message=tpl.replace('{name}',name).replace('{package}',pkg).replace('{fee}',fee).replace('{company}',company);
+    var cleanPhone=String(phone).replace(/[^0-9]/g,'');
+    if(!c.phoneId||!c.token){
+      window.open('https://wa.me/'+cleanPhone+'?text='+encodeURIComponent(message),'_blank');
+      toast('API key nahi mili — wa.me se bheja ✅','ok');
+      return;
+    }
+    toast('WhatsApp bill bheja ja raha hai...');
+    try{
+      var url='https://graph.facebook.com/v21.0/'+c.phoneId+'/messages';
+      var res=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:cleanPhone,type:'text',text:{body:message}})});
+      if(res.ok){ toast('Bill deliver ho gaya ✅ ORIGINAL API','ok'); }
+      else{ window.open('https://wa.me/'+cleanPhone+'?text='+encodeURIComponent(message),'_blank'); toast('API fail — wa.me fallback ✅','ok'); }
+    }catch(e){
+      window.open('https://wa.me/'+cleanPhone+'?text='+encodeURIComponent(message),'_blank');
+      toast('Network issue — wa.me fallback ✅','ok');
+    }
+  }catch(e){ toast('Bill nahi bheja ja saka!','err'); }
+};
+
+/* ---------- SuperAdmin me WhatsApp ON + dead nav fix ---------- */
+try{
+  if(typeof applyRole==='function'&&!applyRole.__fixWa){
+    var _ar=applyRole;
+    applyRole=function(){
+      var r=_ar.apply(this,arguments);
+      try{
+        document.querySelectorAll('.nav-links li').forEach(function(li){
+          var t=li.innerText||'';
+          if(t.indexOf('WhatsApp')!==-1){ li.style.display=''; }
+          if(t.indexOf('Complaints')!==-1&&(isOwner()||isISP())){ li.style.display=''; }
+        });
+        waPrefill(); patchFakeButtons(); refreshIspStaffAdd();
+      }catch(e){}
+      return r;
+    };
+    applyRole.__fixWa=true;
+  }
+}catch(e){}
+try{
+  ['switchTab','switchTabForce'].forEach(function(fn){
+    try{
+      if(typeof window[fn]==='function'&&!window[fn].__fixWa){
+        var _f=window[fn];
+        window[fn]=function(id){ var r=_f.apply(this,arguments); try{ if(id==='whatsapp-billing') waPrefill(); patchFakeButtons(); }catch(e){} return r; };
+        window[fn].__fixWa=true;
+      }
+    }catch(e){}
+  });
+}catch(e){}
+
+/* ---------- ISP ko staff add + Arzi Band permission control ---------- */
+window.openStaffCreateModal=function(){
+  try{
+    if(typeof isStaff==='function'&&isStaff()){ toast('Permission nahi hai!','err'); return; }
+    var sel=document.getElementById('newStaffIsp'); sel.innerHTML='';
+    (ispsList||[]).forEach(function(i){ var o=document.createElement('option'); o.value=i.name; o.textContent=i.name; sel.appendChild(o); });
+    if(typeof isISP==='function'&&isISP()){
+      try{ sel.value=myISP(); sel.disabled=true; }catch(e){}
+    } else { sel.disabled=false; }
+    try{ if(typeof injectFieldPermsUI==='function') injectFieldPermsUI(); }catch(e){}
+    try{
+      ['permAdd','permEdit','permCollect','permView','permWhatsapp','permComplaints','permPause'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=true; });
+      var d=document.getElementById('permDelete'); if(d) d.checked=false;
+    }catch(e){}
+    document.getElementById('staffCreateModal').classList.add('active');
+  }catch(e){}
+};
+window.saveNewStaff=function(){
+  try{
+    if(typeof isStaff==='function'&&isStaff()){ toast('Permission nahi hai!','err'); return; }
+    try{ if(typeof injectExtraPerms==='function') injectExtraPerms(); }catch(e){}
+    try{ if(typeof injectFieldPermsUI==='function') injectFieldPermsUI(); }catch(e){}
+    var n=document.getElementById('newStaffName').value.trim();
+    var m=document.getElementById('newStaffMobile').value.trim();
+    var ps=document.getElementById('newStaffPass').value.trim();
+    var isp=document.getElementById('newStaffIsp').value;
+    if(typeof isISP==='function'&&isISP()){ isp=myISP(); }
+    if(!n||!m||!ps){ toast('Name + Number + Password zaroori!','err'); return; }
+    if((systemUsers||[]).find(function(x){return x.mobile===m;})){ toast('Ye number pehle se hai!','err'); return; }
+    var g=function(id){ var el=document.getElementById(id); return el?el.checked:false; };
+    var perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints'),pause:g('permPause')};
+    try{ if(typeof FIELD_DEFS!=='undefined'){ FIELD_DEFS.forEach(function(f){ perms[f.key]=g('perm_'+f.key); }); } }catch(e){}
+    perms.excel=false; perms.areas=false; perms.packages=false;
+    systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+    try{ saveUsers(); renderAllStaff(); }catch(e){}
+    document.getElementById('staffCreateModal').classList.remove('active');
+    toast('Staff ban gaya ✅ '+m+' ('+isp+') — Arzi Band: '+(perms.pause?'ON':'OFF'),'ok');
+  }catch(e){ toast('Staff save nahi hua!','err'); }
+};
+function refreshIspStaffAdd(){
+  try{
+    var card=document.getElementById('ispLoginStaffCard');
+    if(card){
+      var show=false;
+      try{ show=(isOwner()||isISP()); }catch(e){ show=true; }
+      card.style.display=show?'':'none';
+      var btn=card.querySelector('button');
+      if(btn){ btn.style.display=''; btn.textContent='+ Add Login Staff'; btn.onclick=function(){ openStaffCreateModal(); }; }
+    }
+    var ab=document.getElementById('staffLedgerAddBtn');
+    if(ab){ try{ ab.style.display=isOwner()?'':'none'; }catch(e){} }
+  }catch(e){}
+}
+
+/* ---------- Cards / dead buttons fix ---------- */
+try{
+  if(typeof openCardModal==='function'&&!openCardModal.__fixDead){
+    var _ocm=openCardModal;
+    openCardModal=function(type){
+      try{
+        if(type==='revenue'&&typeof isISP==='function'&&isISP()&&typeof window.openRevenueV4==='function'){ return window.openRevenueV4(); }
+        return _ocm.apply(this,arguments);
+      }catch(e){ try{ return _ocm.apply(this,arguments); }catch(e2){ toast('List kholne me masla!','err'); } }
+    };
+    openCardModal.__fixDead=true;
+  }
+}catch(e){}
+try{
+  if(typeof renderSubscribersTable==='function'&&!renderSubscribersTable.__fixPause){
+    var _rst=renderSubscribersTable;
+    renderSubscribersTable=function(){
+      var r=_rst.apply(this,arguments);
+      try{
+        if(typeof canDo==='function'&&!canDo('pause')){
+          document.querySelectorAll('button[onclick^="togglePauseSub"]').forEach(function(b){ b.style.display='none'; });
+        }
+      }catch(e){}
+      return r;
+    };
+    renderSubscribersTable.__fixPause=true;
+  }
+}catch(e){}
+
+setTimeout(function(){ try{ patchFakeButtons(); waPrefill(); refreshIspStaffAdd(); }catch(e){} }, 900);
+setTimeout(function(){ try{ patchFakeButtons(); waPrefill(); refreshIspStaffAdd(); }catch(e){} }, 2500);
+})();
+</script>
+<style id="cispFixV2Css">
+/* V2: ISP ko staff add wapas do — V6 wali hide ko override */
+body.cisp-isp #staffLedgerAddBtn,
+body.cisp-isp #ispLoginStaffCard,
+body.cisp-isp #ispLoginStaffCard button[onclick^="openStaffCreateModal"],
+body.cisp-isp button[onclick^="openStaffModal"],
+body.cisp-isp button[onclick^="openStaffCreateModal"]{display:inline-block !important;}
+body.cisp-isp #ispLoginStaffCard{width:100%;}
+</style>
+<script>
+/* FIX V2: ISP staff add bilkul allow (apne ISP tak limited) */
+(function(){
+'use strict';
+function toastM(m,ok){ try{ window.toast(m, ok?'ok':''); }catch(e){} }
+window.openStaffModal=function(){
+  try{
+    var staff=(typeof isStaff==='function'&&isStaff());
+    if(staff){ toastM('Permission nahi hai!'); return; }
+    document.getElementById('staffModal').classList.add('active');
+  }catch(e){}
+};
+var _refresh=null;
+try{
+  window.refreshIspStaffAdd=function(){
+    try{
+      var isO=false,isI=false;
+      try{ isO=isOwner(); isI=isISP(); }catch(e){}
+      var card=document.getElementById('ispLoginStaffCard');
+      if(card){
+        card.style.display=(isO||isI)?'':'none';
+        card.style.setProperty('display',(isO||isI)?'block':'none','important');
+        var btn=card.querySelector('button');
+        if(btn){ btn.style.setProperty('display','inline-block','important'); btn.textContent='+ Add Login Staff'; btn.onclick=function(){ window.openStaffCreateModal(); }; }
+        var note=card.querySelector('p');
+        if(note&&isI) note.innerHTML='Apne staff ko add karein aur Arzi Band samet permissions ON/OFF karein.';
+      }
+      var ab=document.getElementById('staffLedgerAddBtn');
+      if(ab){
+        ab.style.setProperty('display',(isO||isI)?'inline-block':'none','important');
+        ab.onclick=function(){ window.openStaffModal(); };
+      }
+    }catch(e){}
+  };
+}catch(e){}
+setTimeout(function(){ try{ window.refreshIspStaffAdd(); }catch(e){} },600);
+setTimeout(function(){ try{ window.refreshIspStaffAdd(); if(typeof applyRole==='function'){} }catch(e){} },2000);
+})();
+</script>
+<style id="cispFixV3Css">
+/* V3: sirf SuperAdmin add karega — ISP se add buttons wapas hide */
+body.cisp-isp #staffLedgerAddBtn,
+body.cisp-isp #ispLoginStaffCard button[onclick^="openStaffCreateModal"],
+body.cisp-isp button[onclick^="openStaffModal"],
+body.cisp-isp button[onclick^="openStaffCreateModal"]{display:none !important;}
+body.cisp-isp #ispLoginStaffCard{display:block !important;}
+</style>
+<script>
+/* FIX V3: sirf SuperAdmin staff add — ISP sirf permissions ON/OFF (Arzi Band samet) */
+(function(){
+'use strict';
+function toastM(m,ok){ try{ window.toast(m, ok?'ok':''); }catch(e){} }
+window.openStaffCreateModal=function(){
+  try{
+    if(!(typeof isOwner==='function'&&isOwner())){ toastM('Sirf SuperAdmin naya staff add kar sakta hai!'); return; }
+    var sel=document.getElementById('newStaffIsp'); sel.innerHTML='';
+    (ispsList||[]).forEach(function(i){ var o=document.createElement('option'); o.value=i.name; o.textContent=i.name; sel.appendChild(o); });
+    sel.disabled=false;
+    try{ if(typeof injectFieldPermsUI==='function') injectFieldPermsUI(); }catch(e){}
+    document.getElementById('staffCreateModal').classList.add('active');
+  }catch(e){}
+};
+window.openStaffModal=function(){
+  try{
+    if(!(typeof isOwner==='function'&&isOwner())){ toastM('Sirf SuperAdmin salary staff add kar sakta hai!'); return; }
+    document.getElementById('staffModal').classList.add('active');
+  }catch(e){}
+};
+window.saveNewStaff=function(){
+  try{
+    if(!(typeof isOwner==='function'&&isOwner())){ toastM('Sirf SuperAdmin staff add kar sakta hai!'); return; }
+    var n=document.getElementById('newStaffName').value.trim();
+    var m=document.getElementById('newStaffMobile').value.trim();
+    var ps=document.getElementById('newStaffPass').value.trim();
+    var isp=document.getElementById('newStaffIsp').value;
+    if(!n||!m||!ps){ toastM('Name + Number + Password zaroori!'); return; }
+    if((systemUsers||[]).find(function(x){return x.mobile===m;})){ toastM('Ye number pehle se hai!'); return; }
+    var g=function(id){ var el=document.getElementById(id); return el?el.checked:false; };
+    var perms={add:g('permAdd'),edit:g('permEdit'),collect:g('permCollect'),del:g('permDelete'),view:g('permView'),whatsapp:g('permWhatsapp'),complaints:g('permComplaints'),pause:g('permPause')};
+    try{ if(typeof FIELD_DEFS!=='undefined'){ FIELD_DEFS.forEach(function(f){ perms[f.key]=g('perm_'+f.key); }); } }catch(e){}
+    perms.excel=false; perms.areas=false; perms.packages=false;
+    systemUsers.push({role:'staff',name:n,mobile:m,pass:ps,isp:isp,perms:perms});
+    try{ saveUsers(); renderAllStaff(); }catch(e){}
+    document.getElementById('staffCreateModal').classList.remove('active');
+    toastM('Staff ban gaya ✅ '+m+' ('+isp+')',true);
+  }catch(e){}
+};
+window.refreshIspStaffAdd=function(){
+  try{
+    var isO=false,isI=false;
+    try{ isO=isOwner(); isI=isISP(); }catch(e){}
+    var card=document.getElementById('ispLoginStaffCard');
+    if(card){
+      card.style.setProperty('display',(isO||isI)?'block':'none','important');
+      var btn=card.querySelector('button');
+      if(btn){ btn.style.setProperty('display',isO?'inline-block':'none','important'); }
+      var note=card.querySelector('p');
+      if(note&&isI) note.innerHTML='ISP naya staff add nahi kar sakta — staff sirf SuperAdmin add karega. ISP sirf permissions ON/OFF kar sakta hai.';
+    }
+    var ab=document.getElementById('staffLedgerAddBtn');
+    if(ab){ ab.style.setProperty('display',isO?'inline-block':'none','important'); }
+  }catch(e){}
+};
+setTimeout(function(){ try{ window.refreshIspStaffAdd(); }catch(e){} },600);
+setTimeout(function(){ try{ window.refreshIspStaffAdd(); }catch(e){} },2000);
+})();
+</script>
+</span><script>window.__CF$cv$params={r:'a5e0f7055b9990aa',t:'MTc5NTI3NzQzMA==',u:'01a1fedfa1a57547b887f97b4e173e41',ut:'Zd64zofKEXSGCH3oHGMcoplJSrVYfDWHKqK8mxIStOQ-1795277431-1.2.1.1-pAgX3NOiarOkwhlwQjdo4d4sulNv.a8dEdwt0PScs1I3tvHAh4uX2HkOSeusOFPSSHnhtQpkSn299NS4oP1xK7Yf2DfFtBSYkAWrlsO5_Kc',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0f7055b9990aa',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body><chatgpt-sidebar data-rendered="true" data-gpts-theme="light"></chatgpt-sidebar></html>
