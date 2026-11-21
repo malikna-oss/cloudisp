@@ -564,6 +564,7 @@
         <button id="menuBtn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
         <span id="whoChip" class="who-chip"></span>
         <button class="btn-primary btn-success" onclick="openAddSubscriberModal()">+ Add Subscriber</button>
+        <button id="themeBtn" class="btn-primary btn-sm" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#0f172a;" onclick="toggleTheme()">🌙 Dark</button>
         <button class="btn-logout" id="topLogoutBtn" onclick="signOut()">🚪 Logout</button>
     </div>
 
@@ -5106,7 +5107,34 @@ try{ injectLedgerUI(); injectPasswordUI(); }catch(e){}
   table{font-size:12px !important; display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
   input, select, textarea{font-size:16px !important; width:100% !important; box-sizing:border-box}
   .modal-box{width:94% !important; max-height:88vh !important; overflow-y:auto !important}
-}</style>
+}
+/* ===== LIGHT THEME (default ON) ===== */
+body.light{background:#f1f5f9 !important;color:#0f172a !important}
+body.light .sidebar{background:#ffffff !important;border-right:1px solid #e2e8f0 !important}
+body.light .sidebar.open{background:#ffffff !important}
+body.light .logo-text h2{color:#0f172a !important}
+body.light .logo-text p{color:#64748b !important}
+body.light .nav-links li a{color:#475569 !important}
+body.light .nav-links li.active a{background:#eff6ff !important;color:#1d4ed8 !important;border-color:#bfdbfe !important;box-shadow:none !important}
+body.light .nav-links li a:hover:not(.active){color:#1d4ed8 !important;background:#f1f5f9 !important}
+body.light .top-global-header{background:#ffffff !important;border-bottom:1px solid #e2e8f0 !important}
+body.light .who-chip{background:#f1f5f9 !important;border-color:#e2e8f0 !important;color:#475569 !important}
+body.light #menuBtn{background:#f1f5f9 !important;border-color:#cbd5e1 !important;color:#0f172a !important}
+body.light #drawerCloseBtn{background:#f1f5f9 !important;border-color:#cbd5e1 !important;color:#0f172a !important}
+body.light .main-content{background:#f1f5f9 !important}
+body.light .header-banner,body.light .card,body.light .stat-box,body.light .wa-box{background:#ffffff !important;border-color:#e2e8f0 !important;color:#0f172a !important}
+body.light .header-banner h1,body.light .card h2,body.light .card h3{color:#0f172a !important}
+body.light .header-banner p,body.light .stat-box .stat-title{color:#64748b !important}
+body.light th,body.light td{border-color:#e2e8f0 !important;color:#0f172a !important}
+body.light th{background:#f8fafc !important}
+body.light input,body.light select,body.light textarea{background:#ffffff !important;border:1px solid #cbd5e1 !important;color:#0f172a !important}
+body.light .modal-box{background:#ffffff !important;color:#0f172a !important}
+body.light #sideOverlay{background:rgba(15,23,42,.35) !important}
+</style>
+<script>/* light/dark toggle */
+function toggleTheme(){try{document.body.classList.toggle('light');var l=document.body.classList.contains('light');try{localStorage.setItem('cisp_theme',l?'light':'dark');}catch(e){}var b=document.getElementById('themeBtn');if(b)b.innerText=l?'🌙 Dark':'☀️ Light';}catch(e){}}
+(function(){try{var t=null;try{t=localStorage.getItem('cisp_theme');}catch(e){}if(t===null||t==='light'){document.body.classList.add('light');}document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('themeBtn');if(b)b.innerText=document.body.classList.contains('light')?'🌙 Dark':'☀️ Light';});}catch(e){try{document.body.classList.add('light');}catch(e2){}}}());
+</script>
 <script>
 (function(){
 'use strict';
@@ -5415,5 +5443,5 @@ function sendOfficialBill(phone, name, pkg, fee) {
     // Direct WhatsApp Web fallback ya Meta API dispatch
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }</script>
-<script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a5e0bc887d8d33af',t:'MTc5NTI3NTAzNA==',u:'01a1febb138976ec8f3244492c360b13',ut:'YJYXcSkD5ByFLDDsDkf8VrY_8.RZcMdUY1lkCx_YwqU-1795275035-1.2.1.1-H1sXV_E.EiyGcX31y3PBZlVTcz3Fz89jVYjX97eRKxuuzosu5Djvxv0uuciILt3ouMNo5yxBeWnungD_QnVUusRkdxdaVl.a36wq4mZ3rVw',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0bc887d8d33af',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
+<script>window.__CF$cv$params={r:'a507621a696a581a',t:'MTc5Mjk5NTkyMQ==',u:'01a176e29487778aa5979d5738235a9c',ut:'WtAQFzJ2tbNflkiy4EIbPGZkBR1DaZ52giapHXi6pps-1792995923-1.2.1.1-AnxqqUTXc5i65wCI6QRjGSbrG5N0WvnF40_JwkEdpcfQ6w5TtzOUGARS0he_92JB3J4hxTHRD9_m7kGil8zY5C2zTWFzTzAjaRg31jzBPtQ',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script><script>window.__CF$cv$params={r:'a5e0cab10cc19080',t:'MTc5NTI3NTYxNA==',u:'01a1fec3f1917658aae93fe5e48c7bd2',ut:'M02tTDDefqDP0cnNYiHdmjGhGoJKRXAaPkIZaTSqmCM-1795275616-1.2.1.1-vNfB.7WvCAbqHQZoC9O7zdSMPTFVvizzyQNjwhxYVwfaZbWid1q2mLNDSsUA8PzlGN0kqi2.bLqOfIv8uxzlMjk_AO2GsPtxLcen54hWcx8',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5e0cab10cc19080',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
 </html>
